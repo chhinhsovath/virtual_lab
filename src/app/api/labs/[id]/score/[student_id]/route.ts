@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { pool } from '@/lib/db';
-import { getLMSSession, hasLMSPermission, canAccessCourse, logActivity } from '@/lib/lms-auth';
+import { pool } from '../../../../../../lib/db';
+import { getLMSSession, hasLMSPermission, canAccessCourse, logActivity } from '../../../../../../lib/lms-auth';
 
 export async function PATCH(
   request: NextRequest,

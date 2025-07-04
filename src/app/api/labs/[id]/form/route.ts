@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { pool } from '@/lib/db';
-import { getLMSSession, canAccessCourse, logActivity } from '@/lib/lms-auth';
+import { pool } from '../../../../../lib/db';
+import { getLMSSession, canAccessCourse, logActivity } from '../../../../../lib/lms-auth';
 
 // Mock DOCX parser - in production, you'd use a library like mammoth.js or docx-parser
 interface WorksheetField {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { pool } from '@/lib/db';
-import { getLMSSession, canAccessCourse, logActivity } from '@/lib/lms-auth';
+import { pool } from '../../../../../lib/db';
+import { getLMSSession, canAccessCourse, logActivity } from '../../../../../lib/lms-auth';
 
 export async function GET(
   request: NextRequest,

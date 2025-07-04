@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { pool } from '@/lib/db';
-import { getLMSSession, hasLMSPermission, canAccessCourse, logActivity } from '@/lib/lms-auth';
-import { handleFileUpload, FileStorage } from '@/lib/storage';
+import { pool } from '../../../../../lib/db';
+import { getLMSSession, hasLMSPermission, canAccessCourse, logActivity } from '../../../../../lib/lms-auth';
+import { handleFileUpload, FileStorage } from '../../../../../lib/storage';
 
 export async function POST(
   request: NextRequest,

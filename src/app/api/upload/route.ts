@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getLMSSession, hasLMSPermission, logActivity } from '@/lib/lms-auth';
+import { getLMSSession, hasLMSPermission, logActivity } from '../../../lib/lms-auth';
 import { 
   handleFileUpload, 
   FileStorage,
@@ -8,7 +8,7 @@ import {
   ALLOWED_VIDEO_TYPES,
   ALLOWED_SIMULATION_TYPES,
   ALL_ALLOWED_TYPES
-} from '@/lib/storage';
+} from '../../../lib/storage';
 
 export async function POST(request: NextRequest) {
   try {
