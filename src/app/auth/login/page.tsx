@@ -303,277 +303,84 @@ export default function LoginPage() {
                   </div>
                 </div>
                 
-                {/* Virtual Lab Demo Accounts */}
-                <div className="mb-3">
-                  <p className="text-xs text-center text-slate-600 font-medium">🧪 Virtual Lab Demo Accounts</p>
-                  <p className="text-xs text-center text-slate-500">All passwords: demo123</p>
+                {/* Virtual Lab Demo Accounts - Simplified */}
+                <div className="mb-4">
+                  <p className="text-sm text-center text-slate-600 font-medium mb-2">🧪 Virtual Lab Demo Accounts</p>
+                  <p className="text-xs text-center text-slate-500 mb-3">All passwords: demo123</p>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-2 mb-4">
+                {/* Administrator */}
+                <div className="mb-3">
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => handleDemoLogin('superadmin@vlab.edu.kh', 'demo123', 'Super Admin')}
-                    className="h-10 text-xs border-purple-200 text-purple-700 hover:bg-purple-50"
+                    onClick={() => handleDemoLogin('admin@vlab.edu.kh', 'demo123', 'Administrator')}
+                    className="w-full h-12 border-purple-200 text-purple-700 hover:bg-purple-50"
                     disabled={isLoading}
-                    title="Full Virtual Lab access"
+                    title="Platform administrator - Full access to all modules"
                   >
-                    <FlaskConical className="h-3 w-3 mr-1" />
-                    VLab Admin
+                    <Shield className="h-4 w-4 mr-2" />
+                    Administrator
+                    <span className="ml-auto text-xs opacity-70">Full Platform Access</span>
                   </Button>
-                  
+                </div>
+                
+                {/* Teacher & Student */}
+                <div className="grid grid-cols-2 gap-2 mb-3">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => handleDemoLogin('teacher@vlab.edu.kh', 'demo123', 'Teacher')}
-                    className="h-10 text-xs border-green-200 text-green-700 hover:bg-green-50"
+                    className="h-12 border-green-200 text-green-700 hover:bg-green-50"
                     disabled={isLoading}
-                    title="Lab resource management"
+                    title="Lab creator and assessor"
                   >
-                    <BookOpen className="h-3 w-3 mr-1" />
+                    <BookOpen className="h-4 w-4 mr-2" />
                     Teacher
                   </Button>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-2 mb-4">
+                  
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => handleDemoLogin('student@vlab.edu.kh', 'demo123', 'Student')}
-                    className="h-10 text-xs border-blue-200 text-blue-700 hover:bg-blue-50"
+                    className="h-12 border-blue-200 text-blue-700 hover:bg-blue-50"
                     disabled={isLoading}
-                    title="Virtual lab interaction"
+                    title="Lab participant"
                   >
-                    <GraduationCap className="h-3 w-3 mr-1" />
+                    <GraduationCap className="h-4 w-4 mr-2" />
                     Student
                   </Button>
-                  
+                </div>
+                
+                {/* Parent */}
+                <div className="mb-4">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => handleDemoLogin('parent@vlab.edu.kh', 'demo123', 'Parent')}
-                    className="h-10 text-xs border-orange-200 text-orange-700 hover:bg-orange-50"
+                    className="w-full h-12 border-orange-200 text-orange-700 hover:bg-orange-50"
                     disabled={isLoading}
-                    title="Student progress monitoring"
-                  >
-                    <Users className="h-3 w-3 mr-1" />
-                    Parent
-                  </Button>
-                </div>
-
-                {/* TaRL Demo Accounts - Original System */}
-                <div className="mb-3">
-                  <p className="text-xs text-center text-slate-600 font-medium">📊 TaRL Demo Accounts (Run migration 011)</p>
-                  <p className="text-xs text-center text-slate-500">All passwords: demo123</p>
-                </div>
-                
-                {/* Super Admin & Admin */}
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => handleDemoLogin('super_admin_demo', 'demo123', 'Super Administrator')}
-                    className="h-12 border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300"
-                    disabled={isLoading}
-                    title="Full system access"
-                  >
-                    <Shield className="h-4 w-4 mr-2" />
-                    {isLoading ? 'Logging in...' : 'Super Admin'}
-                  </Button>
-                  
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => handleDemoLogin('principal_demo', 'demo123', 'Principal')}
-                    className="h-12 border-indigo-200 text-indigo-700 hover:bg-indigo-50 hover:border-indigo-300"
-                    disabled={isLoading}
-                    title="School administration"
+                    title="Child progress monitor"
                   >
                     <Users className="h-4 w-4 mr-2" />
-                    {isLoading ? 'Logging in...' : 'Principal'}
-                  </Button>
-                </div>
-
-                {/* Educational Staff */}
-                <div className="grid grid-cols-3 gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => handleDemoLogin('assistant_teacher_demo', 'demo123', 'Assistant Teacher')}
-                    className="h-10 text-xs border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300"
-                    title="Teaching assistant"
-                    disabled={isLoading}
-                  >
-                    <BookOpen className="h-3 w-3 mr-1" />
-                    Assistant
-                  </Button>
-                  
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => handleDemoLogin('librarian_demo', 'demo123', 'Librarian')}
-                    className="h-10 text-xs border-teal-200 text-teal-700 hover:bg-teal-50 hover:border-teal-300"
-                    title="Library management"
-                    disabled={isLoading}
-                  >
-                    <BookOpen className="h-3 w-3 mr-1" />
-                    Librarian
-                  </Button>
-                  
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => handleDemoLogin('counselor_demo', 'demo123', 'Counselor')}
-                    className="h-10 text-xs border-green-200 text-green-700 hover:bg-green-50 hover:border-green-300"
-                    title="Student guidance"
-                    disabled={isLoading}
-                  >
-                    <Users className="h-3 w-3 mr-1" />
-                    Counselor
-                  </Button>
-                </div>
-
-                {/* Student & Family */}
-                <div className="grid grid-cols-3 gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => handleDemoLogin('student_demo', 'demo123', 'Student')}
-                    className="h-10 text-xs border-pink-200 text-pink-700 hover:bg-pink-50 hover:border-pink-300"
-                    title="Student portal access"
-                    disabled={isLoading}
-                  >
-                    <GraduationCap className="h-3 w-3 mr-1" />
-                    Student
-                  </Button>
-                  
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => handleDemoLogin('parent_demo', 'demo123', 'Parent')}
-                    className="h-10 text-xs border-orange-200 text-orange-700 hover:bg-orange-50 hover:border-orange-300"
-                    title="Parent portal access"
-                    disabled={isLoading}
-                  >
-                    <Users className="h-3 w-3 mr-1" />
                     Parent
-                  </Button>
-                  
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => handleDemoLogin('guardian_demo', 'demo123', 'Guardian')}
-                    className="h-10 text-xs border-yellow-200 text-yellow-700 hover:bg-yellow-50 hover:border-yellow-300"
-                    title="Guardian access"
-                    disabled={isLoading}
-                  >
-                    <Shield className="h-3 w-3 mr-1" />
-                    Guardian
+                    <span className="ml-auto text-xs opacity-70">Child Monitoring</span>
                   </Button>
                 </div>
 
-                {/* Divider */}
-                <div className="relative my-4">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-slate-200"></div>
+                {/* Role Information */}
+                <div className="text-center space-y-2 mt-4">
+                  <p className="text-sm text-slate-600 font-medium">Virtual Lab LMS Roles</p>
+                  <div className="text-xs text-slate-500 space-y-1">
+                    <p><strong>Administrator:</strong> Full platform access, user management</p>
+                    <p><strong>Teacher:</strong> Create labs, assess students, manage curriculum</p>
+                    <p><strong>Student:</strong> Complete lab simulations and worksheets</p>
+                    <p><strong>Parent:</strong> Monitor child's lab activity and progress</p>
                   </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="bg-white px-4 text-slate-500">Legacy TaRL Accounts</span>
-                  </div>
+                  <p className="font-hanuman text-sm text-slate-500 mt-3">
+                    ប្រព័ន្ធគ្រប់គ្រងការសិក្សាមន្ទីរពិសោធន៍និម្មិត
+                  </p>
                 </div>
-                
-                {/* Legacy Admin */}
-                <div className="grid grid-cols-1 gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => handleDemoLogin('admin', 'admin123', 'Administrator')}
-                    className="h-12 border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300"
-                    disabled={isLoading}
-                  >
-                    <Shield className="h-4 w-4 mr-2" />
-                    {isLoading ? 'Logging in...' : 'Legacy Admin'}
-                  </Button>
-                </div>
-                
-                {/* Legacy Mentors */}
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => handleDemoLogin('mentor_battambang', 'mentor123', 'Cluster Mentor')}
-                    className="h-10 text-xs border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300"
-                    title="Battambang Province"
-                    disabled={isLoading}
-                  >
-                    <Users className="h-4 w-4 mr-1" />
-                    Battambang
-                  </Button>
-                  
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => handleDemoLogin('mentor_kampongcham', 'mentor123', 'Cluster Mentor')}
-                    className="h-10 text-xs border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300"
-                    title="Kampong Cham Province"
-                    disabled={isLoading}
-                  >
-                    <Users className="h-4 w-4 mr-1" />
-                    Kampong Cham
-                  </Button>
-                </div>
-                
-                {/* Legacy Teachers - DATABASE_SETUP.md */}
-                <div className="mb-2">
-                  <p className="text-xs text-center text-slate-500 font-medium">DATABASE_SETUP.md Accounts (Run migration 009)</p>
-                </div>
-                
-                <div className="grid grid-cols-4 gap-1">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => handleDemoLogin('1001', '1001', 'Teacher')}
-                    className="h-10 text-xs border-gray-200 text-gray-600 hover:bg-gray-50"
-                    title="Sok Pisey - Khmer"
-                  >
-                    1001
-                  </Button>
-                  
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => handleDemoLogin('1002', '1002', 'Teacher')}
-                    className="h-10 text-xs border-gray-200 text-gray-600 hover:bg-gray-50"
-                    title="Chan Dara - Math"
-                  >
-                    1002
-                  </Button>
-                  
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => handleDemoLogin('2001', '2001', 'Teacher')}
-                    className="h-10 text-xs border-gray-200 text-gray-600 hover:bg-gray-50"
-                    title="Pich Srey Leak - Khmer"
-                  >
-                    2001
-                  </Button>
-                  
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => handleDemoLogin('admin', 'admin', 'Admin')}
-                    className="h-10 text-xs border-gray-200 text-gray-600 hover:bg-gray-50"
-                    title="DATABASE_SETUP.md Admin"
-                  >
-                    admin
-                  </Button>
-                </div>
-              </div>
-
-              <div className="text-center space-y-2">
-                <p className="text-sm text-slate-500 font-hanuman">Demo accounts with different role permissions</p>
-                <p className="font-hanuman text-sm text-slate-500">គណនីសាកល្បងដែលមានសិទ្ធិតួនាទីផ្សេងៗ</p>
               </div>
             </CardContent>
           </Card>
