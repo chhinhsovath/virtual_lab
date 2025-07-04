@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     const user = session.user;
 
     // Check if user has admin permissions
-    if (!hasPermission(user, 'admin', 'read') && !user.roles.includes('super_admin')) {
+    if (!hasPermission(user, 'admin', 'read') && user.role !== 'super_admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

@@ -1,19 +1,19 @@
-# TaRL Assessment System
+# Virtual Lab LMS
 
-A comprehensive full-stack application for Teaching at the Right Level (TaRL) assessment data management, built with Next.js 15, App Router, and PostgreSQL.
+A comprehensive Learning Management System for virtual science laboratories with curriculum building, analytics, and assessment capabilities.
 
 ## 🎯 Overview
 
-This system is designed for managing TaRL assessments across schools in Battambang and Kampong Cham provinces, supporting 60-65 teachers across 30-32 schools.
+This system provides a complete virtual laboratory management solution for educational institutions, supporting interactive lab simulations, automated assessment, curriculum planning, and detailed analytics.
 
 ### Key Features
 
-- **Multi-language Support**: English and Khmer with Hanuman font
-- **Assessment Management**: Baseline, Midline, and Endline assessments
-- **Student Selection**: Drag-and-drop interface for TaRL program selection
-- **Results & Reports**: Filtering and CSV export functionality
-- **Role-based Access**: Teacher, Cluster Mentor, and Admin roles
-- **Mobile Responsive**: Works on all device sizes
+- **Lab Resource Management** - Upload and manage simulations, worksheets, and rubrics
+- **Student Lab Interaction** - Interactive lab sessions with timer and auto-save
+- **Assessment & Grading** - Auto-scoring with manual override and detailed feedback
+- **Analytics & Reporting** - Comprehensive analytics for teachers, students, and parents
+- **Curriculum Builder** - Drag-and-drop curriculum timeline with skills framework
+- **Role-based Access** - Student, Teacher, Parent, and Admin roles
 
 ## 🛠 Technology Stack
 
@@ -42,12 +42,12 @@ This system is designed for managing TaRL assessments across schools in Battamba
 - PostgreSQL database
 - Git
 
-### Installation
+### Local Development Setup
 
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd tarl_indir
+   cd virtual_lab
    ```
 
 2. **Install dependencies**
@@ -55,32 +55,32 @@ This system is designed for managing TaRL assessments across schools in Battamba
    npm install
    ```
 
-3. **Set up environment variables**
+3. **Set up local database**
    ```bash
-   cp .env.example .env.local
-   ```
-   
-   Update `.env.local` with your database credentials:
-   ```env
-   DATABASE_URL=postgresql://username:password@localhost:5432/tarl_db
-   SESSION_SECRET=your-super-secret-session-key
-   NEXTAUTH_URL=http://localhost:3000
-   NODE_ENV=development
+   # Make sure PostgreSQL is running locally
+   # Create database and run migrations
+   npm run db:setup:local
    ```
 
-4. **Set up the database**
-   
-   Run the migration script to create the required tables:
-   ```bash
-   psql -d your_database_name -f migrations/001_create_tables.sql
-   ```
-
-5. **Start the development server**
+4. **Start development server**
    ```bash
    npm run dev
    ```
 
    Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### Production Deployment
+
+1. **Set up production database**
+   ```bash
+   npm run db:setup:production
+   ```
+
+2. **Build and deploy**
+   ```bash
+   npm run build
+   npm start
+   ```
 
 ## 📊 Database Schema
 

@@ -1,4 +1,5 @@
-import { User, hasPermission, hasRole, canAccessSchool } from './auth';
+import type { User } from '@/types/auth';
+import { hasPermission, hasRole, canAccessSchool } from './auth';
 import { 
   Permission, 
   Role, 
@@ -38,7 +39,7 @@ export class PermissionManager {
       };
     }
 
-    if (pageConfig.requiredPermission && !hasPermission(this.user, pageConfig.requiredPermission.split('.')[0], pageConfig.requiredPermission.split('.')[1])) {
+    if (pageConfig.requiredPermission && !hasPermission(this.user, (pageConfig.requiredPermission as string).split('.')[0], (pageConfig.requiredPermission as string).split('.')[1])) {
       return {
         allowed: false,
         reason: `Required permission: ${pageConfig.requiredPermission}`,

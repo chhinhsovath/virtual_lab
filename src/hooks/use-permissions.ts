@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { User } from '@/lib/auth';
+import type { User } from '@/types/auth';
 import { createPermissionManager } from '@/lib/permission-utils';
 import { Permission, Role, CrudAction, AccessType } from '@/lib/permissions';
 

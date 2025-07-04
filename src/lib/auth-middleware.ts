@@ -51,7 +51,7 @@ export async function requirePermission(
   }
   
   const hasPermission = auth.user.permissions.some(p => 
-    p.resource === resource && p.action === action
+    p === `${resource}.${action}`
   );
   
   if (!hasPermission) {
@@ -77,7 +77,8 @@ export async function requireRole(
     return auth;
   }
   
-  if (!auth.user.roles.includes(roleName)) {
+  const userRoles = Array.isArray((auth.user as any).roles) ? (auth.user as any).roles : [auth.user.role];
+  if (!userRoles.includes(roleName)) {
     return NextResponse.json(
       { error: 'Insufficient role access' },
       { status: 403 }

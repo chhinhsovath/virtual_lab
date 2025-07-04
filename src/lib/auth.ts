@@ -1,38 +1,10 @@
 import { pool } from './db';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
+import type { User, SchoolAccess } from '@/types/auth';
 
-export interface User {
-  id: string;
-  username: string;
-  email?: string;
-  firstName?: string;
-  lastName?: string;
-  phone?: string;
-  isActive: boolean;
-  teacherId?: number;
-  studentId?: string;
-  parentId?: string;
-  dateOfBirth?: Date;
-  gender?: 'male' | 'female' | 'other';
-  address?: string;
-  profilePictureUrl?: string;
-  academicStatus?: 'active' | 'inactive' | 'suspended' | 'graduated';
-  enrollmentDate?: Date;
-  graduationDate?: Date;
-  roles: string[];
-  schoolAccess: SchoolAccess[];
-  permissions: Permission[];
-  childrenIds?: string[]; // For parents/guardians
-  parentIds?: string[]; // For students
-  classIds?: string[]; // For teachers and students
-}
-
-export interface SchoolAccess {
-  schoolId: number;
-  accessType: 'read' | 'write' | 'admin';
-  subject?: 'khmer' | 'math' | 'all';
-}
+// Re-export User type from types file
+export type { User, SchoolAccess } from '@/types/auth';
 
 export interface Permission {
   name: string;
@@ -126,12 +98,15 @@ export async function authenticateUser(username: string, password: string): Prom
       id: userData.id,
       username: userData.username,
       email: userData.email,
+      name: `${userData.first_name} ${userData.last_name}`.trim(),
+      role: userData.roles?.[0] || 'user',
       firstName: userData.first_name,
       lastName: userData.last_name,
-      phone: userData.phone,
+      phoneNumber: userData.phone,
       isActive: userData.is_active,
       teacherId: userData.teacher_id,
       roles: userData.roles || [],
+      createdAt: new Date(),
       schoolAccess: schoolAccessResult.rows.map(row => ({
         schoolId: row.school_id,
         accessType: row.access_type,
@@ -250,12 +225,15 @@ export async function getSession(sessionToken: string): Promise<Session | null> 
       id: row.id,
       username: row.username,
       email: row.email,
+      name: `${row.first_name} ${row.last_name}`.trim(),
+      role: row.roles?.[0] || 'user',
       firstName: row.first_name,
       lastName: row.last_name,
-      phone: row.phone,
+      phoneNumber: row.phone,
       isActive: row.is_active,
       teacherId: row.teacher_id,
       roles: row.roles || [],
+      createdAt: new Date(),
       schoolAccess: schoolAccessResult.rows.map(accessRow => ({
         schoolId: accessRow.school_id,
         accessType: accessRow.access_type,
@@ -301,7 +279,7 @@ export async function destroySession(sessionToken: string): Promise<void> {
  */
 export function hasPermission(user: User, resource: string, action: string): boolean {
   return user.permissions.some(p => 
-    p.resource === resource && p.action === action
+    p === `${resource}.${action}`
   );
 }
 
@@ -309,7 +287,7 @@ export function hasPermission(user: User, resource: string, action: string): boo
  * Check if user has role
  */
 export function hasRole(user: User, roleName: string): boolean {
-  return user.roles.includes(roleName);
+  return user.roles?.includes(roleName) || user.role === roleName || false;
 }
 
 /**

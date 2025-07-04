@@ -18,6 +18,7 @@ module.exports = {
       fontFamily: {
         sans: ['Hanuman', 'system-ui', 'sans-serif'],
         serif: ['Hanuman', 'serif'],
+        hanuman: ['Hanuman', 'serif'],
       },
       colors: {
         border: 'hsl(var(--border))',

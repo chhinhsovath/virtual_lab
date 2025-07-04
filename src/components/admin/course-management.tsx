@@ -188,7 +188,7 @@ export function CourseManagement({ user }: CourseManagementProps) {
   return (
     <PermissionGuard
       user={user}
-      permission={PERMISSIONS.PAGES.COURSE_MANAGEMENT}
+      permission={'pages.course_management' as any}
       fallbackComponent={
         <div className="text-center p-8">
           <BookOpen className="mx-auto h-12 w-12 text-gray-400 mb-4" />
@@ -210,7 +210,7 @@ export function CourseManagement({ user }: CourseManagementProps) {
               <Download className="h-4 w-4 mr-2" />
               Export
             </Button>
-            <PermissionGuard user={user} permission={PERMISSIONS.COURSES.CREATE} showError={false}>
+            <PermissionGuard user={user} permission={'courses.create' as any} showError={false}>
               <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                 <DialogTrigger asChild>
                   <Button>

@@ -63,7 +63,7 @@ export function DashboardNav({ session }: DashboardNavProps) {
     ];
 
     // Teacher-specific items
-    if (session.user.roles.includes('teacher')) {
+    if (session.user.roles?.includes('teacher')) {
       baseItems.splice(1, 0, 
         {
           href: '/dashboard/assessment-entry',
@@ -83,7 +83,7 @@ export function DashboardNav({ session }: DashboardNavProps) {
     }
 
     // Admin-specific items
-    if (session.user.roles.includes('admin')) {
+    if (session.user.roles?.includes('admin')) {
       baseItems.push({
         href: '/dashboard/admin',
         label: 'Administration',
@@ -93,7 +93,7 @@ export function DashboardNav({ session }: DashboardNavProps) {
       });
     }
 
-    return baseItems.filter(item => item.roles.some(role => session.user.roles.includes(role)));
+    return baseItems.filter(item => item.roles.some(role => session.user.roles?.includes(role)));
   };
 
   const navItems = getAllNavItems();
@@ -167,13 +167,13 @@ export function DashboardNav({ session }: DashboardNavProps) {
                     </div>
                     <div className="hidden md:block text-left">
                       <p className="font-medium text-slate-800">
-                        {session.user.roles.includes('admin') ? 'Administrator' :
-                         session.user.roles.includes('cluster_mentor') ? `Mentor ${session.user.id}` :
+                        {session.user.roles?.includes('admin') ? 'Administrator' :
+                         session.user.roles?.includes('cluster_mentor') ? `Mentor ${session.user.id}` :
                          `Teacher ${session.user.teacherId}`}
                       </p>
                       <div className="flex items-center space-x-2">
                         <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700 border-0 capitalize">
-                          {session.user.roles[0].replace('_', ' ')}
+                          {session.user.roles?.[0]?.replace('_', ' ')}
                         </Badge>
                         {session.user.schoolAccess[0]?.subject && (
                           <Badge variant="outline" className="text-xs border-slate-200">
@@ -194,12 +194,12 @@ export function DashboardNav({ session }: DashboardNavProps) {
                     </div>
                     <div>
                       <p className="font-semibold text-slate-800">Teacher {session.user.teacherId}</p>
-                      <p className="text-sm text-slate-500 capitalize">{session.user.roles[0]}</p>
+                      <p className="text-sm text-slate-500 capitalize">{session.user.roles?.[0]}</p>
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700 border-0">
-                      {session.user.roles[0]}
+                      {session.user.roles?.[0]}
                     </Badge>
                     {session.user.schoolAccess[0]?.subject && (
                       <Badge variant="outline" className="text-xs border-slate-200">
@@ -281,12 +281,12 @@ export function DashboardNav({ session }: DashboardNavProps) {
                   </div>
                   <div>
                     <p className="font-medium text-slate-800">Teacher {session.user.teacherId}</p>
-                    <p className="text-sm text-slate-500 capitalize">{session.user.roles[0]}</p>
+                    <p className="text-sm text-slate-500 capitalize">{session.user.roles?.[0]}</p>
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-0">
-                    {session.user.roles[0]}
+                    {session.user.roles?.[0]}
                   </Badge>
                   {session.user.schoolAccess[0]?.subject && (
                     <Badge variant="outline" className="border-slate-200">

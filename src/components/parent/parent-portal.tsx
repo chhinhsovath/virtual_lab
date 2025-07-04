@@ -184,14 +184,14 @@ export function ParentPortal({ user }: ParentPortalProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Avatar className="h-16 w-16 border-2 border-white">
-                <AvatarImage src={user.profilePictureUrl} />
+                <AvatarImage src={user.avatarUrl} />
                 <AvatarFallback className="bg-white text-green-600 text-xl font-bold">
-                  {user.firstName?.[0]}{user.lastName?.[0]}
+                  {user.name?.split(' ').map(n => n[0]).join('')}
                 </AvatarFallback>
               </Avatar>
               <div>
                 <h1 className="text-2xl font-bold">
-                  Welcome, {user.firstName}!
+                  Welcome, {user.name?.split(' ')[0]}!
                 </h1>
                 <p className="text-green-100">
                   Parent Portal • {children.length} Child{children.length !== 1 ? 'ren' : ''}

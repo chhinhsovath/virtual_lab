@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
         lastName: user.lastName,
         email: user.email,
         roles: user.roles,
-        permissions: user.permissions.map(p => p.name),
+        permissions: user.permissions.map((p: any) => p.name),
         schoolAccess: user.schoolAccess,
         teacherId: user.teacherId,
       },

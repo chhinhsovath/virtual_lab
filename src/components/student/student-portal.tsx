@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { User } from '@/lib/auth';
+import type { User } from '@/types/auth';
 import { usePermissions } from '@/hooks/use-permissions';
 import { PERMISSIONS, LMS_PERMISSIONS } from '@/lib/permissions';
 import { PermissionGuard } from '@/components/auth/permission-guard';
@@ -130,17 +130,17 @@ export function StudentPortal({ user }: StudentPortalProps) {
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-6 text-white">
           <div className="flex items-center space-x-4">
             <Avatar className="h-16 w-16 border-2 border-white">
-              <AvatarImage src={user.profilePictureUrl} />
+              <AvatarImage src={user.avatarUrl} />
               <AvatarFallback className="bg-white text-blue-600 text-xl font-bold">
-                {user.firstName?.[0]}{user.lastName?.[0]}
+                {user.name?.split(' ').map(n => n[0]).join('')}
               </AvatarFallback>
             </Avatar>
             <div>
               <h1 className="text-2xl font-bold">
-                Welcome back, {user.firstName}!
+                Welcome back, {user.name?.split(' ')[0]}!
               </h1>
               <p className="text-blue-100">
-                {user.username} • Academic Status: {user.academicStatus}
+                {user.username} • Student Portal
               </p>
               <div className="mt-2 flex items-center space-x-4 text-sm">
                 <span>GPA: {getOverallGPA()}</span>

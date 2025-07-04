@@ -9,7 +9,7 @@ import { Permission, Role, CrudAction, AccessType } from '@/lib/permissions';
 interface PermissionGuardProps {
   children: React.ReactNode;
   user: User;
-  permission?: Permission;
+  permission?: Permission | string;
   role?: Role;
   resource?: string;
   action?: CrudAction;
@@ -129,7 +129,7 @@ export function ConditionalRender({
   let allowed = false;
 
   if (permission) {
-    const [permResource, permAction] = permission.split('.');
+    const [permResource, permAction] = (permission as string).split('.');
     allowed = manager.hasPermission(permResource, permAction);
   } else if (role) {
     allowed = manager.hasRole(role);

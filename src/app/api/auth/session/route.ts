@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
         lastName: session.user.lastName,
         email: session.user.email,
         roles: session.user.roles,
-        permissions: session.user.permissions.map(p => p.name),
+        permissions: session.user.permissions.map((p: any) => p.name),
         schoolAccess: session.user.schoolAccess,
         teacherId: session.user.teacherId,
       },
