@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { User } from '@/lib/auth';
-import { StudentPortal } from '@/components/student';
+import { StudentPortal } from '../../components/student/student-portal';
 
 export default function StudentPage() {
   const [user, setUser] = useState<User | null>(null);
