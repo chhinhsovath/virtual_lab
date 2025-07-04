@@ -1,0 +1,1 @@
+export { StudentPortal } from './student-portal';

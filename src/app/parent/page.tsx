@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { User } from '@/lib/auth';
-import { ParentPortal } from '@/components/parent/parent-portal';
+import { ParentPortal } from '@/components/parent';
 
 export default function ParentPage() {
   const [user, setUser] = useState<User | null>(null);
