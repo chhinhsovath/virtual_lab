@@ -21,44 +21,22 @@ export interface Session {
 }
 
 /**
- * Authenticate user with username/password
+ * Authenticate user with username/password (supports email as username)
  */
 export async function authenticateUser(username: string, password: string): Promise<User | null> {
   const client = await pool.connect();
   try {
-    // Get user with roles and permissions
+    // Simple query for current users table structure
     const userQuery = `
       SELECT 
-        u.id,
-        u.username,
-        u.email,
-        u.first_name,
-        u.last_name,
-        u.phone,
-        u.password_hash,
-        u.is_active,
-        u.teacher_id,
-        COALESCE(
-          JSON_AGG(
-            DISTINCT r.name
-          ) FILTER (WHERE r.id IS NOT NULL), '[]'
-        ) as roles,
-        COALESCE(
-          JSON_AGG(
-            DISTINCT jsonb_build_object(
-              'name', p.name,
-              'resource', p.resource,
-              'action', p.action
-            )
-          ) FILTER (WHERE p.id IS NOT NULL), '[]'
-        ) as permissions
-      FROM users u
-      LEFT JOIN user_roles ur ON u.id = ur.user_id AND ur.is_active = true
-      LEFT JOIN roles r ON ur.role_id = r.id AND r.is_active = true
-      LEFT JOIN role_permissions rp ON r.id = rp.role_id
-      LEFT JOIN permissions p ON rp.permission_id = p.id
-      WHERE u.username = $1 AND u.is_active = true
-      GROUP BY u.id, u.username, u.email, u.first_name, u.last_name, u.phone, u.password_hash, u.is_active, u.teacher_id
+        id,
+        email,
+        name,
+        role,
+        password_hash,
+        is_active
+      FROM users 
+      WHERE email = $1 AND is_active = true
     `;
 
     const userResult = await client.query(userQuery, [username]);
@@ -75,44 +53,32 @@ export async function authenticateUser(username: string, password: string): Prom
       return null;
     }
 
-    // Get school access
-    const schoolAccessQuery = `
-      SELECT 
-        school_id,
-        access_type,
-        subject
-      FROM user_school_access 
-      WHERE user_id = $1 AND is_active = true
-      AND (expires_at IS NULL OR expires_at > NOW())
-    `;
-
-    const schoolAccessResult = await client.query(schoolAccessQuery, [userData.id]);
-
     // Update last login
     await client.query(
-      'UPDATE users SET last_login_at = NOW(), updated_at = NOW() WHERE id = $1',
+      'UPDATE users SET last_login = NOW(), updated_at = NOW() WHERE id = $1',
       [userData.id]
     );
 
+    // Parse name into first/last name
+    const nameParts = userData.name.split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+
     return {
       id: userData.id,
-      username: userData.username,
+      username: userData.email, // Use email as username
       email: userData.email,
-      name: `${userData.first_name} ${userData.last_name}`.trim(),
-      role: userData.roles?.[0] || 'user',
-      firstName: userData.first_name,
-      lastName: userData.last_name,
-      phoneNumber: userData.phone,
+      name: userData.name,
+      role: userData.role,
+      firstName: firstName,
+      lastName: lastName,
+      phoneNumber: null,
       isActive: userData.is_active,
-      teacherId: userData.teacher_id,
-      roles: userData.roles || [],
+      teacherId: null,
+      roles: [userData.role],
       createdAt: new Date(),
-      schoolAccess: schoolAccessResult.rows.map(row => ({
-        schoolId: row.school_id,
-        accessType: row.access_type,
-        subject: row.subject
-      })),
-      permissions: userData.permissions || []
+      schoolAccess: [], // No school access for simplified system
+      permissions: [] // No complex permissions for simplified system
     };
 
   } finally {
