@@ -1,9 +1,9 @@
 'use client';
 
 import { useMemo } from 'react';
-import type { User } from '@/types/auth';
-import { createPermissionManager } from '@/lib/permission-utils';
-import { Permission, Role, CrudAction, AccessType } from '@/lib/permissions';
+import type { User } from '../types/auth';
+import { createPermissionManager } from '../lib/permission-utils';
+import { Permission, Role, CrudAction, AccessType } from '../lib/permissions';
 
 export function usePermissions(user: User) {
   const manager = useMemo(() => createPermissionManager(user), [user]);

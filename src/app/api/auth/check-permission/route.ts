@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth';
-import { checkPagePermission, checkResourcePermission, checkSchoolResourcePermission } from '@/lib/permission-utils';
-import { CrudAction, AccessType } from '@/lib/permissions';
+import { getSession } from '../../../../lib/auth';
+import { checkPagePermission, checkResourcePermission, checkSchoolResourcePermission } from '../../../../lib/permission-utils';
+import { CrudAction, AccessType } from '../../../../lib/permissions';
 
 export async function POST(request: NextRequest) {
   try {

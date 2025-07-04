@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { User } from '@/lib/auth';
-import { createPermissionManager, PermissionCheckResult } from '@/lib/permission-utils';
-import { Permission, Role, CrudAction, AccessType } from '@/lib/permissions';
+import { User } from '../../lib/auth';
+import { createPermissionManager, PermissionCheckResult } from '../../lib/permission-utils';
+import { Permission, Role, CrudAction, AccessType } from '../../lib/permissions';
 
 interface PermissionGuardProps {
   children: React.ReactNode;
