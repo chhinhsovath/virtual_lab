@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { User } from '@/types/auth';
+import { User } from '@/lib/auth';
 import { usePermissions } from '@/hooks/use-permissions';
 import { PERMISSIONS, LMS_PERMISSIONS } from '@/lib/permissions';
 import { PermissionGuard } from '@/components/auth/permission-guard';

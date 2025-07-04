@@ -190,8 +190,7 @@ export interface PagePermission {
 
 export const PAGE_PERMISSIONS: Record<string, PagePermission> = {
   '/dashboard': {
-    page: 'dashboard',
-    requiredPermission: PERMISSIONS.PAGES.DASHBOARD
+    page: 'dashboard'
   },
   '/dashboard/users': {
     page: 'user_management',

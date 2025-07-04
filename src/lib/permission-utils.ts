@@ -71,7 +71,7 @@ export class PermissionManager {
       return { allowed: false, reason: `Action '${action}' not allowed on resource '${resource}'` };
     }
 
-    const [permissionResource, permissionAction] = requiredPermission.split('.');
+    const [permissionResource, permissionAction] = (requiredPermission as string).split('.');
     
     if (!hasPermission(this.user, permissionResource, permissionAction)) {
       return {
@@ -123,13 +123,13 @@ export class PermissionManager {
 
   hasAnyPermission(permissions: Permission[]): boolean {
     return permissions.some(permission => {
-      const [resource, action] = permission.split('.');
+      const [resource, action] = (permission as string).split('.');
       return this.hasPermission(resource, action);
     });
   }
 
   hasMinimumRole(role: Role): boolean {
-    const userMaxRole = Math.max(...this.user.roles.map(r => ROLE_HIERARCHY[r as Role] || 0));
+    const userMaxRole = Math.max(...(this.user.roles || []).map(r => ROLE_HIERARCHY[r as Role] || 0));
     const requiredLevel = ROLE_HIERARCHY[role];
     return userMaxRole >= requiredLevel;
   }
@@ -159,7 +159,7 @@ export class PermissionManager {
         const permission = resourceConfig.permissions[action as CrudAction];
         if (!permission) return false;
         
-        const [permissionResource, permissionAction] = permission.split('.');
+        const [permissionResource, permissionAction] = (permission as string).split('.');
         return this.hasPermission(permissionResource, permissionAction);
       }) as CrudAction[];
   }
@@ -190,7 +190,7 @@ export class PermissionManager {
       return false;
     }
 
-    const userMaxRoleLevel = Math.max(...this.user.roles.map(r => ROLE_HIERARCHY[r as Role] || 0));
+    const userMaxRoleLevel = Math.max(...(this.user.roles || []).map(r => ROLE_HIERARCHY[r as Role] || 0));
     const targetRoleLevel = ROLE_HIERARCHY[targetRole];
     
     return userMaxRoleLevel > targetRoleLevel;
@@ -217,7 +217,7 @@ export function checkSchoolResourcePermission(user: User, resource: string, acti
 }
 
 export function requirePermission(user: User, permission: Permission): void {
-  const [resource, action] = permission.split('.');
+  const [resource, action] = (permission as string).split('.');
   if (!hasPermission(user, resource, action)) {
     throw new Error(`Access denied. Required permission: ${permission}`);
   }
