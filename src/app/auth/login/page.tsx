@@ -9,7 +9,7 @@ import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui/card';
 import { toast } from 'sonner';
-import { Eye, EyeOff, BookOpen, Users, BarChart3, Shield, GraduationCap, MapPin } from 'lucide-react';
+import { Eye, EyeOff, BookOpen, Users, BarChart3, Shield, GraduationCap, MapPin, FlaskConical } from 'lucide-react';
 
 const loginSchema = z.object({
   username: z.string().min(1, 'Username is required'),
@@ -303,9 +303,67 @@ export default function LoginPage() {
                   </div>
                 </div>
                 
-                {/* LMS Demo Accounts - New Comprehensive System */}
+                {/* Virtual Lab Demo Accounts */}
                 <div className="mb-3">
-                  <p className="text-xs text-center text-slate-600 font-medium">🎓 LMS Demo Accounts (Run migration 011)</p>
+                  <p className="text-xs text-center text-slate-600 font-medium">🧪 Virtual Lab Demo Accounts</p>
+                  <p className="text-xs text-center text-slate-500">All passwords: demo123</p>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2 mb-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => handleDemoLogin('superadmin@vlab.edu.kh', 'demo123', 'Super Admin')}
+                    className="h-10 text-xs border-purple-200 text-purple-700 hover:bg-purple-50"
+                    disabled={isLoading}
+                    title="Full Virtual Lab access"
+                  >
+                    <FlaskConical className="h-3 w-3 mr-1" />
+                    VLab Admin
+                  </Button>
+                  
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => handleDemoLogin('teacher@vlab.edu.kh', 'demo123', 'Teacher')}
+                    className="h-10 text-xs border-green-200 text-green-700 hover:bg-green-50"
+                    disabled={isLoading}
+                    title="Lab resource management"
+                  >
+                    <BookOpen className="h-3 w-3 mr-1" />
+                    Teacher
+                  </Button>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2 mb-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => handleDemoLogin('student@vlab.edu.kh', 'demo123', 'Student')}
+                    className="h-10 text-xs border-blue-200 text-blue-700 hover:bg-blue-50"
+                    disabled={isLoading}
+                    title="Virtual lab interaction"
+                  >
+                    <GraduationCap className="h-3 w-3 mr-1" />
+                    Student
+                  </Button>
+                  
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => handleDemoLogin('parent@vlab.edu.kh', 'demo123', 'Parent')}
+                    className="h-10 text-xs border-orange-200 text-orange-700 hover:bg-orange-50"
+                    disabled={isLoading}
+                    title="Student progress monitoring"
+                  >
+                    <Users className="h-3 w-3 mr-1" />
+                    Parent
+                  </Button>
+                </div>
+
+                {/* TaRL Demo Accounts - Original System */}
+                <div className="mb-3">
+                  <p className="text-xs text-center text-slate-600 font-medium">📊 TaRL Demo Accounts (Run migration 011)</p>
                   <p className="text-xs text-center text-slate-500">All passwords: demo123</p>
                 </div>
                 
