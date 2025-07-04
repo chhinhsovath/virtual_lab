@@ -2,7 +2,7 @@
 -- Compatible with current TaRL database schema
 
 -- Create Virtual Lab demo users (password for all: "demo123")
--- Password hash for "demo123": $2a$10$X4kv7j5ZcG39WgogSl16OuWKJm3mVkFXVXWHfIr6lNr5JYiARp5e6
+-- Password hash for "demo123": $2a$10$50jnOHNerr9R/vRJ30SLnOFpmrGrwvH0lp0xFujDR6CkFoPYvZUNe
 
 -- Super Admin
 INSERT INTO users (
@@ -17,7 +17,7 @@ INSERT INTO users (
 ) VALUES (
     '550e8400-e29b-41d4-a716-446655440101',
     'superadmin@vlab.edu.kh',
-    '$2a$10$X4kv7j5ZcG39WgogSl16OuWKJm3mVkFXVXWHfIr6lNr5JYiARp5e6',
+    '$2a$10$50jnOHNerr9R/vRJ30SLnOFpmrGrwvH0lp0xFujDR6CkFoPYvZUNe',
     'Virtual Lab Super Admin',
     'super_admin',
     true,
@@ -42,7 +42,7 @@ INSERT INTO users (
 ) VALUES (
     '550e8400-e29b-41d4-a716-446655440102',
     'teacher@vlab.edu.kh',
-    '$2a$10$X4kv7j5ZcG39WgogSl16OuWKJm3mVkFXVXWHfIr6lNr5JYiARp5e6',
+    '$2a$10$50jnOHNerr9R/vRJ30SLnOFpmrGrwvH0lp0xFujDR6CkFoPYvZUNe',
     'សុខ សុភា (Sok Sophea)',
     'teacher',
     true,
@@ -67,7 +67,7 @@ INSERT INTO users (
 ) VALUES (
     '550e8400-e29b-41d4-a716-446655440103',
     'student@vlab.edu.kh',
-    '$2a$10$X4kv7j5ZcG39WgogSl16OuWKJm3mVkFXVXWHfIr6lNr5JYiARp5e6',
+    '$2a$10$50jnOHNerr9R/vRJ30SLnOFpmrGrwvH0lp0xFujDR6CkFoPYvZUNe',
     'លី សុវណ្ណ (Ly Sovann)',
     'student',
     true,
@@ -92,7 +92,7 @@ INSERT INTO users (
 ) VALUES (
     '550e8400-e29b-41d4-a716-446655440104',
     'parent@vlab.edu.kh',
-    '$2a$10$X4kv7j5ZcG39WgogSl16OuWKJm3mVkFXVXWHfIr6lNr5JYiARp5e6',
+    '$2a$10$50jnOHNerr9R/vRJ30SLnOFpmrGrwvH0lp0xFujDR6CkFoPYvZUNe',
     'លី ចាន់ (Ly Chan)',
     'parent',
     true,

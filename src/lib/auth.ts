@@ -1,10 +1,10 @@
 import { pool } from './db';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
-import type { User, SchoolAccess } from '@/types/auth';
+import type { User, SchoolAccess } from '../types/auth';
 
 // Re-export User type from types file
-export type { User, SchoolAccess } from '@/types/auth';
+export type { User, SchoolAccess } from '../types/auth';
 
 export interface Permission {
   name: string;
