@@ -1,0 +1,25 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "framework": "nextjs",
+  "installCommand": "npm install",
+  "env": {
+    "DATABASE_URL": "postgres://postgres:P@ssw0rd@137.184.109.21:5432/tarl5k",
+    "SESSION_SECRET": "5e1a52e3dfa965b4de5327fe5f5a0231d81e0a21a66e5bf8bd6b87a6b7fc39ea",
+    "NEXTAUTH_URL": "https://tarl-indir.vercel.app",
+    "NODE_ENV": "production"
+  },
+  "build": {
+    "env": {
+      "DATABASE_URL": "postgres://postgres:P@ssw0rd@137.184.109.21:5432/tarl5k",
+      "SESSION_SECRET": "5e1a52e3dfa965b4de5327fe5f5a0231d81e0a21a66e5bf8bd6b87a6b7fc39ea",
+      "NEXTAUTH_URL": "https://tarl-indir.vercel.app",
+      "NODE_ENV": "production"
+    }
+  },
+  "functions": {
+    "app/api/**/*.ts": {
+      "maxDuration": 30
+    }
+  }
+}

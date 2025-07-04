@@ -1,0 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Hanuman:wght@100;300;400;700;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-family-sans: 'Hanuman', serif, system-ui, sans-serif;
+    --font-family-serif: 'Hanuman', serif;
+    --radius: 0.75rem;
+  }
+
+  body {
+    font-family: 'Hanuman', serif, system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  .font-khmer {
+    font-family: 'Hanuman', serif;
+  }
+
+  .font-hanuman {
+    font-family: 'Hanuman', serif;
+  }
+
+  .education-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+}

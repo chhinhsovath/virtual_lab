@@ -1,0 +1,450 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
+import { Badge } from '../../components/ui/badge';
+import { Button } from '../../components/ui/button';
+import Sidebar from '../../components/dashboard/Sidebar';
+import ModernSidebar from '../../components/dashboard/ModernSidebar';
+import SuperAdminDashboard from '../../components/dashboard/SuperAdminDashboard';
+import ModernSuperAdminDashboard from '../../components/dashboard/ModernSuperAdminDashboard';
+import {
+  Users,
+  GraduationCap,
+  School,
+  BookOpen,
+  TrendingUp,
+  Award,
+  Target,
+  Bell,
+  BarChart3,
+  ArrowUp,
+  ArrowDown,
+  Activity,
+  Clock,
+  Sparkles,
+  Menu
+} from 'lucide-react';
+import { motion } from 'framer-motion';
+
+interface User {
+  id: string;
+  username: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  roles: string[];
+  permissions: string[];
+  schoolAccess: Array<{
+    schoolId: number;
+    accessType: string;
+    subject: string;
+  }>;
+  teacherId?: number;
+}
+
+export default function DashboardPage() {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchSession = async () => {
+      try {
+        const response = await fetch('/api/auth/session');
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data.user);
+        } else {
+          router.push('/auth/login');
+        }
+      } catch (error) {
+        console.error('Session fetch error:', error);
+        router.push('/auth/login');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSession();
+  }, [router]);
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      router.push('/auth/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-white">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-slate-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
+  const stats = [
+    {
+      title: 'Total Students',
+      value: '2,156,890',
+      change: '+12.5%',
+      trend: 'up',
+      icon: Users,
+      color: 'blue',
+      description: 'Active learners in the system'
+    },
+    {
+      title: 'Schools',
+      value: '7,248',
+      change: '+156',
+      trend: 'up',
+      icon: School,
+      color: 'green',
+      description: 'Participating schools'
+    },
+    {
+      title: 'Teachers',
+      value: '63,475',
+      change: '+8.3%',
+      trend: 'up',
+      icon: BookOpen,
+      color: 'purple',
+      description: 'Certified educators'
+    },
+    {
+      title: 'Assessment Rate',
+      value: '87.4%',
+      change: '+3.2%',
+      trend: 'up',
+      icon: Target,
+      color: 'orange',
+      description: 'Monthly completion rate'
+    }
+  ];
+
+  const recentActivity = [
+    { id: 1, action: 'New assessment completed', school: 'Battambang Primary School', time: '2 hours ago', type: 'assessment' },
+    { id: 2, action: 'Teacher training session', school: 'Kampong Cham District', time: '5 hours ago', type: 'training' },
+    { id: 3, action: 'Student progress report', school: 'Siem Reap School #12', time: '1 day ago', type: 'report' },
+    { id: 4, action: 'New school onboarded', school: 'Prey Veng Secondary', time: '2 days ago', type: 'school' }
+  ];
+
+  const learningLevels = [
+    { level: 'Beginner', students: 45320, percentage: 35, color: 'bg-red-500' },
+    { level: 'Letter', students: 38640, percentage: 30, color: 'bg-orange-500' },
+    { level: 'Word', students: 25760, percentage: 20, color: 'bg-yellow-500' },
+    { level: 'Paragraph', students: 12880, percentage: 10, color: 'bg-green-500' },
+    { level: 'Story', students: 6440, percentage: 5, color: 'bg-blue-500' }
+  ];
+
+  // Check if user is super admin
+  const isSuperAdmin = user.roles.includes('super_admin');
+
+  // If super admin, show comprehensive dashboard
+  if (isSuperAdmin) {
+    return (
+      <div className="flex min-h-screen bg-gray-50">
+        <ModernSidebar 
+          user={user} 
+          onLogout={handleLogout} 
+          mobileOpen={mobileMenuOpen}
+          onMobileToggle={() => setMobileMenuOpen(!mobileMenuOpen)}
+          onCollapsedChange={setSidebarCollapsed}
+        />
+
+        <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${sidebarCollapsed ? 'md:ml-20' : 'md:ml-80'}`}>
+          {/* Top Header */}
+          <header className="bg-white border-b border-gray-200 px-4 md:px-8 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                {/* Mobile menu button */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="md:hidden"
+                  onClick={() => setMobileMenuOpen(true)}
+                >
+                  <Menu className="h-6 w-6" />
+                </Button>
+                
+                <div>
+                  <h1 className="text-xl md:text-2xl font-bold text-gray-900 font-hanuman">
+                    Welcome back, {user.firstName || user.username}! ✨
+                  </h1>
+                  <p className="text-sm text-gray-600 mt-1 hidden sm:block font-hanuman">
+                    Super Admin Dashboard - Complete System Overview
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-4">
+                <Button variant="outline" size="icon" className="relative">
+                  <Bell className="h-5 w-5" />
+                  <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full animate-pulse"></span>
+                </Button>
+                <div className="text-right">
+                  <p className="text-sm font-medium text-gray-900 font-hanuman">
+                    {new Date().toLocaleDateString('en-US', { 
+                      weekday: 'long', 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    })}
+                  </p>
+                  <p className="text-xs text-gray-600 font-hanuman">
+                    ថ្ងៃនេះ
+                  </p>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          {/* Super Admin Dashboard Content */}
+          <main className="flex-1 p-4 md:p-8">
+            <ModernSuperAdminDashboard />
+          </main>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex min-h-screen bg-gray-50">
+      {/* Sidebar - handles both desktop and mobile */}
+      <ModernSidebar 
+        user={user} 
+        onLogout={handleLogout} 
+        mobileOpen={mobileMenuOpen}
+        onMobileToggle={() => setMobileMenuOpen(!mobileMenuOpen)}
+        onCollapsedChange={setSidebarCollapsed}
+      />
+
+      {/* Main Content */}
+      <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${sidebarCollapsed ? 'md:ml-20' : 'md:ml-80'}`}>
+        {/* Top Header */}
+        <header className="bg-white border-b border-gray-200 px-4 md:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              {/* Mobile menu button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden"
+                onClick={() => setMobileMenuOpen(true)}
+              >
+                <Menu className="h-6 w-6" />
+              </Button>
+              
+              <div>
+                <h1 className="text-xl md:text-2xl font-bold text-gray-900 font-hanuman">
+                  Welcome back, {user.firstName || user.username}! ✨
+                </h1>
+                <p className="text-sm text-gray-600 mt-1 hidden sm:block font-hanuman">
+                  Here's what's happening with TaRL assessments today
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <Button variant="outline" size="icon" className="relative">
+                <Bell className="h-5 w-5" />
+                <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full animate-pulse"></span>
+              </Button>
+              <div className="text-right">
+                <p className="text-sm font-medium text-gray-900">
+                  {new Date().toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                  })}
+                </p>
+                <p className="text-xs text-gray-600 font-hanuman">
+                  ថ្ងៃនេះ
+                </p>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Main Dashboard Content */}
+        <main className="flex-1 p-4 md:p-8">
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
+            {stats.map((stat, index) => (
+              <motion.div
+                key={stat.title}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer border-0 bg-white">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className={`p-3 rounded-lg ${
+                        stat.color === 'blue' ? 'bg-blue-50' :
+                        stat.color === 'green' ? 'bg-green-50' :
+                        stat.color === 'purple' ? 'bg-purple-50' :
+                        'bg-orange-50'
+                      }`}>
+                        <stat.icon className={`h-6 w-6 ${
+                          stat.color === 'blue' ? 'text-blue-600' :
+                          stat.color === 'green' ? 'text-green-600' :
+                          stat.color === 'purple' ? 'text-purple-600' :
+                          'text-orange-600'
+                        }`} />
+                      </div>
+                      <div className={`flex items-center text-sm ${
+                        stat.trend === 'up' ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                        {stat.trend === 'up' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />}
+                        <span className="font-medium">{stat.change}</span>
+                      </div>
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900">{stat.value}</h3>
+                    <p className="text-sm text-gray-600 mt-1">{stat.title}</p>
+                    <p className="text-xs text-gray-500 mt-2">{stat.description}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Charts and Activity Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
+            {/* Learning Levels Chart */}
+            <Card className="lg:col-span-2 border-0 shadow-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span>Student Learning Levels</span>
+                  <Button variant="outline" size="sm">
+                    View Details
+                  </Button>
+                </CardTitle>
+                <CardDescription>
+                  Distribution across TaRL assessment categories
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  {learningLevels.map((level) => (
+                    <div key={level.level}>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center space-x-3">
+                          <Badge variant="outline" className="font-medium">
+                            {level.level}
+                          </Badge>
+                          <span className="text-sm text-gray-600">
+                            {level.students.toLocaleString()} students
+                          </span>
+                        </div>
+                        <span className="text-sm font-medium text-gray-900">
+                          {level.percentage}%
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-3">
+                        <div
+                          className={`${level.color} h-3 rounded-full transition-all duration-500`}
+                          style={{ width: `${level.percentage}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Recent Activity */}
+            <Card className="border-0 shadow-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span>Recent Activity</span>
+                  <Activity className="h-5 w-5 text-gray-400" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {recentActivity.map((activity) => (
+                    <div key={activity.id} className="flex items-start space-x-3">
+                      <div className={`p-2 rounded-full ${
+                        activity.type === 'assessment' ? 'bg-blue-100' :
+                        activity.type === 'training' ? 'bg-purple-100' :
+                        activity.type === 'report' ? 'bg-green-100' :
+                        'bg-orange-100'
+                      }`}>
+                        {activity.type === 'assessment' && <GraduationCap className="h-4 w-4 text-blue-600" />}
+                        {activity.type === 'training' && <Award className="h-4 w-4 text-purple-600" />}
+                        {activity.type === 'report' && <BarChart3 className="h-4 w-4 text-green-600" />}
+                        {activity.type === 'school' && <School className="h-4 w-4 text-orange-600" />}
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900">{activity.action}</p>
+                        <p className="text-xs text-gray-600">{activity.school}</p>
+                        <p className="text-xs text-gray-500 flex items-center mt-1">
+                          <Clock className="h-3 w-3 mr-1" />
+                          {activity.time}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Quick Actions */}
+          <Card className="border-0 shadow-sm">
+            <CardHeader>
+              <CardTitle>Quick Actions</CardTitle>
+              <CardDescription>
+                Common tasks based on your role and permissions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                {user.permissions.includes('assessments.create') && (
+                  <Button variant="outline" className="h-24 flex-col space-y-2 hover:bg-blue-50 hover:border-blue-300">
+                    <Sparkles className="h-6 w-6 text-blue-600" />
+                    <span>New Assessment</span>
+                  </Button>
+                )}
+                
+                {user.permissions.includes('students.read') && (
+                  <Button variant="outline" className="h-24 flex-col space-y-2 hover:bg-green-50 hover:border-green-300">
+                    <Users className="h-6 w-6 text-green-600" />
+                    <span>View Students</span>
+                  </Button>
+                )}
+                
+                {user.permissions.includes('reports.read') && (
+                  <Button variant="outline" className="h-24 flex-col space-y-2 hover:bg-purple-50 hover:border-purple-300">
+                    <TrendingUp className="h-6 w-6 text-purple-600" />
+                    <span>Analytics</span>
+                  </Button>
+                )}
+                
+                {user.permissions.includes('teachers.read') && (
+                  <Button variant="outline" className="h-24 flex-col space-y-2 hover:bg-orange-50 hover:border-orange-300">
+                    <BookOpen className="h-6 w-6 text-orange-600" />
+                    <span>Teachers</span>
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    </div>
+  );
+}
