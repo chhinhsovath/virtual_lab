@@ -219,7 +219,7 @@ export default function LoginPage() {
             <div className="flex items-center justify-center mb-4">
               <FlaskConical className="h-10 w-10 text-blue-600 mr-3" />
               <div>
-                <h1 className="text-2xl font-bold text-slate-800 font-hanuman">Virtual Lab Cambodia</h1>
+                <h1 className="text-2xl font-bold text-slate-800 font-hanuman">Virtual Lab</h1>
                 <p className="font-hanuman text-lg text-slate-600">មន្ទីរពិសោធន៍និម្មិតកម្ពុជា</p>
               </div>
             </div>

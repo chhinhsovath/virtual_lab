@@ -23,7 +23,8 @@ import {
   PieChart,
   Calendar,
   FileText,
-  Filter
+  Filter,
+  Trophy
 } from 'lucide-react';
 import {
   LineChart,

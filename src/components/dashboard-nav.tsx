@@ -114,23 +114,26 @@ export function DashboardNav({ session }: DashboardNavProps) {
 
   return (
     <nav className="bg-white/95 backdrop-blur-sm border-b border-slate-200 shadow-lg">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-18">
+      <div className="container mx-auto px-2 sm:px-4">
+        <div className="flex items-center justify-between h-16 sm:h-18">
           {/* Enhanced Logo */}
-          <div className="flex items-center space-x-4">
-            <Link href="/dashboard" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-2 rounded-xl">
-                <GraduationCap className="h-8 w-8 text-white" />
+          <div className="flex items-center space-x-2 sm:space-x-4 min-w-0">
+            <Link href="/dashboard" className="flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition-opacity min-w-0">
+              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-1.5 sm:p-2 rounded-lg sm:rounded-xl flex-shrink-0">
+                <GraduationCap className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
               </div>
-              <div>
-                <h1 className="text-xl font-bold text-slate-800">Cambodia Virtual Lab STEM</h1>
-                <p className="font-khmer text-sm text-slate-600">មន្ទីរពិសោធន៍និម្មិតកម្ពុជា</p>
+              <div className="min-w-0">
+                <h1 className="text-sm sm:text-lg lg:text-xl font-bold text-slate-800 truncate">
+                  <span className="hidden sm:inline">Cambodia Virtual Lab STEM</span>
+                  <span className="sm:hidden">Lab STEM</span>
+                </h1>
+                <p className="font-khmer text-xs sm:text-sm text-slate-600 truncate">មន្ទីរពិសោធន៍និម្មិតកម្ពុជា</p>
               </div>
             </Link>
           </div>
 
           {/* Enhanced Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-1">
+          <div className="hidden lg:flex items-center space-x-1">
             {navItems.map((item) => {
               const Icon = item.icon;
               const active = isActive(item.href, item.exact);
@@ -138,14 +141,14 @@ export function DashboardNav({ session }: DashboardNavProps) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`group relative flex items-center space-x-2 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+                  className={`group relative flex items-center space-x-2 px-3 lg:px-4 py-2 lg:py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                     active
                       ? 'bg-blue-100 text-blue-700 shadow-sm'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                   }`}
                 >
-                  <Icon className={`h-5 w-5 transition-transform duration-200 ${active ? 'scale-110' : 'group-hover:scale-105'}`} />
-                  <span className="font-medium">{item.label}</span>
+                  <Icon className={`h-4 w-4 lg:h-5 lg:w-5 transition-transform duration-200 ${active ? 'scale-110' : 'group-hover:scale-105'}`} />
+                  <span className="font-medium text-xs lg:text-sm">{item.label}</span>
                   {active && (
                     <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-6 h-0.5 bg-blue-600 rounded-full"></div>
                   )}
@@ -155,30 +158,30 @@ export function DashboardNav({ session }: DashboardNavProps) {
           </div>
 
           {/* Enhanced User Menu */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-4">
             {/* Notifications */}
-            <Button variant="ghost" size="sm" className="relative">
-              <Bell className="h-5 w-5 text-slate-600" />
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full flex items-center justify-center">
-                <span className="text-xs text-white font-bold">2</span>
+            <Button variant="ghost" size="sm" className="relative h-8 w-8 sm:h-10 sm:w-10">
+              <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-slate-600" />
+              <div className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full flex items-center justify-center">
+                <span className="text-xs text-white font-bold hidden sm:inline">2</span>
               </div>
             </Button>
 
             {/* User Profile Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center space-x-3 px-3 py-2 h-auto hover:bg-slate-50 rounded-xl transition-all duration-200">
-                  <div className="flex items-center space-x-3">
-                    <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-2 rounded-lg">
-                      <User className="h-5 w-5 text-white" />
+                <Button variant="ghost" className="flex items-center space-x-1 sm:space-x-2 lg:space-x-3 px-2 sm:px-3 py-1.5 sm:py-2 h-auto hover:bg-slate-50 rounded-xl transition-all duration-200">
+                  <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-3">
+                    <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-1.5 sm:p-2 rounded-lg">
+                      <User className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                     </div>
-                    <div className="hidden md:block text-left">
-                      <p className="font-medium text-slate-800">
+                    <div className="hidden lg:block text-left">
+                      <p className="font-medium text-slate-800 text-sm">
                         {session.user.roles?.includes('admin') ? 'Administrator' :
                          session.user.roles?.includes('cluster_mentor') ? `Mentor ${session.user.id}` :
                          `Teacher ${session.user.teacherId}`}
                       </p>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-1">
                         <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700 border-0 capitalize">
                           {session.user.roles?.[0]?.replace('_', ' ')}
                         </Badge>
@@ -190,7 +193,7 @@ export function DashboardNav({ session }: DashboardNavProps) {
                       </div>
                     </div>
                   </div>
-                  <ChevronDown className="h-4 w-4 text-slate-400" />
+                  <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4 text-slate-400 hidden sm:block" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-64 p-2">
@@ -235,13 +238,13 @@ export function DashboardNav({ session }: DashboardNavProps) {
             <Button
               variant="ghost"
               size="sm"
-              className="md:hidden p-2 rounded-xl hover:bg-slate-50"
+              className="lg:hidden p-1.5 sm:p-2 rounded-xl hover:bg-slate-50 h-8 w-8 sm:h-10 sm:w-10"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? (
-                <X className="h-6 w-6 text-slate-600" />
+                <X className="h-5 w-5 sm:h-6 sm:w-6 text-slate-600" />
               ) : (
-                <Menu className="h-6 w-6 text-slate-600" />
+                <Menu className="h-5 w-5 sm:h-6 sm:w-6 text-slate-600" />
               )}
             </Button>
           </div>
@@ -249,8 +252,8 @@ export function DashboardNav({ session }: DashboardNavProps) {
 
         {/* Enhanced Mobile Navigation */}
         {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-slate-200 bg-slate-50/50 backdrop-blur-sm">
-            <div className="p-4 space-y-3">
+          <div className="lg:hidden border-t border-slate-200 bg-slate-50/50 backdrop-blur-sm">
+            <div className="p-3 sm:p-4 space-y-2 sm:space-y-3">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const active = isActive(item.href, item.exact);
@@ -259,18 +262,18 @@ export function DashboardNav({ session }: DashboardNavProps) {
                     key={item.href}
                     href={item.href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`flex items-center space-x-4 p-4 rounded-xl transition-all duration-200 ${
+                    className={`flex items-center space-x-3 sm:space-x-4 p-3 sm:p-4 rounded-xl transition-all duration-200 ${
                       active
                         ? 'bg-blue-100 text-blue-700 shadow-sm'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
                     }`}
                   >
-                    <div className={`p-2 rounded-lg ${active ? 'bg-blue-200' : 'bg-slate-200'}`}>
-                      <Icon className="h-5 w-5" />
+                    <div className={`p-1.5 sm:p-2 rounded-lg ${active ? 'bg-blue-200' : 'bg-slate-200'}`}>
+                      <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
                     </div>
-                    <div className="flex-1">
-                      <div className="font-medium">{item.label}</div>
-                      <div className="font-khmer text-sm text-slate-500">
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-sm sm:text-base">{item.label}</div>
+                      <div className="font-khmer text-xs sm:text-sm text-slate-500 truncate">
                         {item.labelKh}
                       </div>
                     </div>

@@ -25,7 +25,14 @@ import {
   AlertTriangle,
   CheckCircle,
   TrendingUp,
-  User as UserIcon
+  User as UserIcon,
+  FlaskConical,
+  Play,
+  Star,
+  Zap,
+  Brain,
+  Atom,
+  BarChart3
 } from 'lucide-react';
 
 interface ParentPortalProps {
@@ -74,6 +81,45 @@ interface TeacherContact {
   courseId: string;
 }
 
+interface SimulationProgress {
+  id: string;
+  simulationId: string;
+  simulationName: string;
+  title: string;
+  titleKm: string;
+  subject: string;
+  difficulty: string;
+  progress: {
+    percentage: number;
+    timeSpent: number;
+    attempts: number;
+    bestScore: number;
+    completed: boolean;
+    lastAccessed: string;
+  };
+  assignment?: {
+    title: string;
+    dueDate: string;
+    status: string;
+    score?: number;
+    maxScore?: number;
+  };
+}
+
+interface SimulationStats {
+  totalSimulations: number;
+  completedSimulations: number;
+  averageScore: number;
+  totalTimeSpent: number;
+  subjectBreakdown: {
+    Physics: number;
+    Chemistry: number;
+    Biology: number;
+    Mathematics: number;
+  };
+  totalAchievements: number;
+}
+
 export function ParentPortal({ user }: ParentPortalProps) {
   const permissions = usePermissions(user);
   const [children, setChildren] = useState<Child[]>([]);
@@ -81,6 +127,8 @@ export function ParentPortal({ user }: ParentPortalProps) {
   const [childGrades, setChildGrades] = useState<ChildGrade[]>([]);
   const [childAttendance, setChildAttendance] = useState<ChildAttendance[]>([]);
   const [teachers, setTeachers] = useState<TeacherContact[]>([]);
+  const [simulations, setSimulations] = useState<SimulationProgress[]>([]);
+  const [simulationStats, setSimulationStats] = useState<SimulationStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -112,15 +160,23 @@ export function ParentPortal({ user }: ParentPortalProps) {
 
   const fetchChildData = async (childId: string) => {
     try {
-      const [gradesRes, attendanceRes, teachersRes] = await Promise.all([
+      const [gradesRes, attendanceRes, teachersRes, simulationsRes] = await Promise.all([
         fetch(`/api/parent/child/${childId}/grades`),
         fetch(`/api/parent/child/${childId}/attendance`),
-        fetch(`/api/parent/child/${childId}/teachers`)
+        fetch(`/api/parent/child/${childId}/teachers`),
+        fetch(`/api/parent/child/${childId}/simulations`)
       ]);
 
       if (gradesRes.ok) setChildGrades(await gradesRes.json());
       if (attendanceRes.ok) setChildAttendance(await attendanceRes.json());
       if (teachersRes.ok) setTeachers(await teachersRes.json());
+      if (simulationsRes.ok) {
+        const simData = await simulationsRes.json();
+        if (simData.success) {
+          setSimulations(simData.simulations);
+          setSimulationStats(simData.stats);
+        }
+      }
     } catch (error) {
       console.error('Failed to fetch child data:', error);
     }
@@ -180,9 +236,9 @@ export function ParentPortal({ user }: ParentPortalProps) {
     >
       <div className="space-y-6">
         {/* Parent Header */}
-        <div className="bg-gradient-to-r from-green-600 to-blue-600 rounded-lg p-6 text-white">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
+        <div className="bg-gradient-to-r from-green-600 to-blue-600 rounded-lg p-4 sm:p-6 text-white">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
               <Avatar className="h-16 w-16 border-2 border-white">
                 <AvatarImage src={user.avatarUrl} />
                 <AvatarFallback className="bg-white text-green-600 text-xl font-bold">
@@ -200,7 +256,7 @@ export function ParentPortal({ user }: ParentPortalProps) {
             </div>
 
             {children.length > 1 && (
-              <div className="w-64">
+              <div className="w-full sm:w-64">
                 <Select value={selectedChildId} onValueChange={setSelectedChildId}>
                   <SelectTrigger className="bg-white text-gray-900">
                     <SelectValue placeholder="Select a child" />
@@ -221,51 +277,51 @@ export function ParentPortal({ user }: ParentPortalProps) {
         {selectedChild && (
           <>
             {/* Child Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
               <Card>
-                <CardContent className="p-4">
+                <CardContent className="p-3 md:p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Overall GPA</p>
-                      <p className="text-2xl font-bold">{selectedChild.overallGPA.toFixed(2)}</p>
+                      <p className="text-xs md:text-sm font-medium text-gray-600">Overall GPA</p>
+                      <p className="text-lg md:text-2xl font-bold">{selectedChild.overallGPA.toFixed(2)}</p>
                     </div>
-                    <Award className="h-8 w-8 text-yellow-500" />
+                    <Award className="h-6 w-6 md:h-8 md:w-8 text-yellow-500" />
                   </div>
                 </CardContent>
               </Card>
 
               <Card>
-                <CardContent className="p-4">
+                <CardContent className="p-3 md:p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Attendance Rate</p>
-                      <p className="text-2xl font-bold">{selectedChild.attendanceRate}%</p>
+                      <p className="text-xs md:text-sm font-medium text-gray-600">Attendance Rate</p>
+                      <p className="text-lg md:text-2xl font-bold">{selectedChild.attendanceRate}%</p>
                     </div>
-                    <CheckCircle className={`h-8 w-8 ${selectedChild.attendanceRate >= 90 ? 'text-green-500' : 'text-orange-500'}`} />
+                    <CheckCircle className={`h-6 w-6 md:h-8 md:w-8 ${selectedChild.attendanceRate >= 90 ? 'text-green-500' : 'text-orange-500'}`} />
                   </div>
                 </CardContent>
               </Card>
 
               <Card>
-                <CardContent className="p-4">
+                <CardContent className="p-3 md:p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Enrolled Courses</p>
-                      <p className="text-2xl font-bold">{selectedChild.enrolledCourses}</p>
+                      <p className="text-xs md:text-sm font-medium text-gray-600">STEM Simulations</p>
+                      <p className="text-lg md:text-2xl font-bold">{selectedChild.enrolledCourses}</p>
                     </div>
-                    <BookOpen className="h-8 w-8 text-blue-500" />
+                    <FlaskConical className="h-6 w-6 md:h-8 md:w-8 text-blue-500" />
                   </div>
                 </CardContent>
               </Card>
 
               <Card>
-                <CardContent className="p-4">
+                <CardContent className="p-3 md:p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Pending Work</p>
-                      <p className="text-2xl font-bold">{selectedChild.pendingAssignments}</p>
+                      <p className="text-xs md:text-sm font-medium text-gray-600">Pending Work</p>
+                      <p className="text-lg md:text-2xl font-bold">{selectedChild.pendingAssignments}</p>
                     </div>
-                    <FileText className={`h-8 w-8 ${selectedChild.pendingAssignments > 5 ? 'text-red-500' : 'text-orange-500'}`} />
+                    <FileText className={`h-6 w-6 md:h-8 md:w-8 ${selectedChild.pendingAssignments > 5 ? 'text-red-500' : 'text-orange-500'}`} />
                   </div>
                 </CardContent>
               </Card>
@@ -318,12 +374,13 @@ export function ParentPortal({ user }: ParentPortalProps) {
 
             {/* Main Content Tabs */}
             <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="grid w-full grid-cols-5">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="grades">Grades</TabsTrigger>
-                <TabsTrigger value="attendance">Attendance</TabsTrigger>
-                <TabsTrigger value="teachers">Teachers</TabsTrigger>
-                <TabsTrigger value="communication">Messages</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-3 md:grid-cols-6">
+                <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
+                <TabsTrigger value="simulations" className="text-xs sm:text-sm">STEM Labs</TabsTrigger>
+                <TabsTrigger value="grades" className="text-xs sm:text-sm">Grades</TabsTrigger>
+                <TabsTrigger value="attendance" className="text-xs sm:text-sm hidden md:inline-flex">Attendance</TabsTrigger>
+                <TabsTrigger value="teachers" className="text-xs sm:text-sm hidden md:inline-flex">Teachers</TabsTrigger>
+                <TabsTrigger value="communication" className="text-xs sm:text-sm hidden md:inline-flex">Messages</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview" className="space-y-6">
@@ -396,6 +453,10 @@ export function ParentPortal({ user }: ParentPortalProps) {
                     </CardContent>
                   </Card>
                 </div>
+              </TabsContent>
+
+              <TabsContent value="simulations" className="space-y-6">
+                <SimulationsDetailView simulations={simulations} stats={simulationStats} />
               </TabsContent>
 
               <TabsContent value="grades" className="space-y-6">
@@ -596,6 +657,177 @@ function TeachersContactView({ teachers }: { teachers: TeacherContact[] }) {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function SimulationsDetailView({ simulations, stats }: { simulations: SimulationProgress[]; stats: SimulationStats | null }) {
+  const [subjectFilter, setSubjectFilter] = useState<string>('all');
+  
+  const subjects = Array.from(new Set(simulations.map(s => s.subject)));
+  const filteredSimulations = subjectFilter === 'all' ? simulations : simulations.filter(s => s.subject === subjectFilter);
+
+  const getSubjectIcon = (subject: string) => {
+    switch (subject) {
+      case 'Physics': return Zap;
+      case 'Chemistry': return Atom;
+      case 'Biology': return Brain;
+      case 'Mathematics': return BarChart3;
+      default: return FlaskConical;
+    }
+  };
+
+  const getSubjectColor = (subject: string) => {
+    switch (subject) {
+      case 'Physics': return 'text-blue-600';
+      case 'Chemistry': return 'text-green-600';
+      case 'Biology': return 'text-purple-600';
+      case 'Mathematics': return 'text-orange-600';
+      default: return 'text-gray-600';
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* STEM Statistics */}
+      {stats && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card>
+            <CardContent className="p-4 text-center">
+              <FlaskConical className="mx-auto h-8 w-8 text-purple-600 mb-2" />
+              <p className="text-2xl font-bold text-purple-600">{stats.totalSimulations}</p>
+              <p className="text-sm text-gray-600">Total Simulations</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <CheckCircle className="mx-auto h-8 w-8 text-green-600 mb-2" />
+              <p className="text-2xl font-bold text-green-600">{stats.completedSimulations}</p>
+              <p className="text-sm text-gray-600">Completed</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <Star className="mx-auto h-8 w-8 text-yellow-600 mb-2" />
+              <p className="text-2xl font-bold text-yellow-600">{stats.averageScore.toFixed(1)}</p>
+              <p className="text-sm text-gray-600">Avg Score</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <Clock className="mx-auto h-8 w-8 text-blue-600 mb-2" />
+              <p className="text-2xl font-bold text-blue-600">{Math.round(stats.totalTimeSpent / 60)}h</p>
+              <p className="text-sm text-gray-600">Study Time</p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Subject Filter */}
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <CardTitle className="flex items-center gap-2">
+              <FlaskConical className="h-5 w-5" />
+              STEM Simulation Progress
+            </CardTitle>
+            <Select value={subjectFilter} onValueChange={setSubjectFilter}>
+              <SelectTrigger className="w-full sm:w-48">
+                <SelectValue placeholder="Filter by subject" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Subjects</SelectItem>
+                {subjects.map((subject) => (
+                  <SelectItem key={subject} value={subject}>{subject}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {filteredSimulations.map((simulation) => {
+              const SubjectIcon = getSubjectIcon(simulation.subject);
+              const subjectColor = getSubjectColor(simulation.subject);
+              
+              return (
+                <Card key={simulation.id} className="border-l-4 border-l-purple-500">
+                  <CardContent className="p-4">
+                    <div className="space-y-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-2">
+                          <SubjectIcon className={`h-5 w-5 ${subjectColor}`} />
+                          <div>
+                            <h4 className="font-medium">{simulation.title}</h4>
+                            <p className="text-sm text-gray-500">{simulation.subject}</p>
+                          </div>
+                        </div>
+                        <Badge variant={simulation.progress.completed ? 'default' : 'secondary'}>
+                          {simulation.progress.completed ? 'Completed' : 'In Progress'}
+                        </Badge>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>Progress</span>
+                          <span className="font-medium">{simulation.progress.percentage}%</span>
+                        </div>
+                        <Progress value={simulation.progress.percentage} className="h-2" />
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-4 text-sm">
+                        <div className="text-center">
+                          <p className="font-medium text-blue-600">{simulation.progress.timeSpent}m</p>
+                          <p className="text-gray-500">Time Spent</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="font-medium text-orange-600">{simulation.progress.attempts}</p>
+                          <p className="text-gray-500">Attempts</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="font-medium text-green-600">{simulation.progress.bestScore}/10</p>
+                          <p className="text-gray-500">Best Score</p>
+                        </div>
+                      </div>
+
+                      {simulation.assignment && (
+                        <div className="bg-gray-50 p-3 rounded-lg">
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <p className="font-medium text-sm">{simulation.assignment.title}</p>
+                              <p className="text-xs text-gray-500">
+                                Due: {new Date(simulation.assignment.dueDate).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <Badge variant={
+                              simulation.assignment.status === 'completed' ? 'default' :
+                              simulation.assignment.status === 'pending' ? 'secondary' : 'destructive'
+                            }>
+                              {simulation.assignment.status}
+                            </Badge>
+                          </div>
+                          {simulation.assignment.score && (
+                            <p className="text-sm mt-1">
+                              Score: {simulation.assignment.score}/{simulation.assignment.maxScore}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+          
+          {filteredSimulations.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              <FlaskConical className="mx-auto h-12 w-12 mb-4" />
+              <p>No simulations found for the selected filter.</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 

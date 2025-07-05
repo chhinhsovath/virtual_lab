@@ -241,54 +241,55 @@ export function EnhancedStudentDashboard({ user }: EnhancedStudentDashboardProps
       </div>
       {/* Navigation */}
       <nav className="border-b bg-white/95 backdrop-blur-md sticky top-0 z-50 shadow-lg relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center gap-3">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+          <div className="flex justify-between h-14 sm:h-16 items-center">
+            <div className="flex items-center gap-2 sm:gap-3">
               <div className="relative group">
-                <FlaskConical className="h-10 w-10 text-purple-600 transform group-hover:rotate-12 transition-transform" />
-                <Sparkles className="h-5 w-5 text-yellow-500 absolute -top-2 -right-2 animate-pulse" />
+                <FlaskConical className="h-8 w-8 sm:h-10 sm:w-10 text-purple-600 transform group-hover:rotate-12 transition-transform" />
+                <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-500 absolute -top-1 -right-1 sm:-top-2 sm:-right-2 animate-pulse" />
                 <Star className="h-3 w-3 text-pink-500 absolute -bottom-1 -left-1 animate-ping" />
               </div>
-              <div>
-                <h1 className="text-2xl font-black bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 bg-clip-text text-transparent animate-gradient-x">
-                  Virtual Lab Cambodia
+              <div className="min-w-0">
+                <h1 className="text-lg sm:text-xl lg:text-2xl font-black bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 bg-clip-text text-transparent animate-gradient-x truncate">
+                  <span className="hidden sm:inline">Virtual Lab Cambodia</span>
+                  <span className="sm:hidden">Lab</span>
                 </h1>
-                <p className="text-sm text-purple-600 font-bold font-hanuman">🚀 វិទ្យាល័យសិស្ស</p>
+                <p className="text-xs sm:text-sm text-purple-600 font-bold font-hanuman truncate">🚀 វិទ្យាល័យសិស្ស</p>
               </div>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1 sm:gap-2 lg:gap-4">
               <Button
                 variant="ghost"
                 size="icon"
-                className="relative"
+                className="relative h-8 w-8 sm:h-10 sm:w-10"
                 onClick={() => router.push('/student/messages')}
               >
-                <Bell className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full animate-pulse"></span>
+                <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="absolute -top-1 -right-1 h-2 w-2 sm:h-3 sm:w-3 bg-red-500 rounded-full animate-pulse"></span>
               </Button>
               <Button
                 variant="ghost"
                 onClick={() => router.push('/student/profile')}
-                className="flex items-center gap-2"
+                className="flex items-center gap-1 sm:gap-2 h-8 sm:h-10 px-2 sm:px-3"
               >
                 <UserIcon className="h-4 w-4" />
-                <span className="hidden sm:inline">{user.username}</span>
+                <span className="hidden md:inline text-sm">{user.username}</span>
               </Button>
               <Button
                 variant="ghost"
-                className="flex items-center gap-2"
+                className="flex items-center gap-1 sm:gap-2 h-8 sm:h-10 px-2 sm:px-3"
                 onClick={() => {/* Toggle language */}}
               >
                 <Globe className="h-4 w-4" />
-                <span>ភាសាខ្មែរ</span>
+                <span className="hidden sm:inline text-sm">ភាសាខ្មែរ</span>
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={handleLogout}
-                className="text-red-600 hover:bg-red-50"
+                className="text-red-600 hover:bg-red-50 h-8 w-8 sm:h-10 sm:w-10"
               >
-                <LogOut className="h-5 w-5" />
+                <LogOut className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
             </div>
           </div>
@@ -296,31 +297,31 @@ export function EnhancedStudentDashboard({ user }: EnhancedStudentDashboardProps
       </nav>
 
       {/* Header Section */}
-      <section className="py-8 px-4">
+      <section className="py-4 sm:py-6 lg:py-8 px-2 sm:px-4">
         <div className="max-w-7xl mx-auto">
-          <div className="bg-white rounded-3xl shadow-xl border-2 border-purple-200 p-8 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-pink-200 to-purple-200 rounded-full -mr-16 -mt-16 opacity-50"></div>
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-              <div>
-                <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-2 font-hanuman animate-gradient-x">
+          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl border-2 border-purple-200 p-4 sm:p-6 lg:p-8 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-20 h-20 sm:w-32 sm:h-32 bg-gradient-to-br from-pink-200 to-purple-200 rounded-full -mr-10 -mt-10 sm:-mr-16 sm:-mt-16 opacity-50"></div>
+            <div className="flex flex-col gap-4 sm:gap-6">
+              <div className="text-center sm:text-left">
+                <h1 className="text-xl sm:text-2xl lg:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-2 font-hanuman animate-gradient-x">
                   សូមស្វាគមន៍ {user.firstName || user.username}! 🌟
                 </h1>
-                <p className="text-lg text-purple-700 font-semibold font-hanuman">ត្រលប់មកវិញហើយ អ្នករៀនពូកែ! ត្រៀមខ្លួនសម្រាប់ដំណើរផ្សងព្រេងថ្ងៃនេះហើយឬនៅ? 🚀</p>
+                <p className="text-sm sm:text-base lg:text-lg text-purple-700 font-semibold font-hanuman">ត្រលប់មកវិញហើយ អ្នករៀនពូកែ! ត្រៀមខ្លួនសម្រាប់ដំណើរផ្សងព្រេងថ្ងៃនេះហើយឬនៅ? 🚀</p>
               </div>
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                 <Button
                   onClick={() => router.push('/simulations')}
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-lg px-6 py-3 transform hover:scale-105 transition-all shadow-lg font-hanuman"
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-sm sm:text-base lg:text-lg px-4 sm:px-6 py-2 sm:py-3 transform hover:scale-105 transition-all shadow-lg font-hanuman w-full sm:w-auto"
                 >
-                  <Play className="h-5 w-5 mr-2 animate-pulse" />
+                  <Play className="h-4 w-4 sm:h-5 sm:w-5 mr-2 animate-pulse" />
                   ស្វែងរកការពិសោធន៍ 🧪
                 </Button>
                 <Button
                   variant="outline"
                   onClick={() => router.push('/student/history')}
-                  className="border-2 border-purple-400 text-purple-600 hover:bg-purple-50 text-lg px-6 py-3 transform hover:scale-105 transition-all font-hanuman"
+                  className="border-2 border-purple-400 text-purple-600 hover:bg-purple-50 text-sm sm:text-base lg:text-lg px-4 sm:px-6 py-2 sm:py-3 transform hover:scale-105 transition-all font-hanuman w-full sm:w-auto"
                 >
-                  <History className="h-5 w-5 mr-2" />
+                  <History className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                   ដំណើររបស់ខ្ញុំ 📚
                 </Button>
               </div>
@@ -328,22 +329,22 @@ export function EnhancedStudentDashboard({ user }: EnhancedStudentDashboardProps
 
             {/* Stats Overview */}
             {stats && (
-              <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mt-8">
-                <div className="text-center bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-4 transform hover:scale-110 transition-all cursor-pointer">
-                  <div className="text-3xl font-black text-blue-600 animate-pulse">{stats.simulations_attempted}</div>
-                  <div className="text-sm text-blue-700 font-bold font-hanuman">ព្យាយាម 🎯</div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4 mt-4 sm:mt-6 lg:mt-8">
+                <div className="text-center bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl sm:rounded-2xl p-2 sm:p-4 transform hover:scale-110 transition-all cursor-pointer">
+                  <div className="text-xl sm:text-2xl lg:text-3xl font-black text-blue-600 animate-pulse">{stats.simulations_attempted}</div>
+                  <div className="text-xs sm:text-sm text-blue-700 font-bold font-hanuman">ព្យាយាម 🎯</div>
                 </div>
-                <div className="text-center bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-4 transform hover:scale-110 transition-all cursor-pointer">
-                  <div className="text-3xl font-black text-green-600 animate-pulse">{stats.simulations_completed}</div>
-                  <div className="text-sm text-green-700 font-bold font-hanuman">បានបញ្ចប់ ✅</div>
+                <div className="text-center bg-gradient-to-br from-green-50 to-green-100 rounded-xl sm:rounded-2xl p-2 sm:p-4 transform hover:scale-110 transition-all cursor-pointer">
+                  <div className="text-xl sm:text-2xl lg:text-3xl font-black text-green-600 animate-pulse">{stats.simulations_completed}</div>
+                  <div className="text-xs sm:text-sm text-green-700 font-bold font-hanuman">បានបញ្ចប់ ✅</div>
                 </div>
-                <div className="text-center bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-4 transform hover:scale-110 transition-all cursor-pointer">
-                  <div className="text-3xl font-black text-purple-600 animate-pulse">{formatDuration(stats.total_time_minutes)}</div>
-                  <div className="text-sm text-purple-700 font-bold font-hanuman">ពេលវេលាសរុប ⏰</div>
+                <div className="text-center bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl sm:rounded-2xl p-2 sm:p-4 transform hover:scale-110 transition-all cursor-pointer">
+                  <div className="text-xl sm:text-2xl lg:text-3xl font-black text-purple-600 animate-pulse">{formatDuration(stats.total_time_minutes)}</div>
+                  <div className="text-xs sm:text-sm text-purple-700 font-bold font-hanuman">ពេលវេលាសរុប ⏰</div>
                 </div>
-                <div className="text-center bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-4 transform hover:scale-110 transition-all cursor-pointer">
-                  <div className="text-3xl font-black text-orange-600 animate-pulse">{Math.round(stats.average_score)}%</div>
-                  <div className="text-sm text-orange-700 font-bold font-hanuman">ពិន្ទុមធ្យម 📊</div>
+                <div className="text-center bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl sm:rounded-2xl p-2 sm:p-4 transform hover:scale-110 transition-all cursor-pointer">
+                  <div className="text-xl sm:text-2xl lg:text-3xl font-black text-orange-600 animate-pulse">{Math.round(stats.average_score)}%</div>
+                  <div className="text-xs sm:text-sm text-orange-700 font-bold font-hanuman">ពិន្ទុមធ្យម 📊</div>
                 </div>
                 <div className="text-center bg-gradient-to-br from-pink-50 to-pink-100 rounded-2xl p-4 transform hover:scale-110 transition-all cursor-pointer">
                   <div className="text-3xl font-black text-pink-600 animate-pulse">{stats.achievements_earned}</div>
@@ -360,13 +361,14 @@ export function EnhancedStudentDashboard({ user }: EnhancedStudentDashboardProps
       </section>
 
       {/* Main Content */}
-      <section className="px-4 pb-16">
+      <section className="px-2 sm:px-4 pb-16">
         <div className="max-w-7xl mx-auto">
           <Tabs defaultValue="simulations" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-6 bg-white/80 backdrop-blur rounded-full p-1 shadow-lg">
-              <TabsTrigger value="simulations" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-full font-bold transition-all data-[state=active]:scale-105 font-hanuman">
-                <FlaskConical className="h-5 w-5 mr-2" />
-                ការពិសោធន៍
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-4 sm:mb-6 bg-white/80 backdrop-blur rounded-2xl sm:rounded-full p-1 shadow-lg overflow-hidden">
+              <TabsTrigger value="simulations" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-xl sm:rounded-full font-bold transition-all data-[state=active]:scale-105 font-hanuman text-xs sm:text-sm px-2 py-2">
+                <FlaskConical className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">ការពិសោធន៍</span>
+                <span className="sm:hidden">ពិសោធ</span>
               </TabsTrigger>
               <TabsTrigger value="progress" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-full font-bold transition-all data-[state=active]:scale-105 font-hanuman">
                 <TrendingUp className="h-5 w-5 mr-2" />

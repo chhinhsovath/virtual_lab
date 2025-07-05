@@ -414,7 +414,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white relative overflow-hidden">
+      {/* <section className="py-20 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="max-w-4xl mx-auto text-center relative">
           <h2 className={`text-3xl md:text-4xl font-bold mb-6 ${getFontClass()}`}>
@@ -436,12 +436,12 @@ export default function Home() {
             </Button>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Footer */}
       <footer className="py-12 px-4 bg-gray-900 text-gray-300">
         <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
+          {/* <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div className="md:col-span-2">
               <div className="flex items-center gap-3 mb-4">
                 <FlaskConical className="h-8 w-8 text-blue-400" />
@@ -475,7 +475,7 @@ export default function Home() {
                 <li><a href="#" className={`hover:text-blue-400 transition-colors ${getFontClass()}`}>{t('footer.assessment_tools')}</a></li>
               </ul>
             </div>
-          </div>
+          </div> */}
           
           <div className="border-t border-gray-800 pt-8 text-center">
             <p className={`text-gray-400 ${getFontClass()}`}>

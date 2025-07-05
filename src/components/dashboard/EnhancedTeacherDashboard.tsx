@@ -259,65 +259,68 @@ export function EnhancedTeacherDashboard({ user }: EnhancedTeacherDashboardProps
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       {/* Welcome Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg p-6 text-white">
-        <h1 className="text-2xl font-bold mb-2">
+      <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg p-4 sm:p-6 text-white">
+        <h1 className="text-xl sm:text-2xl font-bold mb-2">
           Welcome back, {user.firstName || user.username}!
         </h1>
-        <p className="text-blue-100">
+        <p className="text-sm sm:text-base text-blue-100">
           You have {stats?.pending_submissions || 0} pending submissions to review
         </p>
       </div>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
         <Card className="border-l-4 border-l-blue-500">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium">Total Students</CardTitle>
+            <Users className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.total_students || 0}</div>
+          <CardContent className="pt-2 sm:pt-6">
+            <div className="text-lg sm:text-2xl font-bold">{stats?.total_students || 0}</div>
             <p className="text-xs text-muted-foreground">
-              across all classes
+              <span className="hidden sm:inline">across all classes</span>
+              <span className="sm:hidden">students</span>
             </p>
           </CardContent>
         </Card>
 
         <Card className="border-l-4 border-l-green-500">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Class Average</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium">Class Average</CardTitle>
+            <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.average_class_score || 0}%</div>
-            <Progress value={stats?.average_class_score || 0} className="mt-2" />
+          <CardContent className="pt-2 sm:pt-6">
+            <div className="text-lg sm:text-2xl font-bold">{stats?.average_class_score || 0}%</div>
+            <Progress value={stats?.average_class_score || 0} className="mt-1 sm:mt-2" />
           </CardContent>
         </Card>
 
         <Card className="border-l-4 border-l-yellow-500">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Reviews</CardTitle>
-            <AlertCircle className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium">Pending Reviews</CardTitle>
+            <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.pending_submissions || 0}</div>
+          <CardContent className="pt-2 sm:pt-6">
+            <div className="text-lg sm:text-2xl font-bold">{stats?.pending_submissions || 0}</div>
             <p className="text-xs text-muted-foreground">
-              submissions awaiting review
+              <span className="hidden sm:inline">submissions awaiting review</span>
+              <span className="sm:hidden">pending</span>
             </p>
           </CardContent>
         </Card>
 
         <Card className="border-l-4 border-l-purple-500">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Assignments</CardTitle>
-            <BookOpen className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium">Active Assignments</CardTitle>
+            <BookOpen className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.active_assignments || 0}</div>
+          <CardContent className="pt-2 sm:pt-6">
+            <div className="text-lg sm:text-2xl font-bold">{stats?.active_assignments || 0}</div>
             <p className="text-xs text-muted-foreground">
-              ongoing assignments
+              <span className="hidden sm:inline">ongoing assignments</span>
+              <span className="sm:hidden">active</span>
             </p>
           </CardContent>
         </Card>
