@@ -233,37 +233,37 @@ export function ParentPortal({ user }: ParentPortalProps) {
   }
 
   return (
-    <div className="space-y-6">
-        {/* Parent Header */}
-        <div className="bg-gradient-to-r from-green-600 to-blue-600 rounded-lg p-4 sm:p-6 text-white">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
-              <Avatar className="h-16 w-16 border-2 border-white">
+    <div className="space-y-6 bg-gray-50 min-h-screen p-4 sm:p-6">
+        {/* Parent Header - Simplified and Larger */}
+        <div className="bg-gradient-to-r from-blue-700 to-blue-900 rounded-2xl p-6 sm:p-8 text-white shadow-xl">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
+              <Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-4 border-white shadow-lg">
                 <AvatarImage src={user.avatarUrl} />
-                <AvatarFallback className="bg-white text-green-600 text-xl font-bold">
+                <AvatarFallback className="bg-white text-blue-700 text-2xl sm:text-3xl font-bold">
                   {user.name?.split(' ').map(n => n[0]).join('')}
                 </AvatarFallback>
               </Avatar>
               <div>
-                <h1 className="text-2xl font-bold">
-                  Welcome, {user.name?.split(' ')[0]}!
+                <h1 className="text-3xl sm:text-4xl font-bold font-hanuman">
+                  សូមស្វាគមន៍ {user.name?.split(' ')[0]}!
                 </h1>
-                <p className="text-green-100">
-                  Parent Portal • {children.length} Child{children.length !== 1 ? 'ren' : ''}
+                <p className="text-xl sm:text-2xl text-blue-100 mt-2 font-hanuman">
+                  ទំព័រមាតាបិតា • កូន {children.length} នាក់
                 </p>
               </div>
             </div>
 
             {children.length > 1 && (
-              <div className="w-full sm:w-64">
+              <div className="w-full sm:w-80">
                 <Select value={selectedChildId} onValueChange={setSelectedChildId}>
-                  <SelectTrigger className="bg-white text-gray-900">
-                    <SelectValue placeholder="Select a child" />
+                  <SelectTrigger className="bg-white text-gray-900 h-14 text-lg font-hanuman border-2 border-blue-300">
+                    <SelectValue placeholder="ជ្រើសរើសកូន" />
                   </SelectTrigger>
                   <SelectContent>
                     {children.map((child) => (
-                      <SelectItem key={child.id} value={child.id}>
-                        {child.firstName} {child.lastName} ({child.grade})
+                      <SelectItem key={child.id} value={child.id} className="text-lg py-3 font-hanuman">
+                        {child.firstName} {child.lastName} (ថ្នាក់ទី {child.grade})
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -275,95 +275,87 @@ export function ParentPortal({ user }: ParentPortalProps) {
 
         {selectedChild && (
           <>
-            {/* Child Summary Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-              <Card>
-                <CardContent className="p-3 md:p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs md:text-sm font-medium text-gray-600">Overall GPA</p>
-                      <p className="text-lg md:text-2xl font-bold">{selectedChild.overallGPA.toFixed(2)}</p>
-                    </div>
-                    <Award className="h-6 w-6 md:h-8 md:w-8 text-yellow-500" />
+            {/* Child Summary Cards - Larger and Clearer */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              <Card className="border-2 border-gray-200 shadow-lg hover:shadow-xl transition-all">
+                <CardContent className="p-6">
+                  <div className="flex flex-col items-center text-center">
+                    <Award className="h-12 w-12 sm:h-16 sm:w-16 text-yellow-500 mb-3" />
+                    <p className="text-lg sm:text-xl font-bold text-gray-700 mb-1 font-hanuman">ពិន្ទុសរុប</p>
+                    <p className="text-sm text-gray-500 mb-2">Overall Score</p>
+                    <p className="text-3xl sm:text-4xl font-bold text-blue-700">{selectedChild.overallGPA.toFixed(1)}/10</p>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardContent className="p-3 md:p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs md:text-sm font-medium text-gray-600">Attendance Rate</p>
-                      <p className="text-lg md:text-2xl font-bold">{selectedChild.attendanceRate}%</p>
-                    </div>
-                    <CheckCircle className={`h-6 w-6 md:h-8 md:w-8 ${selectedChild.attendanceRate >= 90 ? 'text-green-500' : 'text-orange-500'}`} />
+              <Card className="border-2 border-gray-200 shadow-lg hover:shadow-xl transition-all">
+                <CardContent className="p-6">
+                  <div className="flex flex-col items-center text-center">
+                    <CheckCircle className={`h-12 w-12 sm:h-16 sm:w-16 mb-3 ${selectedChild.attendanceRate >= 90 ? 'text-green-500' : 'text-orange-500'}`} />
+                    <p className="text-lg sm:text-xl font-bold text-gray-700 mb-1 font-hanuman">វត្តមាន</p>
+                    <p className="text-sm text-gray-500 mb-2">Attendance</p>
+                    <p className="text-3xl sm:text-4xl font-bold text-green-700">{selectedChild.attendanceRate}%</p>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardContent className="p-3 md:p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs md:text-sm font-medium text-gray-600">STEM Simulations</p>
-                      <p className="text-lg md:text-2xl font-bold">{selectedChild.enrolledCourses}</p>
-                    </div>
-                    <FlaskConical className="h-6 w-6 md:h-8 md:w-8 text-blue-500" />
+              <Card className="border-2 border-gray-200 shadow-lg hover:shadow-xl transition-all">
+                <CardContent className="p-6">
+                  <div className="flex flex-col items-center text-center">
+                    <FlaskConical className="h-12 w-12 sm:h-16 sm:w-16 text-purple-500 mb-3" />
+                    <p className="text-lg sm:text-xl font-bold text-gray-700 mb-1 font-hanuman">មេរៀនវិទ្យាសាស្ត្រ</p>
+                    <p className="text-sm text-gray-500 mb-2">Science Lessons</p>
+                    <p className="text-3xl sm:text-4xl font-bold text-purple-700">{selectedChild.enrolledCourses}</p>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardContent className="p-3 md:p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs md:text-sm font-medium text-gray-600">Pending Work</p>
-                      <p className="text-lg md:text-2xl font-bold">{selectedChild.pendingAssignments}</p>
-                    </div>
-                    <FileText className={`h-6 w-6 md:h-8 md:w-8 ${selectedChild.pendingAssignments > 5 ? 'text-red-500' : 'text-orange-500'}`} />
+              <Card className="border-2 border-gray-200 shadow-lg hover:shadow-xl transition-all">
+                <CardContent className="p-6">
+                  <div className="flex flex-col items-center text-center">
+                    <FileText className={`h-12 w-12 sm:h-16 sm:w-16 mb-3 ${selectedChild.pendingAssignments > 3 ? 'text-red-500' : 'text-blue-500'}`} />
+                    <p className="text-lg sm:text-xl font-bold text-gray-700 mb-1 font-hanuman">កិច្ចការមិនទាន់បញ្ចប់</p>
+                    <p className="text-sm text-gray-500 mb-2">Homework Left</p>
+                    <p className={`text-3xl sm:text-4xl font-bold ${selectedChild.pendingAssignments > 3 ? 'text-red-600' : 'text-blue-700'}`}>
+                      {selectedChild.pendingAssignments}
+                    </p>
                   </div>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Child Details */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <UserIcon className="h-5 w-5" />
-                  {selectedChild.firstName} {selectedChild.lastName}
+            {/* Child Details - Simplified and Larger */}
+            <Card className="border-2 border-blue-200 shadow-lg bg-blue-50">
+              <CardHeader className="bg-blue-100 pb-6">
+                <CardTitle className="flex items-center gap-3 text-2xl sm:text-3xl">
+                  <UserIcon className="h-8 w-8 sm:h-10 sm:w-10 text-blue-700" />
+                  <div>
+                    <p className="font-hanuman text-blue-900">{selectedChild.firstName} {selectedChild.lastName}</p>
+                    <p className="text-lg sm:text-xl text-blue-700 font-normal mt-1">ថ្នាក់ទី {selectedChild.grade}</p>
+                  </div>
                 </CardTitle>
-                <CardDescription>
-                  Grade {selectedChild.grade} • {selectedChild.username} • Status: {selectedChild.academicStatus}
-                </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="flex items-center space-x-4">
-                  <Avatar className="h-16 w-16">
+              <CardContent className="pt-6">
+                <div className="flex flex-col sm:flex-row items-center gap-6">
+                  <Avatar className="h-24 w-24 sm:h-32 sm:w-32 border-4 border-blue-300">
                     <AvatarImage src={selectedChild.profilePictureUrl} />
-                    <AvatarFallback className="text-xl font-bold">
+                    <AvatarFallback className="text-2xl sm:text-3xl font-bold bg-blue-100 text-blue-700">
                       {selectedChild.firstName[0]}{selectedChild.lastName[0]}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                      <div>
-                        <span className="font-medium">Academic Status:</span>
-                        <Badge className="ml-2" variant={selectedChild.academicStatus === 'active' ? 'default' : 'secondary'}>
-                          {selectedChild.academicStatus}
+                  <div className="flex-1 w-full">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="bg-white rounded-lg p-4 border border-blue-200">
+                        <p className="text-gray-600 mb-1 font-hanuman">ស្ថានភាពសិក្សា</p>
+                        <p className="text-xs text-gray-500">Academic Status</p>
+                        <Badge className="mt-2" variant="default">
+                          <span className="text-lg py-1 font-hanuman">សកម្ម</span>
                         </Badge>
                       </div>
-                      <div>
-                        <span className="font-medium">GPA: </span>
-                        <span>{selectedChild.overallGPA.toFixed(2)}</span>
-                      </div>
-                      <div>
-                        <span className="font-medium">Attendance: </span>
-                        <span>{selectedChild.attendanceRate}%</span>
-                      </div>
-                      <div>
-                        <span className="font-medium">Courses: </span>
-                        <span>{selectedChild.enrolledCourses}</span>
+                      <div className="bg-white rounded-lg p-4 border border-blue-200">
+                        <p className="text-gray-600 mb-1 font-hanuman">អាសយដ្ឋានអ៊ីមែល</p>
+                        <p className="text-xs text-gray-500">Email</p>
+                        <p className="text-lg font-medium text-blue-700 mt-1">{selectedChild.username}</p>
                       </div>
                     </div>
                   </div>
@@ -371,82 +363,135 @@ export function ParentPortal({ user }: ParentPortalProps) {
               </CardContent>
             </Card>
 
-            {/* Main Content Tabs */}
+            {/* Main Content Tabs - Larger and Clearer */}
             <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 md:grid-cols-6">
-                <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
-                <TabsTrigger value="simulations" className="text-xs sm:text-sm">STEM Labs</TabsTrigger>
-                <TabsTrigger value="grades" className="text-xs sm:text-sm">Grades</TabsTrigger>
-                <TabsTrigger value="attendance" className="text-xs sm:text-sm hidden md:inline-flex">Attendance</TabsTrigger>
-                <TabsTrigger value="teachers" className="text-xs sm:text-sm hidden md:inline-flex">Teachers</TabsTrigger>
-                <TabsTrigger value="communication" className="text-xs sm:text-sm hidden md:inline-flex">Messages</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 bg-white p-2 h-auto">
+                <TabsTrigger value="overview" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white py-3 sm:py-4 text-base sm:text-lg font-hanuman">
+                  <div className="text-center">
+                    <p>ទិដ្ឋភាពទូទៅ</p>
+                    <p className="text-xs mt-1">Overview</p>
+                  </div>
+                </TabsTrigger>
+                <TabsTrigger value="simulations" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white py-3 sm:py-4 text-base sm:text-lg font-hanuman">
+                  <div className="text-center">
+                    <p>មន្ទីរពិសោធន៍</p>
+                    <p className="text-xs mt-1">STEM Labs</p>
+                  </div>
+                </TabsTrigger>
+                <TabsTrigger value="grades" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white py-3 sm:py-4 text-base sm:text-lg font-hanuman">
+                  <div className="text-center">
+                    <p>ពិន្ទុ</p>
+                    <p className="text-xs mt-1">Grades</p>
+                  </div>
+                </TabsTrigger>
+                <TabsTrigger value="attendance" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white py-3 sm:py-4 text-base sm:text-lg font-hanuman">
+                  <div className="text-center">
+                    <p>វត្តមាន</p>
+                    <p className="text-xs mt-1">Attendance</p>
+                  </div>
+                </TabsTrigger>
+                <TabsTrigger value="teachers" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white py-3 sm:py-4 text-base sm:text-lg font-hanuman">
+                  <div className="text-center">
+                    <p>គ្រូបង្រៀន</p>
+                    <p className="text-xs mt-1">Teachers</p>
+                  </div>
+                </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="overview" className="space-y-6">
+              <TabsContent value="overview" className="space-y-6 mt-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Recent Grades */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Award className="h-5 w-5" />
-                        Recent Grades
+                  {/* Recent Grades - Clearer Design */}
+                  <Card className="border-2 shadow-lg">
+                    <CardHeader className="bg-gradient-to-r from-yellow-50 to-orange-50 pb-6">
+                      <CardTitle className="flex items-center gap-3 text-xl sm:text-2xl">
+                        <Award className="h-8 w-8 text-yellow-600" />
+                        <span className="font-hanuman">ពិន្ទុថ្មីៗ</span>
+                        <span className="text-base text-gray-600 ml-2">Recent Grades</span>
                       </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
+                    <CardContent className="pt-6">
+                      <div className="space-y-4">
                         {getRecentGrades().map((grade) => (
-                          <div key={grade.id} className="flex items-center justify-between p-3 border rounded-lg">
-                            <div>
-                              <p className="font-medium">{grade.assignment}</p>
-                              <p className="text-sm text-gray-500">{grade.course}</p>
-                              <p className="text-xs text-gray-400">
-                                {new Date(grade.date).toLocaleDateString()}
+                          <div key={grade.id} className="flex items-center justify-between p-4 bg-gray-50 border-2 rounded-xl hover:bg-gray-100 transition-colors">
+                            <div className="flex-1">
+                              <p className="font-bold text-lg">{grade.assignment}</p>
+                              <p className="text-gray-600 font-hanuman">{grade.course}</p>
+                              <p className="text-sm text-gray-500 mt-1">
+                                {new Date(grade.date).toLocaleDateString('km-KH', { 
+                                  year: 'numeric', 
+                                  month: 'long', 
+                                  day: 'numeric' 
+                                })}
                               </p>
                             </div>
-                            <div className="text-right">
-                              <p className="font-bold">{grade.score}/{grade.maxScore}</p>
-                              <Badge variant={grade.percentage >= 90 ? 'default' : grade.percentage >= 70 ? 'secondary' : 'destructive'}>
+                            <div className="text-center ml-4">
+                              <p className="text-2xl font-bold text-blue-700">{grade.score}/{grade.maxScore}</p>
+                              <Badge 
+                                className="mt-2 text-base px-3 py-1"
+                                variant={grade.percentage >= 90 ? 'default' : grade.percentage >= 70 ? 'secondary' : 'destructive'}
+                              >
                                 {grade.percentage}%
                               </Badge>
                             </div>
                           </div>
                         ))}
                         {getRecentGrades().length === 0 && (
-                          <p className="text-gray-500 text-center py-4">No recent grades</p>
+                          <div className="text-center py-8">
+                            <Award className="h-16 w-16 text-gray-300 mx-auto mb-3" />
+                            <p className="text-gray-500 text-lg font-hanuman">មិនមានពិន្ទុថ្មីៗទេ</p>
+                            <p className="text-gray-400">No recent grades</p>
+                          </div>
                         )}
                       </div>
                     </CardContent>
                   </Card>
 
-                  {/* Recent Attendance */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Calendar className="h-5 w-5" />
-                        Recent Attendance
+                  {/* Recent Attendance - Clearer Design */}
+                  <Card className="border-2 shadow-lg">
+                    <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 pb-6">
+                      <CardTitle className="flex items-center gap-3 text-xl sm:text-2xl">
+                        <Calendar className="h-8 w-8 text-green-600" />
+                        <span className="font-hanuman">វត្តមានថ្មីៗ</span>
+                        <span className="text-base text-gray-600 ml-2">Recent Attendance</span>
                       </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
+                    <CardContent className="pt-6">
+                      <div className="space-y-4">
                         {getRecentAttendance().map((attendance) => (
-                          <div key={attendance.id} className="flex items-center justify-between p-3 border rounded-lg">
-                            <div>
-                              <p className="font-medium">{attendance.course}</p>
-                              <p className="text-sm text-gray-500">
-                                {new Date(attendance.date).toLocaleDateString()}
+                          <div key={attendance.id} className="flex items-center justify-between p-4 bg-gray-50 border-2 rounded-xl hover:bg-gray-100 transition-colors">
+                            <div className="flex-1">
+                              <p className="font-bold text-lg">{attendance.course}</p>
+                              <p className="text-gray-600 mt-1">
+                                {new Date(attendance.date).toLocaleDateString('km-KH', { 
+                                  weekday: 'long',
+                                  year: 'numeric', 
+                                  month: 'long', 
+                                  day: 'numeric' 
+                                })}
                               </p>
                             </div>
-                            <Badge variant={
-                              attendance.status === 'present' ? 'default' :
-                              attendance.status === 'late' ? 'secondary' :
-                              attendance.status === 'excused' ? 'outline' : 'destructive'
-                            }>
-                              {attendance.status}
+                            <Badge 
+                              className="text-base px-4 py-2"
+                              variant={
+                                attendance.status === 'present' ? 'default' :
+                                attendance.status === 'late' ? 'secondary' :
+                                attendance.status === 'excused' ? 'outline' : 'destructive'
+                              }
+                            >
+                              <span className="font-hanuman">
+                                {attendance.status === 'present' ? 'វត្តមាន' :
+                                 attendance.status === 'late' ? 'យឺត' :
+                                 attendance.status === 'excused' ? 'សុំច្បាប់' : 'អវត្តមាន'}
+                              </span>
                             </Badge>
                           </div>
                         ))}
                         {getRecentAttendance().length === 0 && (
-                          <p className="text-gray-500 text-center py-4">No attendance records</p>
+                          <div className="text-center py-8">
+                            <Calendar className="h-16 w-16 text-gray-300 mx-auto mb-3" />
+                            <p className="text-gray-500 text-lg font-hanuman">មិនមានកំណត់ត្រាវត្តមានទេ</p>
+                            <p className="text-gray-400">No attendance records</p>
+                          </div>
                         )}
                       </div>
                     </CardContent>
@@ -478,11 +523,13 @@ export function ParentPortal({ user }: ParentPortalProps) {
         )}
 
         {children.length === 0 && (
-          <Card>
-            <CardContent className="text-center py-8">
-              <Users className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No Children Found</h3>
-              <p className="text-gray-600">No child accounts are linked to your parent account.</p>
+          <Card className="border-2 shadow-lg">
+            <CardContent className="text-center py-12">
+              <Users className="mx-auto h-20 w-20 text-gray-300 mb-6" />
+              <h3 className="text-2xl font-bold text-gray-700 mb-3 font-hanuman">មិនមានកូនភ្ជាប់ទេ</h3>
+              <p className="text-lg text-gray-600">No children linked</p>
+              <p className="text-gray-500 mt-4">សូមទាក់ទងគ្រូបង្រៀនដើម្បីភ្ជាប់គណនីកូនរបស់អ្នក។</p>
+              <p className="text-gray-400">Please contact the teacher to link your child's account.</p>
             </CardContent>
           </Card>
         )}
@@ -684,106 +731,131 @@ function SimulationsDetailView({ simulations, stats }: { simulations: Simulation
     }
   };
 
+  const getSubjectName = (subject: string) => {
+    switch (subject) {
+      case 'Physics': return 'រូបវិទ្យា';
+      case 'Chemistry': return 'គីមីវិទ្យា';
+      case 'Biology': return 'ជីវវិទ្យា';
+      case 'Mathematics': return 'គណិតវិទ្យា';
+      default: return 'វិទ្យាសាស្ត្រ';
+    }
+  };
+
   return (
-    <div className="space-y-6">
-      {/* STEM Statistics */}
+    <div className="space-y-6 mt-6">
+      {/* STEM Statistics - Larger and Clearer */}
       {stats && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card>
-            <CardContent className="p-4 text-center">
-              <FlaskConical className="mx-auto h-8 w-8 text-purple-600 mb-2" />
-              <p className="text-2xl font-bold text-purple-600">{stats.totalSimulations}</p>
-              <p className="text-sm text-gray-600">Total Simulations</p>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          <Card className="border-2 shadow-lg">
+            <CardContent className="p-6 text-center">
+              <FlaskConical className="mx-auto h-12 w-12 sm:h-16 sm:w-16 text-purple-600 mb-3" />
+              <p className="text-3xl sm:text-4xl font-bold text-purple-600">{stats.totalSimulations}</p>
+              <p className="text-lg font-hanuman text-gray-700 mt-1">មេរៀនសរុប</p>
+              <p className="text-sm text-gray-500">Total Lessons</p>
             </CardContent>
           </Card>
-          <Card>
-            <CardContent className="p-4 text-center">
-              <CheckCircle className="mx-auto h-8 w-8 text-green-600 mb-2" />
-              <p className="text-2xl font-bold text-green-600">{stats.completedSimulations}</p>
-              <p className="text-sm text-gray-600">Completed</p>
+          <Card className="border-2 shadow-lg">
+            <CardContent className="p-6 text-center">
+              <CheckCircle className="mx-auto h-12 w-12 sm:h-16 sm:w-16 text-green-600 mb-3" />
+              <p className="text-3xl sm:text-4xl font-bold text-green-600">{stats.completedSimulations}</p>
+              <p className="text-lg font-hanuman text-gray-700 mt-1">បានបញ្ចប់</p>
+              <p className="text-sm text-gray-500">Completed</p>
             </CardContent>
           </Card>
-          <Card>
-            <CardContent className="p-4 text-center">
-              <Star className="mx-auto h-8 w-8 text-yellow-600 mb-2" />
-              <p className="text-2xl font-bold text-yellow-600">{stats.averageScore.toFixed(1)}</p>
-              <p className="text-sm text-gray-600">Avg Score</p>
+          <Card className="border-2 shadow-lg">
+            <CardContent className="p-6 text-center">
+              <Star className="mx-auto h-12 w-12 sm:h-16 sm:w-16 text-yellow-600 mb-3" />
+              <p className="text-3xl sm:text-4xl font-bold text-yellow-600">{stats.averageScore.toFixed(1)}/10</p>
+              <p className="text-lg font-hanuman text-gray-700 mt-1">ពិន្ទុមធ្យម</p>
+              <p className="text-sm text-gray-500">Average Score</p>
             </CardContent>
           </Card>
-          <Card>
-            <CardContent className="p-4 text-center">
-              <Clock className="mx-auto h-8 w-8 text-blue-600 mb-2" />
-              <p className="text-2xl font-bold text-blue-600">{Math.round(stats.totalTimeSpent / 60)}h</p>
-              <p className="text-sm text-gray-600">Study Time</p>
+          <Card className="border-2 shadow-lg">
+            <CardContent className="p-6 text-center">
+              <Clock className="mx-auto h-12 w-12 sm:h-16 sm:w-16 text-blue-600 mb-3" />
+              <p className="text-3xl sm:text-4xl font-bold text-blue-600">{Math.round(stats.totalTimeSpent / 60)}ម៉ោង</p>
+              <p className="text-lg font-hanuman text-gray-700 mt-1">ពេលសិក្សា</p>
+              <p className="text-sm text-gray-500">Study Time</p>
             </CardContent>
           </Card>
         </div>
       )}
 
-      {/* Subject Filter */}
-      <Card>
-        <CardHeader>
+      {/* Subject Filter - Clearer Design */}
+      <Card className="border-2 shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <CardTitle className="flex items-center gap-2">
-              <FlaskConical className="h-5 w-5" />
-              STEM Simulation Progress
+            <CardTitle className="flex items-center gap-3 text-xl sm:text-2xl">
+              <FlaskConical className="h-8 w-8 text-purple-600" />
+              <span className="font-hanuman">វឌ្ឍនភាពមន្ទីរពិសោធន៍</span>
+              <span className="text-base text-gray-600 ml-2">Lab Progress</span>
             </CardTitle>
             <Select value={subjectFilter} onValueChange={setSubjectFilter}>
-              <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="Filter by subject" />
+              <SelectTrigger className="w-full sm:w-64 h-12 text-lg border-2">
+                <SelectValue placeholder="ជ្រើសរើសមុខវិជ្ជា" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Subjects</SelectItem>
+                <SelectItem value="all" className="text-lg py-3 font-hanuman">មុខវិជ្ជាទាំងអស់</SelectItem>
                 {subjects.map((subject) => (
-                  <SelectItem key={subject} value={subject}>{subject}</SelectItem>
+                  <SelectItem key={subject} value={subject} className="text-lg py-3 font-hanuman">
+                    {getSubjectName(subject)} ({subject})
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <CardContent className="pt-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {filteredSimulations.map((simulation) => {
               const SubjectIcon = getSubjectIcon(simulation.subject);
               const subjectColor = getSubjectColor(simulation.subject);
               
               return (
-                <Card key={simulation.id} className="border-l-4 border-l-purple-500">
-                  <CardContent className="p-4">
-                    <div className="space-y-3">
+                <Card key={simulation.id} className="border-2 border-l-8 border-l-purple-500 shadow-lg hover:shadow-xl transition-all">
+                  <CardContent className="p-6">
+                    <div className="space-y-4">
                       <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-2">
-                          <SubjectIcon className={`h-5 w-5 ${subjectColor}`} />
-                          <div>
-                            <h4 className="font-medium">{simulation.title}</h4>
-                            <p className="text-sm text-gray-500">{simulation.subject}</p>
+                        <div className="flex items-start gap-3">
+                          <div className={`p-3 rounded-xl bg-purple-100`}>
+                            <SubjectIcon className={`h-8 w-8 ${subjectColor}`} />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-bold text-lg sm:text-xl font-hanuman">{simulation.titleKm}</h4>
+                            <p className="text-gray-600 mt-1">{simulation.title}</p>
+                            <p className="text-sm text-gray-500 mt-1">{getSubjectName(simulation.subject)}</p>
                           </div>
                         </div>
-                        <Badge variant={simulation.progress.completed ? 'default' : 'secondary'}>
-                          {simulation.progress.completed ? 'Completed' : 'In Progress'}
+                        <Badge 
+                          className="text-base px-3 py-1"
+                          variant={simulation.progress.completed ? 'default' : 'secondary'}
+                        >
+                          <span className="font-hanuman">
+                            {simulation.progress.completed ? 'បានបញ្ចប់' : 'កំពុងរៀន'}
+                          </span>
                         </Badge>
                       </div>
                       
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span>Progress</span>
-                          <span className="font-medium">{simulation.progress.percentage}%</span>
+                      <div className="space-y-3">
+                        <div className="flex justify-between text-base">
+                          <span className="font-hanuman text-gray-700">វឌ្ឍនភាព</span>
+                          <span className="font-bold text-lg">{simulation.progress.percentage}%</span>
                         </div>
-                        <Progress value={simulation.progress.percentage} className="h-2" />
+                        <Progress value={simulation.progress.percentage} className="h-4 bg-gray-200" />
                       </div>
 
-                      <div className="grid grid-cols-3 gap-4 text-sm">
-                        <div className="text-center">
-                          <p className="font-medium text-blue-600">{simulation.progress.timeSpent}m</p>
-                          <p className="text-gray-500">Time Spent</p>
+                      <div className="grid grid-cols-3 gap-4 text-center">
+                        <div className="bg-blue-50 rounded-lg p-3">
+                          <p className="text-2xl font-bold text-blue-700">{simulation.progress.timeSpent}នាទី</p>
+                          <p className="text-sm text-gray-600 font-hanuman">ពេលវេលា</p>
                         </div>
-                        <div className="text-center">
-                          <p className="font-medium text-orange-600">{simulation.progress.attempts}</p>
-                          <p className="text-gray-500">Attempts</p>
+                        <div className="bg-orange-50 rounded-lg p-3">
+                          <p className="text-2xl font-bold text-orange-700">{simulation.progress.attempts}ដង</p>
+                          <p className="text-sm text-gray-600 font-hanuman">ព្យាយាម</p>
                         </div>
-                        <div className="text-center">
-                          <p className="font-medium text-green-600">{simulation.progress.bestScore}/10</p>
-                          <p className="text-gray-500">Best Score</p>
+                        <div className="bg-green-50 rounded-lg p-3">
+                          <p className="text-2xl font-bold text-green-700">{simulation.progress.bestScore}/10</p>
+                          <p className="text-sm text-gray-600 font-hanuman">ពិន្ទុខ្ពស់</p>
                         </div>
                       </div>
 
