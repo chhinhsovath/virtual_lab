@@ -147,10 +147,23 @@ export function EnhancedStudentDashboard({ user }: EnhancedStudentDashboardProps
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
-      router.push('/');
+      const response = await fetch('/api/auth/logout', { 
+        method: 'POST',
+        credentials: 'include' 
+      });
+      
+      if (response.ok) {
+        // Force a hard redirect to clear all client-side state
+        window.location.href = '/';
+      } else {
+        console.error('Logout failed');
+        // Still redirect even if logout API fails
+        window.location.href = '/';
+      }
     } catch (error) {
       console.error('Logout error:', error);
+      // Force redirect even on error
+      window.location.href = '/';
     }
   };
 

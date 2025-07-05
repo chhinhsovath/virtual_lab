@@ -423,12 +423,23 @@ export function STEMStudentPortal({ user }: STEMStudentPortalProps) {
                   onClick={async () => {
                     try {
                       // Call logout API
-                      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
-                      // Redirect to homepage
-                      router.push('/');
+                      const response = await fetch('/api/auth/logout', { 
+                        method: 'POST', 
+                        credentials: 'include' 
+                      });
+                      
+                      if (response.ok) {
+                        // Force a hard redirect to clear all client-side state
+                        window.location.href = '/';
+                      } else {
+                        console.error('Logout failed');
+                        // Still redirect even if logout API fails
+                        window.location.href = '/';
+                      }
                     } catch (error) {
                       console.error('Logout error:', error);
-                      router.push('/');
+                      // Force redirect even on error
+                      window.location.href = '/';
                     }
                   }}
                 >

@@ -85,11 +85,32 @@ export async function middleware(request: NextRequest) {
           if (sessionData.user.roles?.includes('student') || sessionData.user.role === 'student') {
             return NextResponse.redirect(new URL('/student', request.url));
           }
+          // Valid session for non-student users
+          return NextResponse.redirect(new URL('/dashboard', request.url));
+        } else {
+          // Invalid session - clear cookie and redirect to login
+          const response = NextResponse.redirect(new URL('/auth/login', request.url));
+          response.cookies.set('session', '', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 0,
+            path: '/'
+          });
+          return response;
         }
       } catch (error) {
-        // Fallback to dashboard if session check fails
+        // Session validation failed - clear cookie and redirect to login
+        const response = NextResponse.redirect(new URL('/auth/login', request.url));
+        response.cookies.set('session', '', {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 0,
+          path: '/'
+        });
+        return response;
       }
-      return NextResponse.redirect(new URL('/dashboard', request.url));
     }
     return NextResponse.redirect(new URL('/auth/login', request.url));
   }

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { destroySession } from '../../../../lib/auth';
+import { deleteSession } from '../../../../lib/auth';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     const sessionToken = request.cookies.get('session')?.value;
     
     if (sessionToken) {
-      await destroySession(sessionToken);
+      await deleteSession(sessionToken);
     }
     
     const response = NextResponse.json({ success: true });
