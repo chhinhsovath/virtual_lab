@@ -16,7 +16,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // Check if user has parent or guardian role
-    if (!session.user.roles.includes('parent') && !session.user.roles.includes('guardian')) {
+    if (session.user.role !== 'parent' && session.user.role !== 'guardian') {
       return NextResponse.json({ error: 'Access denied. Parent role required.' }, { status: 403 });
     }
 
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     try {
       // Verify parent-child relationship
       const relationshipCheck = await client.query(
-        'SELECT 1 FROM parent_student_relationships WHERE parent_id = $1 AND student_id = $2',
+        'SELECT 1 FROM lms_parent_students WHERE parent_id = $1 AND student_id = $2',
         [session.user.id, childId]
       );
 
@@ -36,24 +36,24 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         }, { status: 403 });
       }
 
-      // Generate mock attendance data based on simulation activity
+      // Generate attendance data based on lab session activity
       // In a real system, this would come from actual attendance tracking
       const attendanceQuery = `
         WITH recent_activity AS (
           SELECT 
-            ssp.last_accessed::date as date,
-            sc.subject_area as course,
+            ls.start_time::date as date,
+            l.subject as course,
             CASE 
-              WHEN ssp.time_spent >= 20 THEN 'present'
-              WHEN ssp.time_spent >= 10 THEN 'late'
-              WHEN ssp.time_spent < 10 AND ssp.time_spent > 0 THEN 'late'
+              WHEN ls.duration_minutes >= 20 THEN 'present'
+              WHEN ls.duration_minutes >= 10 THEN 'late'
+              WHEN ls.duration_minutes < 10 AND ls.duration_minutes > 0 THEN 'late'
               ELSE 'absent'
             END as status,
-            'System' as teacher
-          FROM student_simulation_progress ssp
-          JOIN stem_simulations_catalog sc ON ssp.simulation_id = sc.id
-          WHERE ssp.student_id = $1 
-            AND ssp.last_accessed >= CURRENT_DATE - INTERVAL '30 days'
+            'Virtual Lab Instructor' as teacher
+          FROM lab_sessions ls
+          JOIN lms_labs l ON ls.lab_id = l.id
+          WHERE ls.student_id = $1 
+            AND ls.start_time >= CURRENT_DATE - INTERVAL '30 days'
         ),
         generated_dates AS (
           SELECT 
@@ -67,7 +67,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           SELECT 
             gen_random_uuid() as id,
             gd.date,
-            CASE WHEN ra.course IS NOT NULL THEN ra.course ELSE 'General Studies' END as course,
+            CASE WHEN ra.course IS NOT NULL THEN ra.course ELSE 'Virtual Lab' END as course,
             CASE 
               WHEN EXTRACT(DOW FROM gd.date) IN (0, 6) THEN NULL -- Weekend
               WHEN ra.status IS NOT NULL THEN ra.status
@@ -76,7 +76,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
               WHEN RANDOM() < 0.97 THEN 'excused'
               ELSE 'absent'
             END as status,
-            COALESCE(ra.teacher, 'System') as teacher
+            COALESCE(ra.teacher, 'Virtual Lab Instructor') as teacher
           FROM generated_dates gd
           LEFT JOIN recent_activity ra ON gd.date = ra.date
           WHERE EXTRACT(DOW FROM gd.date) NOT IN (0, 6) -- Exclude weekends

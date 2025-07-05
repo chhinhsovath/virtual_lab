@@ -254,7 +254,7 @@ export function EnhancedStudentDashboard({ user }: EnhancedStudentDashboardProps
                   <span className="hidden sm:inline">Virtual Lab Cambodia</span>
                   <span className="sm:hidden">Lab</span>
                 </h1>
-                <p className="text-xs sm:text-sm text-purple-600 font-bold font-hanuman truncate">🚀 វិទ្យាល័យសិស្ស</p>
+                <p className="text-xs sm:text-sm text-purple-600 font-bold font-hanuman truncate">🚀 វិទ្យាល័យសិស្សល្អ</p>
               </div>
             </div>
             <div className="flex items-center gap-1 sm:gap-2 lg:gap-4">
@@ -370,17 +370,20 @@ export function EnhancedStudentDashboard({ user }: EnhancedStudentDashboardProps
                 <span className="hidden sm:inline">ការពិសោធន៍</span>
                 <span className="sm:hidden">ពិសោធ</span>
               </TabsTrigger>
-              <TabsTrigger value="progress" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-full font-bold transition-all data-[state=active]:scale-105 font-hanuman">
-                <TrendingUp className="h-5 w-5 mr-2" />
-                វឌ្ឍនភាពរបស់ខ្ញុំ
+              <TabsTrigger value="progress" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-xl sm:rounded-full font-bold transition-all data-[state=active]:scale-105 font-hanuman text-xs sm:text-sm px-2 py-2">
+                <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">វឌ្ឍនភាពរបស់ខ្ញុំ</span>
+                <span className="sm:hidden">វឌ្ឍនភាព</span>
               </TabsTrigger>
-              <TabsTrigger value="activity" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-full font-bold transition-all data-[state=active]:scale-105 font-hanuman">
-                <Activity className="h-5 w-5 mr-2" />
-                កំណត់ត្រា
+              <TabsTrigger value="activity" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-xl sm:rounded-full font-bold transition-all data-[state=active]:scale-105 font-hanuman text-xs sm:text-sm px-2 py-2">
+                <Activity className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">កំណត់ត្រា</span>
+                <span className="sm:hidden">កំណត់</span>
               </TabsTrigger>
-              <TabsTrigger value="achievements" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-full font-bold transition-all data-[state=active]:scale-105 font-hanuman">
-                <Award className="h-5 w-5 mr-2" />
-                ស្លាកសញ្ញា
+              <TabsTrigger value="achievements" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-xl sm:rounded-full font-bold transition-all data-[state=active]:scale-105 font-hanuman text-xs sm:text-sm px-2 py-2">
+                <Award className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">ស្លាកសញ្ញា</span>
+                <span className="sm:hidden">ស្លាក</span>
               </TabsTrigger>
             </TabsList>
 
@@ -398,14 +401,14 @@ export function EnhancedStudentDashboard({ user }: EnhancedStudentDashboardProps
                         className="pl-10"
                       />
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 overflow-x-auto pb-2 -mx-2 px-2 scrollbar-hide">
                       {['All', 'Physics', 'Chemistry', 'Biology', 'Mathematics'].map((subject) => (
                         <Button
                           key={subject}
                           variant={selectedSubject === subject ? "default" : "outline"}
                           onClick={() => setSelectedSubject(subject)}
                           size="sm"
-                          className={selectedSubject === subject ? 'bg-blue-600' : ''}
+                          className={`${selectedSubject === subject ? 'bg-blue-600' : ''} whitespace-nowrap flex-shrink-0`}
                         >
                           {subject === 'All' ? 'ទាំងអស់' : subject}
                         </Button>

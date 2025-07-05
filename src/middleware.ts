@@ -26,8 +26,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  // For dashboard and protected routes, validate session and permissions
-  if (pathname.startsWith('/dashboard')) {
+  // For dashboard, parent, student and protected routes, validate session and permissions
+  if (pathname.startsWith('/dashboard') || pathname.startsWith('/parent') || pathname.startsWith('/student')) {
     try {
       // Validate session by making a request to our session API
       const sessionResponse = await fetch(new URL('/api/auth/session', request.url), {
@@ -48,6 +48,12 @@ export async function middleware(request: NextRequest) {
       if (pathname === '/dashboard' && 
           (sessionData.user.roles?.includes('student') || sessionData.user.role === 'student')) {
         return NextResponse.redirect(new URL('/student', request.url));
+      }
+      
+      // Check if parent is trying to access main dashboard and redirect to parent portal
+      if (pathname === '/dashboard' && 
+          (sessionData.user.roles?.includes('parent') || sessionData.user.roles?.includes('guardian') || sessionData.user.role === 'parent')) {
+        return NextResponse.redirect(new URL('/parent', request.url));
       }
       
       // Add user data to request headers for API routes
@@ -85,7 +91,10 @@ export async function middleware(request: NextRequest) {
           if (sessionData.user.roles?.includes('student') || sessionData.user.role === 'student') {
             return NextResponse.redirect(new URL('/student', request.url));
           }
-          // Valid session for non-student users
+          if (sessionData.user.roles?.includes('parent') || sessionData.user.roles?.includes('guardian') || sessionData.user.role === 'parent') {
+            return NextResponse.redirect(new URL('/parent', request.url));
+          }
+          // Valid session for other users (teachers, admins, etc.)
           return NextResponse.redirect(new URL('/dashboard', request.url));
         } else {
           // Invalid session - clear cookie and redirect to login

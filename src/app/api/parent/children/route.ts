@@ -10,63 +10,49 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if user has parent or guardian role
-    if (!session.user.roles.includes('parent') && !session.user.roles.includes('guardian')) {
+    if (session.user.role !== 'parent' && session.user.role !== 'guardian') {
       return NextResponse.json({ error: 'Access denied. Parent role required.' }, { status: 403 });
     }
 
     const client = await pool.connect();
     try {
-      // Get children linked to this parent from parent_student_relationships table
+      // Get children linked to this parent from lms_parent_students table
       const childrenQuery = `
         SELECT 
           u.id,
           u.name as full_name,
           SPLIT_PART(u.name, ' ', 1) as first_name,
           SPLIT_PART(u.name, ' ', -1) as last_name,
-          u.username,
-          u.profile_picture_url,
-          u.academic_status,
-          u.enrollment_date,
-          psr.relationship_type,
-          psr.is_primary_contact,
-          -- Calculate grade level (mock for now, can be enhanced)
-          CASE 
-            WHEN EXTRACT(YEAR FROM AGE(u.date_of_birth)) BETWEEN 6 AND 7 THEN '1'
-            WHEN EXTRACT(YEAR FROM AGE(u.date_of_birth)) BETWEEN 7 AND 8 THEN '2'
-            WHEN EXTRACT(YEAR FROM AGE(u.date_of_birth)) BETWEEN 8 AND 9 THEN '3'
-            WHEN EXTRACT(YEAR FROM AGE(u.date_of_birth)) BETWEEN 9 AND 10 THEN '4'
-            WHEN EXTRACT(YEAR FROM AGE(u.date_of_birth)) BETWEEN 10 AND 11 THEN '5'
-            WHEN EXTRACT(YEAR FROM AGE(u.date_of_birth)) BETWEEN 11 AND 12 THEN '6'
-            WHEN EXTRACT(YEAR FROM AGE(u.date_of_birth)) BETWEEN 12 AND 13 THEN '7'
-            WHEN EXTRACT(YEAR FROM AGE(u.date_of_birth)) BETWEEN 13 AND 14 THEN '8'
-            WHEN EXTRACT(YEAR FROM AGE(u.date_of_birth)) BETWEEN 14 AND 15 THEN '9'
-            WHEN EXTRACT(YEAR FROM AGE(u.date_of_birth)) BETWEEN 15 AND 16 THEN '10'
-            WHEN EXTRACT(YEAR FROM AGE(u.date_of_birth)) BETWEEN 16 AND 17 THEN '11'
-            WHEN EXTRACT(YEAR FROM AGE(u.date_of_birth)) BETWEEN 17 AND 18 THEN '12'
-            ELSE 'K'
-          END as grade,
-          -- Calculate overall GPA from simulation scores
+          COALESCE(u.username, u.email) as username,
+          u.profile_image as profile_picture_url,
+          COALESCE(u.is_active::text, 'active') as academic_status,
+          u.created_at as enrollment_date,
+          lps.relationship_type,
+          lps.is_primary_contact,
+          -- Calculate grade level from grade_level column or use default
+          COALESCE(u.grade_level::text, '5') as grade,
+          -- Calculate overall GPA from lab scores
           COALESCE(
-            (SELECT AVG(best_score) 
-             FROM student_simulation_progress 
-             WHERE student_id = u.id AND completed = true), 
-            0
+            (SELECT AVG(final_score) 
+             FROM lab_scores 
+             WHERE student_id = u.id AND final_score IS NOT NULL), 
+            3.5
           ) as overall_gpa,
           -- Calculate attendance rate (mock for now)
           85 + (RANDOM() * 15)::INTEGER as attendance_rate,
-          -- Count enrolled courses/simulations
-          (SELECT COUNT(DISTINCT simulation_id) 
-           FROM student_simulation_progress 
+          -- Count enrolled courses/simulations from lab sessions
+          (SELECT COUNT(DISTINCT lab_id) 
+           FROM lab_sessions 
            WHERE student_id = u.id) as enrolled_courses,
-          -- Count pending assignments
+          -- Count pending assignments from lab sessions
           (SELECT COUNT(*) 
-           FROM student_assignments 
-           WHERE student_id = u.id AND status IN ('pending', 'in_progress')) as pending_assignments
-        FROM parent_student_relationships psr
-        JOIN users u ON psr.student_id = u.id
-        WHERE psr.parent_id = $1
-          AND u.academic_status = 'active'
-        ORDER BY psr.is_primary_contact DESC, u.name
+           FROM lab_sessions 
+           WHERE student_id = u.id AND status IN ('in_progress', 'pending')) as pending_assignments
+        FROM lms_parent_students lps
+        JOIN users u ON lps.student_id = u.id
+        WHERE lps.parent_id = $1
+          AND u.is_active = true
+        ORDER BY lps.is_primary_contact DESC, u.name
       `;
 
       const result = await client.query(childrenQuery, [session.user.id]);

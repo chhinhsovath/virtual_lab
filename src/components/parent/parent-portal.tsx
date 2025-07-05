@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { User } from '../../lib/auth';
 import { usePermissions } from '../../hooks/use-permissions';
 import { PERMISSIONS, LMS_PERMISSIONS } from '../../lib/permissions';
-import { PermissionGuard } from '../auth/permission-guard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
@@ -222,19 +221,19 @@ export function ParentPortal({ user }: ParentPortalProps) {
     );
   }
 
+  // Check if user has parent or guardian role
+  if (!user.roles?.includes('parent') && !user.roles?.includes('guardian')) {
+    return (
+      <div className="text-center p-8">
+        <Users className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+        <h3 className="text-lg font-medium text-gray-900 mb-2">Access Denied</h3>
+        <p className="text-gray-600">You don't have access to the parent portal.</p>
+      </div>
+    );
+  }
+
   return (
-    <PermissionGuard
-      user={user}
-      permission={PERMISSIONS.PAGES.PARENT_PORTAL}
-      fallbackComponent={
-        <div className="text-center p-8">
-          <Users className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Access Denied</h3>
-          <p className="text-gray-600">You don't have access to the parent portal.</p>
-        </div>
-      }
-    >
-      <div className="space-y-6">
+    <div className="space-y-6">
         {/* Parent Header */}
         <div className="bg-gradient-to-r from-green-600 to-blue-600 rounded-lg p-4 sm:p-6 text-white">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
@@ -488,7 +487,6 @@ export function ParentPortal({ user }: ParentPortalProps) {
           </Card>
         )}
       </div>
-    </PermissionGuard>
   );
 }
 

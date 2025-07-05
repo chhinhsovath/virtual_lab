@@ -16,7 +16,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // Check if user has parent or guardian role
-    if (!session.user.roles.includes('parent') && !session.user.roles.includes('guardian')) {
+    if (session.user.role !== 'parent' && session.user.role !== 'guardian') {
       return NextResponse.json({ error: 'Access denied. Parent role required.' }, { status: 403 });
     }
 
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     try {
       // Verify parent-child relationship
       const relationshipCheck = await client.query(
-        'SELECT 1 FROM parent_student_relationships WHERE parent_id = $1 AND student_id = $2',
+        'SELECT 1 FROM lms_parent_students WHERE parent_id = $1 AND student_id = $2',
         [session.user.id, childId]
       );
 
@@ -36,14 +36,14 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         }, { status: 403 });
       }
 
-      // Get teachers from student assignments and create synthetic teacher contacts
+      // Get teachers from student lab activities and courses
       const teachersQuery = `
         WITH student_teachers AS (
           SELECT DISTINCT
-            COALESCE(sa.teacher_id, gen_random_uuid()) as teacher_id,
-            sc.subject_area,
+            COALESCE(l.created_by, gen_random_uuid()) as teacher_id,
+            l.subject,
             COALESCE(u.name, 
-              CASE sc.subject_area
+              CASE l.subject
                 WHEN 'Physics' THEN 'Dr. Sophea Vann'
                 WHEN 'Chemistry' THEN 'Prof. Ratana Kim'
                 WHEN 'Biology' THEN 'Ms. Sreypov Chea'
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
               END
             ) as teacher_name,
             COALESCE(u.email,
-              CASE sc.subject_area
+              CASE l.subject
                 WHEN 'Physics' THEN 'sophea.vann@school.edu.kh'
                 WHEN 'Chemistry' THEN 'ratana.kim@school.edu.kh'
                 WHEN 'Biology' THEN 'sreypov.chea@school.edu.kh'
@@ -60,38 +60,38 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
                 ELSE 'instructor@virtuallab.edu.kh'
               END
             ) as email,
-            CASE sc.subject_area
+            CASE l.subject
               WHEN 'Physics' THEN '+855 12 345 678'
               WHEN 'Chemistry' THEN '+855 12 456 789'
               WHEN 'Biology' THEN '+855 12 567 890'
               WHEN 'Mathematics' THEN '+855 12 678 901'
               ELSE NULL
             END as phone,
-            sc.id as course_id
-          FROM student_assignments sa
-          JOIN stem_simulations_catalog sc ON sa.simulation_id = sc.id
-          LEFT JOIN users u ON sa.teacher_id = u.id
-          WHERE sa.student_id = $1
+            l.id as course_id
+          FROM lms_student_lab_activities sla
+          JOIN lms_labs l ON sla.lab_id = l.id
+          LEFT JOIN users u ON l.created_by = u.id
+          WHERE sla.student_id = $1
         ),
         all_subjects AS (
           SELECT DISTINCT
             gen_random_uuid() as teacher_id,
-            ssp_subjects.subject_area,
-            CASE ssp_subjects.subject_area
+            lab_subjects.subject,
+            CASE lab_subjects.subject
               WHEN 'Physics' THEN 'Dr. Sophea Vann'
               WHEN 'Chemistry' THEN 'Prof. Ratana Kim'
               WHEN 'Biology' THEN 'Ms. Sreypov Chea'
               WHEN 'Mathematics' THEN 'Mr. Sovann Lim'
               ELSE 'Virtual Lab Instructor'
             END as teacher_name,
-            CASE ssp_subjects.subject_area
+            CASE lab_subjects.subject
               WHEN 'Physics' THEN 'sophea.vann@school.edu.kh'
               WHEN 'Chemistry' THEN 'ratana.kim@school.edu.kh'
               WHEN 'Biology' THEN 'sreypov.chea@school.edu.kh'
               WHEN 'Mathematics' THEN 'sovann.lim@school.edu.kh'
               ELSE 'instructor@virtuallab.edu.kh'
             END as email,
-            CASE ssp_subjects.subject_area
+            CASE lab_subjects.subject
               WHEN 'Physics' THEN '+855 12 345 678'
               WHEN 'Chemistry' THEN '+855 12 456 789'
               WHEN 'Biology' THEN '+855 12 567 890'
@@ -100,25 +100,25 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             END as phone,
             NULL as course_id
           FROM (
-            SELECT DISTINCT sc.subject_area
-            FROM student_simulation_progress ssp
-            JOIN stem_simulations_catalog sc ON ssp.simulation_id = sc.id
-            WHERE ssp.student_id = $1
-          ) ssp_subjects
+            SELECT DISTINCT l.subject
+            FROM lab_sessions ls
+            JOIN lms_labs l ON ls.lab_id = l.id
+            WHERE ls.student_id = $1
+          ) lab_subjects
         )
         SELECT DISTINCT
           teacher_id as id,
           teacher_name as name,
-          subject_area as subject,
+          subject as subject,
           email,
           phone,
-          COALESCE(course_id::text, subject_area) as course_id
+          COALESCE(course_id::text, subject) as course_id
         FROM (
           SELECT * FROM student_teachers
           UNION 
           SELECT * FROM all_subjects
         ) combined_teachers
-        ORDER BY subject_area
+        ORDER BY subject
       `;
 
       const result = await client.query(teachersQuery, [childId]);

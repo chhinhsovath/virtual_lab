@@ -4,7 +4,7 @@ import { deleteSession } from '../../../../lib/auth';
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 
-export async function POST(request: NextRequest) {
+async function handleLogout(request: NextRequest) {
   try {
     const sessionToken = request.cookies.get('session')?.value;
     
@@ -12,7 +12,10 @@ export async function POST(request: NextRequest) {
       await deleteSession(sessionToken);
     }
     
-    const response = NextResponse.json({ success: true });
+    const response = NextResponse.json({ 
+      success: true, 
+      message: 'Successfully logged out. You can now login with different credentials.' 
+    });
     
     // Clear the session cookie
     response.cookies.set('session', '', {
@@ -31,4 +34,12 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+export async function POST(request: NextRequest) {
+  return handleLogout(request);
+}
+
+export async function GET(request: NextRequest) {
+  return handleLogout(request);
 }

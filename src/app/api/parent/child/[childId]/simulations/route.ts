@@ -16,7 +16,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // Check if user has parent or guardian role
-    if (!session.user.roles.includes('parent') && !session.user.roles.includes('guardian')) {
+    if (session.user.role !== 'parent' && session.user.role !== 'guardian') {
       return NextResponse.json({ error: 'Access denied. Parent role required.' }, { status: 403 });
     }
 
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     try {
       // Verify parent-child relationship
       const relationshipCheck = await client.query(
-        'SELECT 1 FROM parent_student_relationships WHERE parent_id = $1 AND student_id = $2',
+        'SELECT 1 FROM lms_parent_students WHERE parent_id = $1 AND student_id = $2',
         [session.user.id, childId]
       );
 
@@ -36,43 +36,45 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         }, { status: 403 });
       }
 
-      // Get child's simulation progress with detailed information
+      // Get child's lab activities with detailed information
       const simulationsQuery = `
         SELECT 
-          ssp.id,
-          sc.id as simulation_id,
-          sc.simulation_name,
-          sc.display_name_en as title,
-          sc.display_name_km as title_km,
-          sc.description_en as description,
-          sc.description_km as description_km,
-          sc.subject_area as subject,
-          sc.difficulty_level as difficulty,
-          sc.grade_levels,
-          sc.estimated_duration,
-          ssp.progress_percentage,
-          ssp.time_spent,
-          ssp.attempts,
-          ssp.best_score,
-          ssp.completed,
-          ssp.last_accessed,
-          ssp.created_at as started_at,
-          -- Get assignment info if exists
-          sa.title as assignment_title,
-          sa.due_date,
-          sa.status as assignment_status,
-          sa.score as assignment_score,
-          sa.max_score as assignment_max_score,
-          -- Get achievements for this simulation
-          (SELECT COUNT(*) 
-           FROM student_achievements ach 
-           WHERE ach.student_id = ssp.student_id 
-             AND ach.category = sc.subject_area) as subject_achievements
-        FROM student_simulation_progress ssp
-        JOIN stem_simulations_catalog sc ON ssp.simulation_id = sc.id
-        LEFT JOIN student_assignments sa ON sa.simulation_id = sc.id AND sa.student_id = ssp.student_id
-        WHERE ssp.student_id = $1
-        ORDER BY ssp.last_accessed DESC
+          sla.id,
+          l.id as lab_id,
+          l.title,
+          l.title_km,
+          l.description,
+          l.description_km,
+          l.subject,
+          l.difficulty_level as difficulty,
+          l.grade_levels,
+          l.duration_minutes as estimated_duration,
+          CASE 
+            WHEN ls.status = 'submitted' THEN 100
+            WHEN ls.status = 'in_progress' THEN 50
+            ELSE 0
+          END as progress_percentage,
+          ls.duration_minutes as time_spent,
+          1 as attempts,
+          lsc.final_score as best_score,
+          CASE WHEN ls.status = 'submitted' THEN true ELSE false END as completed,
+          ls.start_time as last_accessed,
+          ls.created_at as started_at,
+          -- Get assignment info from submissions
+          lsub.responses as assignment_data,
+          lsub.submitted_at as due_date,
+          ls.status as assignment_status,
+          lsc.final_score as assignment_score,
+          (SELECT SUM(max_points) FROM lab_rubric_criteria WHERE lab_id = l.id) as assignment_max_score,
+          -- Get achievements count (placeholder)
+          0 as subject_achievements
+        FROM lms_student_lab_activities sla
+        JOIN lms_labs l ON sla.lab_id = l.id
+        LEFT JOIN lab_sessions ls ON sla.id = ls.id
+        LEFT JOIN lab_submissions lsub ON ls.id = lsub.session_id
+        LEFT JOIN lab_scores lsc ON l.id = lsc.lab_id AND sla.student_id = lsc.student_id
+        WHERE sla.student_id = $1
+        ORDER BY ls.start_time DESC
       `;
 
       const result = await client.query(simulationsQuery, [childId]);
@@ -81,28 +83,30 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       const statsQuery = `
         SELECT 
           COUNT(*) as total_simulations,
-          COUNT(CASE WHEN completed THEN 1 END) as completed_simulations,
-          AVG(best_score) as average_score,
-          SUM(time_spent) as total_time_spent,
-          MAX(last_accessed) as last_activity,
+          COUNT(CASE WHEN ls.status = 'submitted' THEN 1 END) as completed_simulations,
+          AVG(lsc.final_score) as average_score,
+          SUM(ls.duration_minutes) as total_time_spent,
+          MAX(ls.start_time) as last_activity,
           -- Subject breakdown
-          COUNT(CASE WHEN sc.subject_area = 'Physics' THEN 1 END) as physics_count,
-          COUNT(CASE WHEN sc.subject_area = 'Chemistry' THEN 1 END) as chemistry_count,
-          COUNT(CASE WHEN sc.subject_area = 'Biology' THEN 1 END) as biology_count,
-          COUNT(CASE WHEN sc.subject_area = 'Mathematics' THEN 1 END) as mathematics_count,
-          -- Achievements count
-          (SELECT COUNT(*) FROM student_achievements WHERE student_id = $1) as total_achievements
-        FROM student_simulation_progress ssp
-        JOIN stem_simulations_catalog sc ON ssp.simulation_id = sc.id
-        WHERE ssp.student_id = $1
+          COUNT(CASE WHEN l.subject = 'Physics' THEN 1 END) as physics_count,
+          COUNT(CASE WHEN l.subject = 'Chemistry' THEN 1 END) as chemistry_count,
+          COUNT(CASE WHEN l.subject = 'Biology' THEN 1 END) as biology_count,
+          COUNT(CASE WHEN l.subject = 'Mathematics' THEN 1 END) as mathematics_count,
+          -- Achievements count (placeholder)
+          0 as total_achievements
+        FROM lms_student_lab_activities sla
+        JOIN lms_labs l ON sla.lab_id = l.id
+        LEFT JOIN lab_sessions ls ON sla.id = ls.id
+        LEFT JOIN lab_scores lsc ON l.id = lsc.lab_id AND sla.student_id = lsc.student_id
+        WHERE sla.student_id = $1
       `;
 
       const statsResult = await client.query(statsQuery, [childId]);
       
       const simulations = result.rows.map(row => ({
         id: row.id,
-        simulationId: row.simulation_id,
-        simulationName: row.simulation_name,
+        simulationId: row.lab_id,
+        simulationName: row.title,
         title: row.title,
         titleKm: row.title_km,
         description: row.description,
@@ -120,8 +124,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           lastAccessed: row.last_accessed,
           startedAt: row.started_at
         },
-        assignment: row.assignment_title ? {
-          title: row.assignment_title,
+        assignment: row.assignment_data ? {
+          title: `${row.title} Lab Assignment`,
           dueDate: row.due_date,
           status: row.assignment_status,
           score: row.assignment_score,
@@ -137,10 +141,10 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         totalTimeSpent: parseInt(statsResult.rows[0].total_time_spent) || 0,
         lastActivity: statsResult.rows[0].last_activity,
         subjectBreakdown: {
-          Physics: parseInt(statsResult.rows[0].physics_count),
-          Chemistry: parseInt(statsResult.rows[0].chemistry_count),
-          Biology: parseInt(statsResult.rows[0].biology_count),
-          Mathematics: parseInt(statsResult.rows[0].mathematics_count)
+          Physics: parseInt(statsResult.rows[0].physics_count) || 0,
+          Chemistry: parseInt(statsResult.rows[0].chemistry_count) || 0,
+          Biology: parseInt(statsResult.rows[0].biology_count) || 0,
+          Mathematics: parseInt(statsResult.rows[0].mathematics_count) || 0
         },
         totalAchievements: parseInt(statsResult.rows[0].total_achievements)
       } : null;

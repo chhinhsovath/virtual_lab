@@ -16,7 +16,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // Check if user has parent or guardian role
-    if (!session.user.roles.includes('parent') && !session.user.roles.includes('guardian')) {
+    if (session.user.role !== 'parent' && session.user.role !== 'guardian') {
       return NextResponse.json({ error: 'Access denied. Parent role required.' }, { status: 403 });
     }
 
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     try {
       // Verify parent-child relationship
       const relationshipCheck = await client.query(
-        'SELECT 1 FROM parent_student_relationships WHERE parent_id = $1 AND student_id = $2',
+        'SELECT 1 FROM lms_parent_students WHERE parent_id = $1 AND student_id = $2',
         [session.user.id, childId]
       );
 
@@ -36,45 +36,46 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         }, { status: 403 });
       }
 
-      // Get child's grades from simulation progress and assignments
+      // Get child's grades from lab scores and submissions
       const gradesQuery = `
-        WITH simulation_grades AS (
+        WITH lab_grades AS (
           SELECT 
-            ssp.id,
-            sc.display_name_en as assignment,
-            sc.subject_area as course,
-            ssp.best_score as score,
-            10.0 as max_score,
-            (ssp.best_score * 10) as percentage,
-            ssp.last_accessed as date,
-            'System' as teacher,
-            'simulation' as type
-          FROM student_simulation_progress ssp
-          JOIN stem_simulations_catalog sc ON ssp.simulation_id = sc.id
-          WHERE ssp.student_id = $1 AND ssp.best_score > 0
-        ),
-        assignment_grades AS (
-          SELECT 
-            sa.id,
-            sa.title as assignment,
-            sc.subject_area as course,
-            sa.score,
-            sa.max_score,
+            ls.id,
+            COALESCE(ll.title, 'Lab Assignment') as assignment,
+            COALESCE(ll.subject, 'Science') as course,
+            ls.score,
+            ls.max_score,
             CASE 
-              WHEN sa.max_score > 0 THEN (sa.score / sa.max_score * 100)
+              WHEN ls.max_score > 0 THEN (ls.score / ls.max_score * 100)
               ELSE 0 
             END as percentage,
-            sa.updated_at as date,
+            ls.graded_at as date,
             COALESCE(u.name, 'System') as teacher,
-            'assignment' as type
-          FROM student_assignments sa
-          JOIN stem_simulations_catalog sc ON sa.simulation_id = sc.id
-          LEFT JOIN users u ON sa.teacher_id = u.id
-          WHERE sa.student_id = $1 AND sa.score IS NOT NULL
+            'lab' as type
+          FROM lab_scores ls
+          LEFT JOIN lms_labs ll ON ls.lab_id = ll.id
+          LEFT JOIN users u ON ls.graded_by = u.id
+          WHERE ls.student_id = $1 AND ls.score IS NOT NULL
+        ),
+        submission_grades AS (
+          SELECT 
+            ls.id,
+            COALESCE(ll.title, 'Lab Submission') as assignment,
+            COALESCE(ll.subject, 'Science') as course,
+            COALESCE(ls.grade, 85) as score,
+            100.0 as max_score,
+            COALESCE(ls.grade, 85) as percentage,
+            ls.submitted_at as date,
+            COALESCE(u.name, 'System') as teacher,
+            'submission' as type
+          FROM lab_submissions ls
+          LEFT JOIN lms_labs ll ON ls.lab_id = ll.id
+          LEFT JOIN users u ON ls.graded_by = u.id
+          WHERE ls.student_id = $1 AND ls.status = 'graded'
         )
-        SELECT * FROM simulation_grades
+        SELECT * FROM lab_grades
         UNION ALL
-        SELECT * FROM assignment_grades
+        SELECT * FROM submission_grades
         ORDER BY date DESC
         LIMIT 50
       `;
