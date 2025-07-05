@@ -30,32 +30,67 @@ export async function POST(request: NextRequest) {
     try {
       await client.query('BEGIN');
 
-      // Run the migration
-      const migrationQueries = [
-        // Add student_uuid columns
-        `ALTER TABLE student_simulation_progress ADD COLUMN IF NOT EXISTS student_uuid UUID`,
-        `ALTER TABLE student_exercise_submissions ADD COLUMN IF NOT EXISTS student_uuid UUID`,
-        `ALTER TABLE student_achievements ADD COLUMN IF NOT EXISTS student_uuid UUID`,
-        
-        // Make student_id nullable
-        `ALTER TABLE student_simulation_progress ALTER COLUMN student_id DROP NOT NULL`,
-        `ALTER TABLE student_exercise_submissions ALTER COLUMN student_id DROP NOT NULL`,
-        `ALTER TABLE student_achievements ALTER COLUMN student_id DROP NOT NULL`,
-        
-        // Create indexes
-        `CREATE INDEX IF NOT EXISTS idx_student_simulation_progress_student_uuid ON student_simulation_progress(student_uuid)`,
-        `CREATE INDEX IF NOT EXISTS idx_student_exercise_submissions_student_uuid ON student_exercise_submissions(student_uuid)`,
-        `CREATE INDEX IF NOT EXISTS idx_student_achievements_student_uuid ON student_achievements(student_uuid)`
-      ];
-
-      for (const query of migrationQueries) {
+      // First check which tables exist
+      const tableCheckResult = await client.query(`
+        SELECT table_name 
+        FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name IN ('student_simulation_progress', 'student_exercise_submissions', 'student_achievements')
+      `);
+      
+      const existingTables = tableCheckResult.rows.map(row => row.table_name);
+      const results: any[] = [];
+      
+      // Process each table that exists
+      for (const tableName of existingTables) {
         try {
-          await client.query(query);
-        } catch (error: any) {
-          // Ignore errors for operations that might already exist
-          console.log(`Migration step warning: ${error.message}`);
+          // Check if student_uuid column already exists
+          const columnExists = await client.query(`
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = $1 AND column_name = 'student_uuid'
+          `, [tableName]);
+          
+          if (columnExists.rows.length === 0) {
+            // Add student_uuid column
+            await client.query(`ALTER TABLE ${tableName} ADD COLUMN student_uuid UUID`);
+            results.push({ table: tableName, action: 'added student_uuid column', status: 'success' });
+          } else {
+            results.push({ table: tableName, action: 'student_uuid column already exists', status: 'skipped' });
+          }
+          
+          // Check if student_id is NOT NULL
+          const nullableCheck = await client.query(`
+            SELECT is_nullable FROM information_schema.columns 
+            WHERE table_name = $1 AND column_name = 'student_id'
+          `, [tableName]);
+          
+          if (nullableCheck.rows.length > 0 && nullableCheck.rows[0].is_nullable === 'NO') {
+            await client.query(`ALTER TABLE ${tableName} ALTER COLUMN student_id DROP NOT NULL`);
+            results.push({ table: tableName, action: 'made student_id nullable', status: 'success' });
+          }
+          
+          // Try to create index
+          try {
+            await client.query(`CREATE INDEX idx_${tableName}_student_uuid ON ${tableName}(student_uuid)`);
+            results.push({ table: tableName, action: 'created index on student_uuid', status: 'success' });
+          } catch (indexError: any) {
+            if (indexError.code === '42P07') { // duplicate_table
+              results.push({ table: tableName, action: 'index already exists', status: 'skipped' });
+            } else {
+              results.push({ table: tableName, action: 'index creation failed', status: 'error', error: indexError.message });
+            }
+          }
+          
+        } catch (tableError: any) {
+          results.push({ table: tableName, action: 'migration failed', status: 'error', error: tableError.message });
         }
       }
+      
+      // If no tables exist, report that
+      if (existingTables.length === 0) {
+        results.push({ action: 'No student tables found', status: 'warning' });
+      }
+
 
       await client.query('COMMIT');
 
@@ -75,6 +110,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         message: 'Migration completed successfully',
+        results,
         verification: verificationResult.rows
       });
       
