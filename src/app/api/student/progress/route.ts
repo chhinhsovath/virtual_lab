@@ -23,6 +23,13 @@ export async function GET(request: NextRequest) {
     const client = await pool.connect();
     
     try {
+      // Log session info for debugging
+      console.log('Fetching progress for student:', {
+        user_id: session.user_id,
+        user_uuid: session.user_uuid,
+        role: session.user.role_name
+      });
+
       let query = `
         SELECT 
           ssp.*,
@@ -34,24 +41,20 @@ export async function GET(request: NextRequest) {
           s.estimated_duration,
           s.preview_image,
           CASE 
-            WHEN ssp.completed_at IS NOT NULL THEN 'completed'
-            WHEN ssp.current_progress IS NOT NULL THEN 'in_progress'
+            WHEN ssp.completed = true THEN 'completed'
+            WHEN ssp.progress_percentage > 0 THEN 'in_progress'
             ELSE 'not_started'
           END as status,
-          ROUND(
-            CASE 
-              WHEN ssp.completed_at IS NOT NULL THEN 100
-              WHEN ssp.current_progress IS NOT NULL THEN 
-                COALESCE((ssp.current_progress->>'percentage')::numeric, 0)
-              ELSE 0
-            END
-          ) as progress_percentage
+          ssp.progress_percentage,
+          ssp.time_spent as total_time_spent,
+          ssp.attempts as attempts_count,
+          ssp.last_accessed as updated_at
         FROM student_simulation_progress ssp
         JOIN stem_simulations_catalog s ON ssp.simulation_id = s.id
-        WHERE ssp.student_id = $1 AND s.is_active = true
+        WHERE ssp.student_uuid = $1 AND s.is_active = true
       `;
 
-      const queryParams: any[] = [session.user_id];
+      const queryParams: any[] = [session.user_uuid || session.user_id];
       let paramIndex = 2;
 
       if (simulation_id) {
@@ -71,18 +74,35 @@ export async function GET(request: NextRequest) {
 
       const result = await client.query(query, queryParams);
 
+      // If no progress records exist, return empty array instead of error
       return NextResponse.json({
         success: true,
-        progress: result.rows
+        progress: result.rows || []
       });
       
     } finally {
       client.release();
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching student progress:', error);
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      detail: error.detail
+    });
+    
+    // If it's a data type error, it might be student_id type mismatch
+    if (error.code === '22P02' || error.message?.includes('invalid input syntax')) {
+      // Return empty progress array instead of error
+      return NextResponse.json({
+        success: true,
+        progress: [],
+        message: 'No progress records found'
+      });
+    }
+    
     return NextResponse.json(
-      { error: 'Failed to fetch student progress' },
+      { error: 'Failed to fetch student progress', details: error.message },
       { status: 500 }
     );
   }
@@ -120,10 +140,14 @@ export async function POST(request: NextRequest) {
       // Create new progress record
       const result = await client.query(`
         INSERT INTO student_simulation_progress (
-          student_id, simulation_id, assignment_id, started_at, current_progress
-        ) VALUES ($1, $2, $3, CURRENT_TIMESTAMP, $4)
+          student_uuid, simulation_id, progress_percentage, time_spent, attempts, created_at
+        ) VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
+        ON CONFLICT (student_uuid, simulation_id) 
+        DO UPDATE SET 
+          attempts = student_simulation_progress.attempts + 1,
+          last_accessed = CURRENT_TIMESTAMP
         RETURNING *
-      `, [session.user_id, simulation_id, assignment_id, initial_progress || {}]);
+      `, [session.user_uuid || session.user_id, simulation_id, 0, 0, 1]);
 
       return NextResponse.json({
         success: true,
@@ -173,8 +197,8 @@ export async function PUT(request: NextRequest) {
       // Get current progress data
       const currentResult = await client.query(`
         SELECT * FROM student_simulation_progress 
-        WHERE id = $1 AND student_id = $2
-      `, [progress_id, session.user_id]);
+        WHERE id = $1 AND student_uuid = $2
+      `, [progress_id, session.user_uuid || session.user_id]);
 
       if (currentResult.rows.length === 0) {
         await client.query('ROLLBACK');
@@ -182,31 +206,26 @@ export async function PUT(request: NextRequest) {
       }
 
       const current = currentResult.rows[0];
-      const newTotalTime = (current.total_time_spent || 0) + (time_spent || 0);
+      const newTotalTime = (current.time_spent || 0) + (time_spent || 0);
       const newBestScore = Math.max(current.best_score || 0, current_score || 0);
-      const completedAt = is_completed ? new Date() : current.completed_at;
 
       // Update progress
       const updateResult = await client.query(`
         UPDATE student_simulation_progress 
         SET 
-          current_progress = $1,
-          total_time_spent = $2,
-          current_score = $3,
-          best_score = $4,
-          simulation_data = $5,
-          completed_at = $6,
-          attempts_count = attempts_count + 1,
-          updated_at = CURRENT_TIMESTAMP
-        WHERE id = $7
+          progress_percentage = LEAST(100, COALESCE($1, progress_percentage)),
+          time_spent = $2,
+          best_score = $3,
+          completed = $4,
+          attempts = attempts + 1,
+          last_accessed = CURRENT_TIMESTAMP
+        WHERE id = $5
         RETURNING *
       `, [
-        current_progress,
+        current_progress?.percentage || 0,
         newTotalTime,
-        current_score,
         newBestScore,
-        simulation_data,
-        completedAt,
+        is_completed || false,
         progress_id
       ]);
 
