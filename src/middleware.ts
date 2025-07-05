@@ -44,6 +44,12 @@ export async function middleware(request: NextRequest) {
 
       const sessionData = await sessionResponse.json();
       
+      // Check if student is trying to access main dashboard and redirect to student portal
+      if (pathname === '/dashboard' && 
+          (sessionData.user.roles?.includes('student') || sessionData.user.role === 'student')) {
+        return NextResponse.redirect(new URL('/student', request.url));
+      }
+      
       // Add user data to request headers for API routes
       const requestHeaders = new Headers(request.headers);
       requestHeaders.set('x-user-id', sessionData.user.id);
@@ -63,9 +69,26 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // For root path, redirect to dashboard if authenticated, otherwise to login
+  // For root path, redirect based on user role if authenticated, otherwise to login
   if (pathname === '/') {
     if (sessionToken) {
+      try {
+        // Check user role for proper redirection
+        const sessionResponse = await fetch(new URL('/api/auth/session', request.url), {
+          headers: {
+            'Cookie': `session=${sessionToken}`
+          }
+        });
+
+        if (sessionResponse.ok) {
+          const sessionData = await sessionResponse.json();
+          if (sessionData.user.roles?.includes('student') || sessionData.user.role === 'student') {
+            return NextResponse.redirect(new URL('/student', request.url));
+          }
+        }
+      } catch (error) {
+        // Fallback to dashboard if session check fails
+      }
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
     return NextResponse.redirect(new URL('/auth/login', request.url));

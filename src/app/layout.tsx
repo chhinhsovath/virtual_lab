@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "../components/ui/sonner";
+import { LanguageProvider } from "../components/LanguageProvider";
 
 export const metadata: Metadata = {
-  title: "ប្រព័ន្ធវាយតម្លៃ TaRL | TaRL Assessment System",
-  description: "ប្រព័ន្ធគ្រប់គ្រងទិន្នន័យវាយតម្លៃសម្រាប់ការបង្រៀនតាមកម្រិតសមស្រប | Teaching at the Right Level assessment data management system",
+  title: "Cambodia Virtual Lab STEM | មន្ទីរពិសោធន៍និម្មិតកម្ពុជា",
+  description: "ប្រព័ន្ធសិក្សាវិទ្យាសាស្ត្រ បច្ចេកវិទ្យា វិស្វកម្ម និងគណិតវិទ្យាតាមអ៊ីនធឺណិត | Virtual Science, Technology, Engineering and Mathematics learning system",
 };
 
 export default function RootLayout({
@@ -13,16 +14,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="km" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link
           href="https://fonts.googleapis.com/css2?family=Hanuman:wght@100;300;400;700;900&display=swap"
           rel="stylesheet"
         />
       </head>
-      <body className="antialiased font-hanuman" suppressHydrationWarning>
-        {children}
-        <Toaster />
+      <body className="antialiased font-sans" suppressHydrationWarning>
+        <LanguageProvider>
+          {children}
+          <Toaster />
+        </LanguageProvider>
       </body>
     </html>
   );

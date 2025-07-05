@@ -81,7 +81,7 @@ export default function ModernSuperAdminDashboard() {
       <div className="flex items-center justify-center min-h-[600px]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-6"></div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2 font-hanuman">Loading TaRL Dashboard</h3>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2 font-hanuman">Loading Cambodia Virtual Lab STEM Dashboard</h3>
           <p className="text-gray-600 font-hanuman">កំពុងផ្ទុកទិន្នន័យ...</p>
         </div>
       </div>
@@ -119,8 +119,8 @@ export default function ModernSuperAdminDashboard() {
       title: 'Total Students',
       titleKH: 'សិស្សសរុប',
       value: data.stats.total_students,
-      subtitle: 'Enrolled in TaRL program',
-      subtitleKH: 'ចុះឈ្មោះក្នុងកម្មវិធី TaRL',
+      subtitle: 'Enrolled in Cambodia Virtual Lab STEM',
+      subtitleKH: 'ចុះឈ្មោះក្នុងកម្មវិធី Cambodia Virtual Lab STEM',
       change: 12.5,
       changeLabel: 'This month',
       trend: 'up' as const,
@@ -147,8 +147,8 @@ export default function ModernSuperAdminDashboard() {
       title: 'Certified Teachers',
       titleKH: 'គ្រូបង្រៀនបានទទួលសញ្ញាបត្រ',
       value: data.stats.total_teachers,
-      subtitle: 'TaRL methodology trained',
-      subtitleKH: 'បានបង្រៀនវិធីសាស្ត្រ TaRL',
+      subtitle: 'STEM methodology trained',
+      subtitleKH: 'បានបង្រៀនវិធីសាស្ត្រ STEM',
       change: 15.2,
       changeLabel: 'New certifications',
       trend: 'up' as const,
@@ -304,13 +304,13 @@ export default function ModernSuperAdminDashboard() {
           </div>
         </div>
         <h1 className="text-4xl font-bold text-gray-900 mb-2 font-hanuman">
-          TaRL Assessment Dashboard
+          Cambodia Virtual Lab STEM Dashboard
         </h1>
         <p className="text-xl text-gray-600 font-hanuman mb-2">
-          Teaching at the Right Level - Cambodia
+          Virtual Science, Technology, Engineering & Mathematics
         </p>
         <p className="text-lg text-gray-500 font-hanuman">
-          ការបង្រៀននៅកម្រិតត្រឹមត្រូវ - កម្ពុជា
+          វិទ្យាសាស្ត្រ បច្ចេកវិទ្យា វិស្វកម្ម និងគណិតវិទ្យានិម្មិត
         </p>
       </motion.div>
 

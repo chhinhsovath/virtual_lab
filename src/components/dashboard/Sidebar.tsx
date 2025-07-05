@@ -180,8 +180,8 @@ export default function Sidebar({ user, onLogout, mobileOpen, onMobileToggle, on
             <GraduationCap className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h2 className="font-bold text-white font-hanuman">TaRL System</h2>
-            <p className="text-xs text-slate-400 font-hanuman">ប្រព័ន្ធ TaRL</p>
+            <h2 className="font-bold text-white font-hanuman">Cambodia Virtual Lab</h2>
+            <p className="text-xs text-slate-400 font-hanuman">មន្ទីរពិសោធន៍និម្មិតកម្ពុជា</p>
           </div>
         </div>
         <Button

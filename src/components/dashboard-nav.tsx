@@ -116,8 +116,8 @@ export function DashboardNav({ session }: DashboardNavProps) {
                 <GraduationCap className="h-8 w-8 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-slate-800">TaRL Assessment</h1>
-                <p className="font-khmer text-sm text-slate-600">ការវាយតម្លៃ TaRL</p>
+                <h1 className="text-xl font-bold text-slate-800">Cambodia Virtual Lab STEM</h1>
+                <p className="font-khmer text-sm text-slate-600">មន្ទីរពិសោធន៍និម្មិតកម្ពុជា</p>
               </div>
             </Link>
           </div>

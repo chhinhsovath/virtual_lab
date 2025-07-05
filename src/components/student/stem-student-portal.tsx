@@ -7,6 +7,8 @@ import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Progress } from '../ui/progress';
+import { useLanguage } from '../LanguageProvider';
+import { LanguageSwitcher } from '../LanguageSwitcher';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { 
   FlaskConical,
@@ -108,6 +110,7 @@ export function STEMStudentPortal({ user }: STEMStudentPortalProps) {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const { t, getFontClass } = useLanguage();
 
   useEffect(() => {
     loadStudentData();
@@ -324,7 +327,7 @@ export function STEMStudentPortal({ user }: STEMStudentPortalProps) {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
         <div className="text-center">
           <FlaskConical className="h-16 w-16 text-blue-600 mx-auto mb-4 animate-pulse" />
-          <p className="text-blue-700 font-medium">Loading your STEM journey...</p>
+          <p className={`text-blue-700 font-medium ${getFontClass()}`}>{t('student.loading_journey')}</p>
         </div>
       </div>
     );
@@ -343,12 +346,12 @@ export function STEMStudentPortal({ user }: STEMStudentPortalProps) {
                 </AvatarFallback>
               </Avatar>
               <div>
-                <h1 className="text-2xl font-bold flex items-center gap-2">
+                <h1 className={`text-2xl font-bold flex items-center gap-2 ${getFontClass()}`}>
                   <Sparkles className="h-6 w-6" />
-                  Welcome, {user.name?.split(' ')[0] || 'Student'}!
+                  {t('student.welcome')}, {user.name?.split(' ')[0] || 'Student'}!
                 </h1>
-                <p className="text-blue-100 font-medium">
-                  ស្វែងរកវិទ្យាសាស្ត្រតាមរយៈការលេង • Discover Science Through Play
+                <p className={`text-blue-100 font-medium ${getFontClass()}`}>
+                  {t('student.portal_subtitle')}
                 </p>
                 <div className="mt-2 flex items-center gap-4 text-sm">
                   <span>📊 Avg Score: {stats?.average_score}/10</span>
@@ -362,11 +365,14 @@ export function STEMStudentPortal({ user }: STEMStudentPortalProps) {
             <div className="text-right">
               <div className="flex items-center gap-2 mb-2">
                 <Globe className="h-4 w-4" />
-                <span className="text-sm">Virtual Lab Cambodia</span>
+                <span className={`text-sm ${getFontClass()}`}>{t('student.vlab_cambodia')}</span>
               </div>
-              <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-                STEM Student
-              </Badge>
+              <div className="flex flex-col gap-2">
+                <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                  <span className={getFontClass()}>{t('student.stem_student')}</span>
+                </Badge>
+                <LanguageSwitcher />
+              </div>
             </div>
           </div>
         </div>
@@ -429,11 +435,11 @@ export function STEMStudentPortal({ user }: STEMStudentPortalProps) {
         {/* Main Tabs */}
         <Tabs defaultValue="dashboard" className="w-full">
           <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="simulations">My Simulations</TabsTrigger>
-            <TabsTrigger value="assignments">Assignments</TabsTrigger>
-            <TabsTrigger value="achievements">Achievements</TabsTrigger>
-            <TabsTrigger value="subjects">Subjects</TabsTrigger>
+            <TabsTrigger value="dashboard" className={getFontClass()}>{t('tab.dashboard')}</TabsTrigger>
+            <TabsTrigger value="simulations" className={getFontClass()}>{t('tab.my_simulations')}</TabsTrigger>
+            <TabsTrigger value="assignments" className={getFontClass()}>{t('tab.assignments')}</TabsTrigger>
+            <TabsTrigger value="achievements" className={getFontClass()}>{t('tab.achievements')}</TabsTrigger>
+            <TabsTrigger value="subjects" className={getFontClass()}>{t('tab.subjects')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-6">

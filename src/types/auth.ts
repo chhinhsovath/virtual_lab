@@ -11,14 +11,14 @@ export interface User {
   email: string;
   name: string;
   role: string;
-  roles?: string[];  // For TaRL system compatibility
+  roles?: string[];  // For Cambodia Virtual Lab STEM system compatibility
   isActive: boolean;
   createdAt: Date;
   lastLogin?: Date;
-  // TaRL system specific fields
+  // Cambodia Virtual Lab STEM system specific fields
   username?: string;
-  firstName?: string; // For TaRL system compatibility
-  lastName?: string;  // For TaRL system compatibility
+  firstName?: string; // For Cambodia Virtual Lab STEM system compatibility
+  lastName?: string;  // For Cambodia Virtual Lab STEM system compatibility
   schoolId?: number;
   provinceId?: number;
   subject?: string;

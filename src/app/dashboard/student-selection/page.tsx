@@ -226,7 +226,7 @@ export default function StudentSelectionPage() {
         <h1 className="text-3xl font-bold text-gray-900">Student Selection</h1>
         <p className="font-khmer text-xl text-gray-600">ជ្រើសរើសសិស្ស</p>
         <p className="text-gray-600">
-          Select students for the TaRL intervention program based on their baseline assessment results
+          Select students for the Cambodia Virtual Lab STEM program based on their baseline assessment results
         </p>
       </div>
 
@@ -291,7 +291,7 @@ export default function StudentSelectionPage() {
                 </Badge>
               </CardTitle>
               <CardDescription>
-                Drag students to the right to select them for the TaRL program
+                Drag students to the right to select them for the Cambodia Virtual Lab STEM program
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -346,14 +346,14 @@ export default function StudentSelectionPage() {
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <Target className="h-5 w-5 text-green-600" />
-                  <span>Selected for TaRL Program</span>
+                  <span>Selected for Cambodia Virtual Lab STEM Program</span>
                 </div>
                 <Badge variant="default" className="bg-green-600">
                   {selectedStudents.length} selected
                 </Badge>
               </CardTitle>
               <CardDescription>
-                Students selected for the TaRL intervention program
+                Students selected for the Cambodia Virtual Lab STEM program
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -425,12 +425,12 @@ export default function StudentSelectionPage() {
             <h4 className="font-medium text-blue-900">How to use:</h4>
             <ul className="text-sm text-blue-800 space-y-1">
               <li>• Students are shown with their baseline assessment levels</li>
-              <li>• Drag students from left to right to select them for the TaRL program</li>
+              <li>• Drag students from left to right to select them for the Cambodia Virtual Lab STEM program</li>
               <li>• Use filters to find students by grade or baseline level</li>
               <li>• Click &quot;Save Selection&quot; to confirm your choices</li>
             </ul>
             <div className="font-khmer text-sm text-blue-700 mt-3">
-              <p>អូសសិស្សពីខាងឆ្វេងទៅខាងស្តាំដើម្បីជ្រើសរើសពួកគេសម្រាប់កម្មវិធី TaRL</p>
+              <p>អូសសិស្សពីខាងឆ្វេងទៅខាងស្តាំដើម្បីជ្រើសរើសពួកគេសម្រាប់កម្មវិធី Cambodia Virtual Lab STEM</p>
             </div>
           </div>
         </CardContent>

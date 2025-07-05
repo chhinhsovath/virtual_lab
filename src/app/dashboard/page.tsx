@@ -5,10 +5,9 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
-import Sidebar from '../../components/dashboard/Sidebar';
 import ModernSidebar from '../../components/dashboard/ModernSidebar';
-import SuperAdminDashboard from '../../components/dashboard/SuperAdminDashboard';
 import ModernSuperAdminDashboard from '../../components/dashboard/ModernSuperAdminDashboard';
+import { useLanguage } from '../../components/LanguageProvider';
 import {
   Users,
   GraduationCap,
@@ -50,6 +49,7 @@ export default function DashboardPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const router = useRouter();
+  const { t, getFontClass } = useLanguage();
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -57,7 +57,15 @@ export default function DashboardPage() {
         const response = await fetch('/api/auth/session');
         if (response.ok) {
           const data = await response.json();
-          setUser(data.user);
+          const userData = data.user;
+          
+          // Check if user is a student and redirect to student portal
+          if (userData.roles?.includes('student') || userData.role === 'student') {
+            router.push('/student');
+            return;
+          }
+          
+          setUser(userData);
         } else {
           router.push('/auth/login');
         }
@@ -86,7 +94,7 @@ export default function DashboardPage() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-white">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-slate-600">Loading dashboard...</p>
+          <p className={`mt-4 text-slate-600 ${getFontClass()}`}>{t('ui.loading_dashboard')}</p>
         </div>
       </div>
     );
@@ -98,56 +106,56 @@ export default function DashboardPage() {
 
   const stats = [
     {
-      title: 'Total Students',
+      title: t('stats.total_students'),
       value: '2,156,890',
       change: '+12.5%',
       trend: 'up',
       icon: Users,
       color: 'blue',
-      description: 'Active learners in the system'
+      description: t('stats.active_learners')
     },
     {
-      title: 'Schools',
+      title: t('stats.schools'),
       value: '7,248',
       change: '+156',
       trend: 'up',
       icon: School,
       color: 'green',
-      description: 'Participating schools'
+      description: t('stats.participating_schools')
     },
     {
-      title: 'Teachers',
+      title: t('stats.teachers'),
       value: '63,475',
       change: '+8.3%',
       trend: 'up',
       icon: BookOpen,
       color: 'purple',
-      description: 'Certified educators'
+      description: t('stats.certified_educators')
     },
     {
-      title: 'Assessment Rate',
+      title: t('stats.assessment_rate'),
       value: '87.4%',
       change: '+3.2%',
       trend: 'up',
       icon: Target,
       color: 'orange',
-      description: 'Monthly completion rate'
+      description: t('stats.monthly_completion')
     }
   ];
 
   const recentActivity = [
-    { id: 1, action: 'New assessment completed', school: 'Battambang Primary School', time: '2 hours ago', type: 'assessment' },
-    { id: 2, action: 'Teacher training session', school: 'Kampong Cham District', time: '5 hours ago', type: 'training' },
-    { id: 3, action: 'Student progress report', school: 'Siem Reap School #12', time: '1 day ago', type: 'report' },
-    { id: 4, action: 'New school onboarded', school: 'Prey Veng Secondary', time: '2 days ago', type: 'school' }
+    { id: 1, action: t('activity.new_assessment'), school: t('activity.battambang_primary'), time: '2 hours ago', type: 'assessment' },
+    { id: 2, action: t('activity.teacher_training'), school: t('activity.kampong_cham'), time: '5 hours ago', type: 'training' },
+    { id: 3, action: t('activity.student_progress'), school: t('activity.siem_reap'), time: '1 day ago', type: 'report' },
+    { id: 4, action: t('activity.new_school'), school: t('activity.prey_veng'), time: '2 days ago', type: 'school' }
   ];
 
   const learningLevels = [
-    { level: 'Beginner', students: 45320, percentage: 35, color: 'bg-red-500' },
-    { level: 'Letter', students: 38640, percentage: 30, color: 'bg-orange-500' },
-    { level: 'Word', students: 25760, percentage: 20, color: 'bg-yellow-500' },
-    { level: 'Paragraph', students: 12880, percentage: 10, color: 'bg-green-500' },
-    { level: 'Story', students: 6440, percentage: 5, color: 'bg-blue-500' }
+    { level: t('learning.beginner'), students: 45320, percentage: 35, color: 'bg-red-500' },
+    { level: t('learning.letter'), students: 38640, percentage: 30, color: 'bg-orange-500' },
+    { level: t('learning.word'), students: 25760, percentage: 20, color: 'bg-yellow-500' },
+    { level: t('learning.paragraph'), students: 12880, percentage: 10, color: 'bg-green-500' },
+    { level: t('learning.story'), students: 6440, percentage: 5, color: 'bg-blue-500' }
   ];
 
   // Check if user is super admin
@@ -195,7 +203,7 @@ export default function DashboardPage() {
                   <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full animate-pulse"></span>
                 </Button>
                 <div className="text-right">
-                  <p className="text-sm font-medium text-gray-900 font-hanuman">
+                  <p className={`text-sm font-medium text-gray-900 ${getFontClass()}`}>
                     {new Date().toLocaleDateString('en-US', { 
                       weekday: 'long', 
                       year: 'numeric', 
@@ -203,8 +211,8 @@ export default function DashboardPage() {
                       day: 'numeric' 
                     })}
                   </p>
-                  <p className="text-xs text-gray-600 font-hanuman">
-                    ថ្ងៃនេះ
+                  <p className={`text-xs text-gray-600 ${getFontClass()}`}>
+                    {t('ui.today')}
                   </p>
                 </div>
               </div>
@@ -248,11 +256,11 @@ export default function DashboardPage() {
               </Button>
               
               <div>
-                <h1 className="text-xl md:text-2xl font-bold text-gray-900 font-hanuman">
-                  Welcome back, {user.firstName || user.username}! ✨
+                <h1 className={`text-xl md:text-2xl font-bold text-gray-900 ${getFontClass()}`}>
+                  {t('dashboard.welcome')}, {user.firstName || user.username}! ✨
                 </h1>
-                <p className="text-sm text-gray-600 mt-1 hidden sm:block font-hanuman">
-                  Here's what's happening with TaRL assessments today
+                <p className={`text-sm text-gray-600 mt-1 hidden sm:block ${getFontClass()}`}>
+                  {t('dashboard.today')}
                 </p>
               </div>
             </div>
@@ -327,13 +335,13 @@ export default function DashboardPage() {
             <Card className="lg:col-span-2 border-0 shadow-sm">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
-                  <span>Student Learning Levels</span>
+                  <span className={getFontClass()}>{t('learning.levels')}</span>
                   <Button variant="outline" size="sm">
-                    View Details
+                    <span className={getFontClass()}>{t('learning.view_details')}</span>
                   </Button>
                 </CardTitle>
-                <CardDescription>
-                  Distribution across TaRL assessment categories
+                <CardDescription className={getFontClass()}>
+                  {t('learning.distribution')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -369,7 +377,7 @@ export default function DashboardPage() {
             <Card className="border-0 shadow-sm">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
-                  <span>Recent Activity</span>
+                  <span className={getFontClass()}>{t('dashboard.recent_activity')}</span>
                   <Activity className="h-5 w-5 text-gray-400" />
                 </CardTitle>
               </CardHeader>
@@ -406,8 +414,8 @@ export default function DashboardPage() {
           {/* Quick Actions */}
           <Card className="border-0 shadow-sm">
             <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-              <CardDescription>
+              <CardTitle className={getFontClass()}>{t('dashboard.quick_actions')}</CardTitle>
+              <CardDescription className={getFontClass()}>
                 Common tasks based on your role and permissions
               </CardDescription>
             </CardHeader>
@@ -416,28 +424,28 @@ export default function DashboardPage() {
                 {user.permissions.includes('assessments.create') && (
                   <Button variant="outline" className="h-24 flex-col space-y-2 hover:bg-blue-50 hover:border-blue-300">
                     <Sparkles className="h-6 w-6 text-blue-600" />
-                    <span>New Assessment</span>
+                    <span className={getFontClass()}>{t('action.new_assessment')}</span>
                   </Button>
                 )}
                 
                 {user.permissions.includes('students.read') && (
                   <Button variant="outline" className="h-24 flex-col space-y-2 hover:bg-green-50 hover:border-green-300">
                     <Users className="h-6 w-6 text-green-600" />
-                    <span>View Students</span>
+                    <span className={getFontClass()}>{t('action.view_students')}</span>
                   </Button>
                 )}
                 
                 {user.permissions.includes('reports.read') && (
                   <Button variant="outline" className="h-24 flex-col space-y-2 hover:bg-purple-50 hover:border-purple-300">
                     <TrendingUp className="h-6 w-6 text-purple-600" />
-                    <span>Analytics</span>
+                    <span className={getFontClass()}>{t('action.analytics')}</span>
                   </Button>
                 )}
                 
                 {user.permissions.includes('teachers.read') && (
                   <Button variant="outline" className="h-24 flex-col space-y-2 hover:bg-orange-50 hover:border-orange-300">
                     <BookOpen className="h-6 w-6 text-orange-600" />
-                    <span>Teachers</span>
+                    <span className={getFontClass()}>{t('action.teachers')}</span>
                   </Button>
                 )}
               </div>

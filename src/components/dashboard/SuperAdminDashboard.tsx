@@ -168,10 +168,10 @@ export default function SuperAdminDashboard() {
             Super Admin Dashboard
           </h1>
           <p className="text-gray-600 font-hanuman">
-            Comprehensive overview of TaRL assessment program
+            Comprehensive overview of Cambodia Virtual Lab STEM program
           </p>
           <p className="text-sm text-gray-500 font-hanuman">
-            បង្ហាញទិន្នន័យសម្រាប់ការវាយតម្លៃ TaRL
+            បង្ហាញទិន្នន័យសម្រាប់ Cambodia Virtual Lab STEM
           </p>
         </div>
         <Button onClick={fetchDashboardData} variant="outline">
@@ -292,7 +292,7 @@ export default function SuperAdminDashboard() {
           <CardHeader>
             <CardTitle className="font-hanuman">Student Selection Overview</CardTitle>
             <CardDescription className="font-hanuman">
-              Students selected for TaRL intervention program
+              Students selected for Cambodia Virtual Lab STEM program
             </CardDescription>
           </CardHeader>
           <CardContent>

@@ -181,7 +181,7 @@ export default function ResultsPage() {
       const link = document.createElement('a');
       const url = URL.createObjectURL(blob);
       link.setAttribute('href', url);
-      link.setAttribute('download', `tarl_assessments_${session?.subject}_${new Date().toISOString().split('T')[0]}.csv`);
+      link.setAttribute('download', `cambodia_vlab_stem_assessments_${session?.subject}_${new Date().toISOString().split('T')[0]}.csv`);
       link.style.visibility = 'hidden';
       document.body.appendChild(link);
       link.click();

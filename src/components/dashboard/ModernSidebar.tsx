@@ -7,6 +7,8 @@ import { cn } from '../../lib/utils';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
+import { LanguageSwitcher } from '../LanguageSwitcher';
+import { useLanguage } from '../LanguageProvider';
 import {
   LayoutDashboard,
   Users,
@@ -120,7 +122,7 @@ const menuGroups: MenuGroup[] = [
         href: '/dashboard/assessment-entry',
         icon: BookOpenCheck,
         permission: 'assessments.create',
-        description: 'Conduct TaRL assessments',
+        description: 'Conduct STEM assessments',
         isNew: true
       },
       {
@@ -260,6 +262,7 @@ export default function ModernSidebar({ user, onLogout, mobileOpen, onMobileTogg
   const [expandedGroups, setExpandedGroups] = useState<string[]>(['overview']);
   const [isMobile, setIsMobile] = useState(false);
   const pathname = usePathname();
+  const { t, getFontClass } = useLanguage();
 
   useEffect(() => {
     const checkMobile = () => {
@@ -326,8 +329,8 @@ export default function ModernSidebar({ user, onLogout, mobileOpen, onMobileTogg
                 <GraduationCap className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h2 className="font-bold text-gray-900 font-hanuman">TaRL System</h2>
-                <p className="text-xs text-gray-500 font-hanuman">ប្រព័ន្ធ TaRL</p>
+                <h2 className={`font-bold text-gray-900 ${getFontClass()}`}>{t('dashboard.system_name')}</h2>
+                <p className={`text-xs text-gray-500 ${getFontClass()}`}>{t('dashboard.system_name')}</p>
               </div>
             </motion.div>
           )}
@@ -529,11 +532,19 @@ export default function ModernSidebar({ user, onLogout, mobileOpen, onMobileTogg
       </div>
 
       {/* Footer */}
-      <div className="border-t border-gray-100 p-3">
+      <div className="border-t border-gray-100 p-3 space-y-2">
+        {/* Language Switcher */}
+        {(!collapsed || isMobile) && (
+          <div className="px-2">
+            <LanguageSwitcher />
+          </div>
+        )}
+        
         <Button
           variant="ghost"
           className={cn(
-            "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50 font-hanuman h-10",
+            "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50 h-10",
+            getFontClass(),
             collapsed && !isMobile && "justify-center px-2"
           )}
           onClick={onLogout}
@@ -542,7 +553,7 @@ export default function ModernSidebar({ user, onLogout, mobileOpen, onMobileTogg
             "h-4 w-4",
             (!collapsed || isMobile) && "mr-3"
           )} />
-          {(!collapsed || isMobile) && <span>Logout</span>}
+          {(!collapsed || isMobile) && <span>{t('ui.logout')}</span>}
         </Button>
         
         <AnimatePresence>

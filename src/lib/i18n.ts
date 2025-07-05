@@ -126,6 +126,107 @@ export const translations: Record<string, Translation> = {
   'dashboard.quick_actions': { en: 'Quick Actions', km: 'សកម្មភាពរហ័ស' },
   'dashboard.statistics': { en: 'Statistics', km: 'ស្ថិតិ' },
   'dashboard.progress': { en: 'Progress', km: 'វឌ្ឍនភាព' },
+  'dashboard.today': { en: "Here's what's happening with Cambodia Virtual Lab STEM today", km: 'នេះជាអ្វីដែលកំពុងកើតឡើងជាមួយ Cambodia Virtual Lab STEM ថ្ងៃនេះ' },
+  'dashboard.title': { en: 'Cambodia Virtual Lab STEM Dashboard', km: 'ទំព័រគ្រប់គ្រង Cambodia Virtual Lab STEM' },
+  'dashboard.subtitle': { en: 'Virtual Science, Technology, Engineering & Mathematics', km: 'វិទ្យាសាស្ត្រ បច្ចេកវិទ្យា វិស្វកម្ម និងគណិតវិទ្យានិម្មិត' },
+  'dashboard.loading': { en: 'Loading Cambodia Virtual Lab STEM Dashboard', km: 'កំពុងផ្ទុក Cambodia Virtual Lab STEM Dashboard' },
+  'dashboard.system_name': { en: 'Cambodia Virtual Lab', km: 'មន្ទីរពិសោធន៍និម្មិតកម្ពុជា' },
+  
+  // Stats Cards
+  'stats.total_students': { en: 'Total Students', km: 'សិស្សសរុប' },
+  'stats.active_learners': { en: 'Active learners in the system', km: 'អ្នកសិក្សាសកម្មក្នុងប្រព័ន្ធ' },
+  'stats.schools': { en: 'Schools', km: 'សាលារៀន' },
+  'stats.participating_schools': { en: 'Participating schools', km: 'សាលារៀនចូលរួម' },
+  'stats.teachers': { en: 'Teachers', km: 'គ្រូបង្រៀន' },
+  'stats.certified_educators': { en: 'Certified educators', km: 'អ្នកអប់រំបានទទួលសញ្ញាបត្រ' },
+  'stats.assessment_rate': { en: 'Assessment Rate', km: 'អត្រាវាយតម្លៃ' },
+  'stats.monthly_completion': { en: 'Monthly completion rate', km: 'អត្រាបញ្ចប់ប្រចាំខែ' },
+  'stats.enrolled_program': { en: 'Enrolled in Cambodia Virtual Lab STEM', km: 'ចុះឈ្មោះក្នុងកម្មវិធី Cambodia Virtual Lab STEM' },
+  'stats.stem_trained': { en: 'STEM methodology trained', km: 'បានបង្រៀនវិធីសាស្ត្រ STEM' },
+  
+  // Learning Levels
+  'learning.levels': { en: 'Student Learning Levels', km: 'កម្រិតសិក្សារបស់សិស្ស' },
+  'learning.distribution': { en: 'Distribution across Cambodia Virtual Lab STEM assessment categories', km: 'ការចែកចាយតាមប្រភេទវាយតម្លៃ Cambodia Virtual Lab STEM' },
+  'learning.view_details': { en: 'View Details', km: 'មើលលម្អិត' },
+  'learning.beginner': { en: 'Beginner', km: 'កម្រិតដំបូង' },
+  'learning.letter': { en: 'Letter', km: 'អក្សរ' },
+  'learning.word': { en: 'Word', km: 'ពាក្យ' },
+  'learning.paragraph': { en: 'Paragraph', km: 'កថាខណ្ឌ' },
+  'learning.story': { en: 'Story', km: 'រឿង' },
+  
+  // Activities
+  'activity.new_assessment': { en: 'New assessment completed', km: 'បានបញ្ចប់ការវាយតម្លៃថ្មី' },
+  'activity.teacher_training': { en: 'Teacher training session', km: 'វគ្គបណ្តុះបណ្តាលគ្រូ' },
+  'activity.student_progress': { en: 'Student progress report', km: 'របាយការណ៍វឌ្ឍនភាពសិស្ស' },
+  'activity.new_school': { en: 'New school onboarded', km: 'សាលារៀនថ្មីបានចូលរួម' },
+  'activity.battambang_primary': { en: 'Battambang Primary School', km: 'សាលាបឋមសិក្សាបាត់ដំបង' },
+  'activity.kampong_cham': { en: 'Kampong Cham District', km: 'ស្រុកកំពង់ចាម' },
+  'activity.siem_reap': { en: 'Siem Reap School #12', km: 'សាលាសៀមរាប លេខ ១២' },
+  'activity.prey_veng': { en: 'Prey Veng Secondary', km: 'មធ្យមសិក្សាព្រៃវែង' },
+  
+  // Quick Actions
+  'action.new_assessment': { en: 'New Assessment', km: 'ការវាយតម្លៃថ្មី' },
+  'action.view_students': { en: 'View Students', km: 'មើលសិស្ស' },
+  'action.analytics': { en: 'Analytics', km: 'ការវិភាគទិន្នន័យ' },
+  'action.teachers': { en: 'Teachers', km: 'គ្រូបង្រៀន' },
+  
+  // Student Portal
+  'student.welcome': { en: 'Welcome', km: 'ស្វាគមន៍' },
+  'student.portal_subtitle': { en: 'Discover Science Through Play', km: 'ស្វែងរកវិទ្យាសាស្ត្រតាមរយៈការលេង' },
+  'student.vlab_cambodia': { en: 'Virtual Lab Cambodia', km: 'មន្ទីរពិសោធន៍និម្មិតកម្ពុជា' },
+  'student.stem_student': { en: 'STEM Student', km: 'សិស្ស STEM' },
+  'student.avg_score': { en: 'Avg Score', km: 'ពិន្ទុមធ្យម' },
+  'student.learned': { en: 'min learned', km: 'នាទីបានសិក្សា' },
+  'student.points': { en: 'points', km: 'ពិន្ទុ' },
+  'student.simulations': { en: 'Simulations', km: 'ការក្លែងធ្វើ' },
+  'student.average_score': { en: 'Average Score', km: 'ពិន្ទុមធ្យម' },
+  'student.learning_time': { en: 'Learning Time', km: 'ពេលវេលាសិក្សា' },
+  'student.achievements': { en: 'Achievements', km: 'សមិទ្ធផល' },
+  'student.loading_journey': { en: 'Loading your STEM journey...', km: 'កំពុងផ្ទុកដំណើរ STEM របស់អ្នក...' },
+  
+  // Student Portal Tabs
+  'tab.dashboard': { en: 'Dashboard', km: 'ទំព័រដើម' },
+  'tab.my_simulations': { en: 'My Simulations', km: 'ការក្លែងធ្វើរបស់ខ្ញុំ' },
+  'tab.assignments': { en: 'Assignments', km: 'កិច្ចការ' },
+  'tab.achievements': { en: 'Achievements', km: 'សមិទ្ធផល' },
+  'tab.subjects': { en: 'Subjects', km: 'មុខវិជ្ជា' },
+  
+  // Assignments
+  'assignment.current': { en: 'Current Assignments', km: 'កិច្ចការបច្ចុប្បន្ន' },
+  'assignment.simulation_assignments': { en: 'Simulation Assignments', km: 'កិច្ចការក្លែងធ្វើ' },
+  'assignment.complete_master': { en: 'Complete these assignments to master STEM concepts', km: 'បំពេញកិច្ចការទាំងនេះដើម្បីធ្វើអ្នកជំនាញ STEM' },
+  'assignment.due': { en: 'Due', km: 'កំណត់ពេល' },
+  'assignment.not_submitted': { en: 'Not submitted', km: 'មិនទាន់ប្រគល់' },
+  'assignment.view_details': { en: 'View Details', km: 'មើលលម្អិត' },
+  'assignment.start': { en: 'Start', km: 'ចាប់ផ្តើម' },
+  'assignment.continue': { en: 'Continue', km: 'បន្ត' },
+  'assignment.score': { en: 'Score', km: 'ពិន្ទុ' },
+  
+  // Achievements
+  'achievement.your_achievements': { en: 'Your Achievements', km: 'សមិទ្ធផលរបស់អ្នក' },
+  'achievement.unlock_badges': { en: 'Unlock badges as you explore and master STEM concepts', km: 'ដោះសោសញ្ញាបត្រនៅពេលអ្នករុករក និងធ្វើជាអ្នកជំនាញគោលគំនិត STEM' },
+  
+  // Subjects
+  'subject.physics': { en: 'Physics', km: 'រូបវិទ្យា' },
+  'subject.chemistry': { en: 'Chemistry', km: 'គីមីវិទ្យា' },
+  'subject.biology': { en: 'Biology', km: 'ជីវវិទ្យា' },
+  'subject.mathematics': { en: 'Mathematics', km: 'គណិតវិទ្យា' },
+  'subject.completed': { en: 'Simulations Completed', km: 'ការក្លែងធ្វើបានបញ្ចប់' },
+  'subject.explore': { en: 'Explore', km: 'រុករក' },
+  
+  // Simulation States
+  'simulation.completed': { en: 'Completed', km: 'បានបញ្ចប់' },
+  'simulation.review': { en: 'Review', km: 'ពិនិត្យ' },
+  'simulation.continue': { en: 'Continue', km: 'បន្ត' },
+  'simulation.beginner': { en: 'Beginner', km: 'កម្រិតដំបូង' },
+  'simulation.intermediate': { en: 'Intermediate', km: 'កម្រិតមធ្យម' },
+  'simulation.advanced': { en: 'Advanced', km: 'កម្រិតខ្ពស់' },
+  
+  // Common UI
+  'ui.today': { en: 'Today', km: 'ថ្ងៃនេះ' },
+  'ui.logout': { en: 'Logout', km: 'ចាកចេញ' },
+  'ui.loading_dashboard': { en: 'Loading dashboard...', km: 'កំពុងផ្ទុកទំព័រគ្រប់គ្រង...' },
+  'ui.loading_student_portal': { en: 'Loading student portal...', km: 'កំពុងផ្ទុកវិបផតសិស្ស...' },
 
   // File types
   'file.document': { en: 'Document', km: 'ឯកសារ' },
@@ -140,16 +241,16 @@ export const translations: Record<string, Translation> = {
 
 // Get browser language preference
 export function getBrowserLanguage(): Language {
-  if (typeof window === 'undefined') return 'km';
+  if (typeof window === 'undefined') return 'en';
   
   const browserLang = navigator.language.toLowerCase();
-  if (browserLang.startsWith('en')) return 'en';
-  return 'km';
+  if (browserLang.startsWith('km')) return 'km';
+  return 'en'; // Default to English
 }
 
 // Get user's preferred language from localStorage
 export function getUserLanguage(): Language {
-  if (typeof window === 'undefined') return 'km';
+  if (typeof window === 'undefined') return 'en';
   
   const stored = localStorage.getItem('preferred_language') as Language;
   return stored || getBrowserLanguage();
@@ -259,10 +360,10 @@ export function pluralize(
   }
 }
 
-// Language selector options (Khmer first as primary language)
+// Language selector options (English first as default language)
 export const languageOptions = [
-  { value: 'km', label: 'Khmer', nativeLabel: 'ខ្មែរ' },
-  { value: 'en', label: 'English', nativeLabel: 'English' }
+  { value: 'en', label: 'English', nativeLabel: 'English' },
+  { value: 'km', label: 'Khmer', nativeLabel: 'ខ្មែរ' }
 ];
 
 // Check if language is RTL (not applicable for supported languages, but kept for extensibility)
