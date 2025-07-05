@@ -30,14 +30,14 @@ export async function authenticateUser(username: string, password: string): Prom
     const userQuery = `
       SELECT 
         id,
-        COALESCE(username, email) as username,
+        email as username,
         email,
         name,
         role,
         password_hash,
-        COALESCE(is_active, true) as is_active
+        true as is_active
       FROM users 
-      WHERE (username = $1 OR email = $1) AND COALESCE(is_active, true) = true
+      WHERE email = $1
     `;
 
     const userResult = await client.query(userQuery, [username]);
@@ -59,12 +59,12 @@ export async function authenticateUser(username: string, password: string): Prom
     // Update last login if column exists
     try {
       await client.query(
-        'UPDATE users SET last_login = NOW(), updated_at = NOW() WHERE id = $1',
+        'UPDATE users SET updated_at = NOW() WHERE id = $1',
         [userData.id]
       );
     } catch (updateError) {
       // Ignore if columns don't exist
-      console.log('Could not update last_login, columns might not exist');
+      console.log('Could not update timestamp:', updateError);
     }
 
     // Parse name into first/last name
