@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '../components/ui/button';
@@ -211,9 +211,9 @@ export default function Home() {
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <div className={`w-10 h-10 rounded-lg ${featuredSims[currentSim]?.color || 'bg-blue-500'} flex items-center justify-center text-white`}>
-                        {featuredSims[currentSim]?.icon && (
-                          <featuredSims[currentSim].icon className="h-5 w-5" />
-                        )}
+                        {featuredSims[currentSim]?.icon && 
+                          React.createElement(featuredSims[currentSim].icon, { className: "h-5 w-5" })
+                        }
                       </div>
                       <div>
                         <h3 className="font-semibold text-gray-900">{featuredSims[currentSim]?.title}</h3>
@@ -227,9 +227,9 @@ export default function Home() {
                   
                   <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg h-48 flex items-center justify-center mb-4 border-2 border-dashed border-gray-200">
                     <div className="text-center">
-                      {featuredSims[currentSim]?.icon && (
-                        <featuredSims[currentSim].icon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                      )}
+                      {featuredSims[currentSim]?.icon && 
+                        React.createElement(featuredSims[currentSim].icon, { className: "h-12 w-12 text-gray-400 mx-auto mb-2" })
+                      }
                       <p className="text-gray-500 text-sm">Interactive Simulation Preview</p>
                       <p className="text-gray-400 text-xs">{featuredSims[currentSim]?.description}</p>
                     </div>
