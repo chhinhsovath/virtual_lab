@@ -76,9 +76,9 @@ export function StudentPortal({ user }: StudentPortalProps) {
   const fetchStudentData = async () => {
     try {
       const [coursesRes, assignmentsRes, gradesRes] = await Promise.all([
-        fetch('/api/student/courses'),
-        fetch('/api/student/assignments'),
-        fetch('/api/student/grades')
+        fetch('/api/student/courses', { credentials: 'include' }),
+        fetch('/api/student/assignments', { credentials: 'include' }),
+        fetch('/api/student/grades', { credentials: 'include' })
       ]);
 
       if (coursesRes.ok) setCourses(await coursesRes.json());

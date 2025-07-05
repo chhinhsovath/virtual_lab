@@ -133,10 +133,10 @@ export function STEMStudentPortal({ user }: STEMStudentPortalProps) {
     try {
       // Fetch real student data
       const [progressResponse, assignmentsResponse, achievementsResponse, analyticsResponse] = await Promise.all([
-        fetch('/api/student/progress'),
-        fetch('/api/assignments'),
-        fetch('/api/achievements'),
-        fetch('/api/analytics/student')
+        fetch('/api/student/progress', { credentials: 'include' }),
+        fetch('/api/assignments', { credentials: 'include' }),
+        fetch('/api/achievements', { credentials: 'include' }),
+        fetch('/api/analytics/student', { credentials: 'include' })
       ]);
 
       // Load student progress
