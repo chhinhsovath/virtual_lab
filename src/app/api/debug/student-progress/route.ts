@@ -54,9 +54,23 @@ export async function GET(request: NextRequest) {
         `;
         const sampleResult = await client.query(sampleQuery);
         sampleData = sampleResult.rows;
-      } catch (err) {
+      } catch (err: any) {
         sampleData = { error: err.message };
       }
+
+      // Check which columns exist
+      const columnCheckQuery = `
+        SELECT 
+          EXISTS(SELECT 1 FROM information_schema.columns WHERE table_name = 'student_simulation_progress' AND column_name = 'completed') as has_completed,
+          EXISTS(SELECT 1 FROM information_schema.columns WHERE table_name = 'student_simulation_progress' AND column_name = 'completed_at') as has_completed_at,
+          EXISTS(SELECT 1 FROM information_schema.columns WHERE table_name = 'student_simulation_progress' AND column_name = 'time_spent') as has_time_spent,
+          EXISTS(SELECT 1 FROM information_schema.columns WHERE table_name = 'student_simulation_progress' AND column_name = 'total_time_spent') as has_total_time_spent,
+          EXISTS(SELECT 1 FROM information_schema.columns WHERE table_name = 'student_simulation_progress' AND column_name = 'student_uuid') as has_student_uuid,
+          EXISTS(SELECT 1 FROM information_schema.columns WHERE table_name = 'student_simulation_progress' AND column_name = 'progress_percentage') as has_progress_percentage,
+          EXISTS(SELECT 1 FROM information_schema.columns WHERE table_name = 'student_simulation_progress' AND column_name = 'current_progress') as has_current_progress
+      `;
+      
+      const columnCheck = await client.query(columnCheckQuery);
 
       return NextResponse.json({
         success: true,
@@ -69,7 +83,8 @@ export async function GET(request: NextRequest) {
           table_structure: tableStructure.rows,
           total_records: countResult.rows[0].total_records,
           total_simulations: catalogResult.rows[0].total_simulations,
-          sample_data: sampleData
+          sample_data: sampleData,
+          column_check: columnCheck.rows[0]
         }
       });
       

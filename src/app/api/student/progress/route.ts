@@ -30,6 +30,7 @@ export async function GET(request: NextRequest) {
         role: session.user.role_name
       });
 
+      // Query that works with the old schema (migration 019)
       let query = `
         SELECT 
           ssp.*,
@@ -41,17 +42,22 @@ export async function GET(request: NextRequest) {
           s.estimated_duration,
           s.preview_image,
           CASE 
-            WHEN ssp.completed = true THEN 'completed'
-            WHEN ssp.progress_percentage > 0 THEN 'in_progress'
+            WHEN ssp.completed_at IS NOT NULL THEN 'completed'
+            WHEN ssp.current_progress IS NOT NULL THEN 'in_progress'
             ELSE 'not_started'
           END as status,
-          ssp.progress_percentage,
-          ssp.time_spent as total_time_spent,
-          ssp.attempts as attempts_count,
-          ssp.last_accessed as updated_at
+          CASE 
+            WHEN ssp.completed_at IS NOT NULL THEN 100
+            WHEN ssp.current_progress IS NOT NULL THEN 
+              COALESCE((ssp.current_progress->>'percentage')::numeric, 0)
+            ELSE 0
+          END as progress_percentage,
+          COALESCE(ssp.total_time_spent / 60, 0) as total_time_spent,
+          ssp.attempts_count,
+          ssp.updated_at
         FROM student_simulation_progress ssp
         JOIN stem_simulations_catalog s ON ssp.simulation_id = s.id
-        WHERE ssp.student_uuid = $1 AND s.is_active = true
+        WHERE (ssp.student_uuid = $1 OR ssp.student_id = $1::TEXT::INTEGER) AND s.is_active = true
       `;
 
       const queryParams: any[] = [session.user_uuid || session.user_id];
