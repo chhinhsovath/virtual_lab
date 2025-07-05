@@ -222,7 +222,7 @@ export function ParentPortal({ user }: ParentPortalProps) {
   }
 
   // Check if user has parent or guardian role
-  if (!user.roles?.includes('parent') && !user.roles?.includes('guardian')) {
+  if (user.role !== 'parent' && user.role !== 'guardian') {
     return (
       <div className="text-center p-8">
         <Users className="mx-auto h-12 w-12 text-gray-400 mb-4" />

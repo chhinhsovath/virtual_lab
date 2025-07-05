@@ -19,9 +19,9 @@ export default function ParentPage() {
           const userData = data.user;
           
           // Check if user has parent or guardian role
-          if (!userData.roles.includes('parent') && !userData.roles.includes('guardian')) {
+          if (userData.role !== 'parent' && userData.role !== 'guardian') {
             // Redirect non-parents to appropriate dashboard
-            if (userData.roles.includes('student')) {
+            if (userData.role === 'student') {
               router.push('/student');
             } else {
               router.push('/dashboard');

@@ -4,7 +4,12 @@ import { pool } from '@/lib/db';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getSession(request);
+    const sessionToken = request.cookies.get('session')?.value;
+    if (!sessionToken) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    const session = await getSession(sessionToken);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
