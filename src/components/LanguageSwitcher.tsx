@@ -26,7 +26,7 @@ export function LanguageSwitcher() {
         <Button variant="outline" size="sm" className="gap-2">
           <Languages className="h-4 w-4" />
           <span className="hidden sm:inline-block">
-            {currentOption?.nativeLabel || 'English'}
+            {currentOption?.nativeLabel || 'ខ្មែរ'}
           </span>
         </Button>
       </DropdownMenuTrigger>

@@ -311,16 +311,16 @@ export const translations: Record<string, Translation> = {
 
 // Get browser language preference
 export function getBrowserLanguage(): Language {
-  if (typeof window === 'undefined') return 'en';
+  if (typeof window === 'undefined') return 'km';
   
   const browserLang = navigator.language.toLowerCase();
-  if (browserLang.startsWith('km')) return 'km';
-  return 'en'; // Default to English
+  if (browserLang.startsWith('en')) return 'en';
+  return 'km'; // Default to Khmer for Cambodian students
 }
 
 // Get user's preferred language from localStorage
 export function getUserLanguage(): Language {
-  if (typeof window === 'undefined') return 'en';
+  if (typeof window === 'undefined') return 'km';
   
   const stored = localStorage.getItem('preferred_language') as Language;
   return stored || getBrowserLanguage();
@@ -347,7 +347,7 @@ export function t(key: string, lang?: Language): string {
     return key;
   }
   
-  return translation[currentLang] || translation.en || key;
+  return translation[currentLang] || translation.km || translation.en || key;
 }
 
 // Get translated content from object with multiple language fields
@@ -364,7 +364,12 @@ export function getLocalizedContent(
     return content[localizedKey];
   }
   
-  // Fallback to English
+  // Fallback to Khmer first, then English
+  const khmerKey = `${baseKey}_km`;
+  if (content[khmerKey]) {
+    return content[khmerKey];
+  }
+  
   if (content[baseKey]) {
     return content[baseKey];
   }
@@ -430,10 +435,10 @@ export function pluralize(
   }
 }
 
-// Language selector options (English first as default language)
+// Language selector options (Khmer first as primary language for Cambodian students)
 export const languageOptions = [
-  { value: 'en', label: 'English', nativeLabel: 'English' },
-  { value: 'km', label: 'Khmer', nativeLabel: 'ខ្មែរ' }
+  { value: 'km', label: 'Khmer', nativeLabel: 'ខ្មែរ' },
+  { value: 'en', label: 'English', nativeLabel: 'English' }
 ];
 
 // Check if language is RTL (not applicable for supported languages, but kept for extensibility)
