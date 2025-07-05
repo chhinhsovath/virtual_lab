@@ -48,7 +48,7 @@ export default function StudentProfilePage() {
 
   const loadProfile = async () => {
     try {
-      const res = await fetch('/api/student/profile');
+      const res = await fetch('/api/student/profile', { credentials: 'include' });
       const data = await res.json();
       
       if (data.success) {
@@ -104,7 +104,8 @@ export default function StudentProfilePage() {
 
       const res = await fetch('/api/student/profile', {
         method: 'PUT',
-        body: formData
+        body: formData,
+        credentials: 'include'
       });
 
       const data = await res.json();

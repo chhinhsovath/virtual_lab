@@ -423,7 +423,7 @@ export function STEMStudentPortal({ user }: STEMStudentPortalProps) {
                   onClick={async () => {
                     try {
                       // Call logout API
-                      await fetch('/api/auth/logout', { method: 'POST' });
+                      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
                       // Redirect to login page
                       router.push('/auth/login');
                     } catch (error) {
