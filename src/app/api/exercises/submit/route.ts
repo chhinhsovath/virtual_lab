@@ -110,11 +110,13 @@ export async function POST(request: NextRequest) {
 
           // Insert submission record
           const studentId = session.user_id || session.user?.id;
+          const studentIdColumn = typeof studentId === 'string' && studentId.includes('-') 
+            ? 'student_uuid' : 'student_id';
           
           const submissionResult = await client.query(`
             INSERT INTO student_exercise_submissions (
               exercise_id,
-              student_id,
+              ${studentIdColumn},
               simulation_session_id,
               assignment_id,
               student_answer,
@@ -126,7 +128,7 @@ export async function POST(request: NextRequest) {
               COALESCE((
                 SELECT MAX(attempt_number) + 1 
                 FROM student_exercise_submissions 
-                WHERE exercise_id = $1 AND student_id = $2
+                WHERE exercise_id = $1 AND ${studentIdColumn} = $2
               ), 1)
             )
             RETURNING id, is_correct, points_earned
@@ -166,7 +168,7 @@ export async function POST(request: NextRequest) {
               score = $1,
               submitted_at = CURRENT_TIMESTAMP,
               status = 'completed'
-            WHERE assignment_id = $2 AND student_id = $3
+            WHERE assignment_id = $2 AND ${studentIdColumn} = $3
           `, [totalScore, assignment_id, studentId]);
         } else {
           // If table doesn't exist, update the assignment progress directly
@@ -235,6 +237,10 @@ export async function GET(request: NextRequest) {
     const client = await pool.connect();
     
     try {
+      const studentId = session.user_id || session.user?.id;
+      const studentIdColumn = typeof studentId === 'string' && studentId.includes('-') 
+        ? 'student_uuid' : 'student_id';
+        
       let query = `
         SELECT 
           ses.*,
@@ -244,9 +250,8 @@ export async function GET(request: NextRequest) {
           se.points as max_points
         FROM student_exercise_submissions ses
         JOIN simulation_exercises se ON ses.exercise_id = se.id
-        WHERE ses.student_id = $1
+        WHERE ses.${studentIdColumn} = $1
       `;
-      const studentId = session.user_id || session.user?.id;
       const queryParams: any[] = [studentId];
 
       if (simulation_id) {

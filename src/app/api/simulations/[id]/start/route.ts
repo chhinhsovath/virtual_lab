@@ -41,10 +41,14 @@ export async function POST(
       const simulation = simulationResult.rows[0];
 
       // Check for existing active session
+      // First check which column to use
+      const studentIdColumn = typeof session.user_id === 'string' && session.user_id.includes('-') 
+        ? 'student_uuid' : 'student_id';
+      
       const existingSessionResult = await client.query(`
         SELECT id, started_at, current_progress
         FROM student_simulation_progress 
-        WHERE student_id = $1 AND simulation_id = $2 AND completed_at IS NULL
+        WHERE ${studentIdColumn} = $1 AND simulation_id = $2 AND completed_at IS NULL
         ORDER BY started_at DESC
         LIMIT 1
       `, [session.user_id, params.id]);
@@ -63,9 +67,13 @@ export async function POST(
         `, [sessionData.id]);
       } else {
         // Create new session
+        const insertColumns = studentIdColumn === 'student_uuid' 
+          ? 'student_uuid, simulation_id, assignment_id, started_at, current_progress'
+          : 'student_id, simulation_id, assignment_id, started_at, current_progress';
+          
         const newSessionResult = await client.query(`
           INSERT INTO student_simulation_progress (
-            student_id, simulation_id, assignment_id, started_at, current_progress
+            ${insertColumns}
           ) VALUES ($1, $2, $3, CURRENT_TIMESTAMP, '{}')
           RETURNING *
         `, [session.user_id, params.id, assignment_id]);
@@ -150,10 +158,13 @@ export async function PUT(
       await client.query('BEGIN');
 
       // Find the active session
+      const studentIdColumn = typeof session.user_id === 'string' && session.user_id.includes('-') 
+        ? 'student_uuid' : 'student_id';
+        
       const sessionResult = await client.query(`
         SELECT id, total_time_spent, best_score, attempts_count
         FROM student_simulation_progress 
-        WHERE student_id = $1 AND simulation_id = $2 AND completed_at IS NULL
+        WHERE ${studentIdColumn} = $1 AND simulation_id = $2 AND completed_at IS NULL
         ORDER BY started_at DESC
         LIMIT 1
       `, [session.user_id, params.id]);
