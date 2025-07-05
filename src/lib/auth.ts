@@ -74,16 +74,16 @@ export async function authenticateUser(username: string, password: string): Prom
 
     return {
       id: userData.id,
-      username: userData.username || userData.email,
+      username: userData.email,
       email: userData.email,
       name: userData.name || '',
       role: userData.role,
       firstName: firstName,
       lastName: lastName,
       phoneNumber: null,
-      isActive: userData.is_active,
+      isActive: true,
       teacherId: null,
-      roles: [userData.role],
+      roles: [userData.role], // Ensure roles is an array
       createdAt: new Date(),
       schoolAccess: [],
       permissions: []
@@ -204,9 +204,9 @@ export async function getSession(sessionToken: string): Promise<Session | null> 
         firstName: firstName,
         lastName: lastName,
         phoneNumber: null,
-        isActive: row.is_active,
+        isActive: true,
         teacherId: null,
-        roles: [row.role],
+        roles: [row.role], // Ensure roles is an array
         createdAt: new Date(),
         schoolAccess: [],
         permissions: []
