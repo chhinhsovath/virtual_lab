@@ -98,31 +98,18 @@ export async function authenticateUser(username: string, password: string): Prom
 }
 
 /**
- * Create user session (handles both user_id and user_uuid columns)
+ * Create user session (always uses user_uuid column)
  */
 export async function createSession(user: User, ipAddress?: string, userAgent?: string): Promise<string> {
   const sessionToken = crypto.randomBytes(32).toString('hex');
   const client = await pool.connect();
   
   try {
-    // First, check which column exists
-    const columnCheckQuery = `
-      SELECT column_name 
-      FROM information_schema.columns 
-      WHERE table_name = 'user_sessions' 
-      AND column_name IN ('user_id', 'user_uuid')
+    // Always use user_uuid column for consistency
+    const insertQuery = `
+      INSERT INTO user_sessions (user_uuid, session_token, user_role, ip_address, user_agent, expires_at)
+      VALUES ($1, $2, $3, $4, $5, NOW() + INTERVAL '24 hours')
     `;
-    
-    const columnResult = await client.query(columnCheckQuery);
-    const userColumn = columnResult.rows.length > 0 ? columnResult.rows[0].column_name : 'user_id';
-    
-    // Insert session using the correct column name
-    // If both columns exist, use user_uuid for UUID values
-    const insertQuery = columnResult.rows.length > 1 
-      ? `INSERT INTO user_sessions (user_uuid, session_token, user_role, ip_address, user_agent, expires_at)
-         VALUES ($1, $2, $3, $4, $5, NOW() + INTERVAL '24 hours')`
-      : `INSERT INTO user_sessions (${userColumn}, session_token, user_role, ip_address, user_agent, expires_at)
-         VALUES ($1, $2, $3, $4, $5, NOW() + INTERVAL '24 hours')`;
     
     await client.query(insertQuery, [user.id, sessionToken, user.role, ipAddress, userAgent]);
 
@@ -136,7 +123,7 @@ export async function createSession(user: User, ipAddress?: string, userAgent?: 
 }
 
 /**
- * Get session with user data (handles both column names)
+ * Get session with user data (simplified to use user_uuid)
  */
 export async function getSession(sessionToken: string): Promise<Session | null> {
   if (!sessionToken) {
@@ -145,39 +132,15 @@ export async function getSession(sessionToken: string): Promise<Session | null> 
 
   const client = await pool.connect();
   try {
-    // First check which column exists
-    const columnCheckQuery = `
-      SELECT column_name 
-      FROM information_schema.columns 
-      WHERE table_name = 'user_sessions' 
-      AND column_name IN ('user_id', 'user_uuid')
+    // Simplified query using user_uuid
+    const sessionQuery = `
+      SELECT 
+        s.id, s.user_uuid, s.session_token, s.expires_at,
+        u.id as u_id, u.email, u.name, u.role
+      FROM user_sessions s
+      JOIN users u ON s.user_uuid = u.id
+      WHERE s.session_token = $1 AND s.expires_at > NOW()
     `;
-    
-    const columnResult = await client.query(columnCheckQuery);
-    const userColumn = columnResult.rows.length > 0 ? columnResult.rows[0].column_name : 'user_id';
-
-    // Build query based on which columns exist
-    let sessionQuery;
-    if (columnResult.rows.length > 1) {
-      // Both columns exist, try user_uuid first for UUID match
-      sessionQuery = `
-        SELECT 
-          s.id, COALESCE(s.user_uuid, s.user_id::uuid) as user_id, s.session_token, s.expires_at,
-          u.id as u_id, u.email, u.name, u.role, COALESCE(u.is_active, true) as is_active
-        FROM user_sessions s
-        JOIN users u ON (s.user_uuid = u.id OR s.user_id::text = u.id::text)
-        WHERE s.session_token = $1 AND s.expires_at > NOW() AND COALESCE(u.is_active, true) = true
-      `;
-    } else {
-      sessionQuery = `
-        SELECT 
-          s.id, s.${userColumn} as user_id, s.session_token, s.expires_at,
-          u.id as u_id, u.email, u.name, u.role, COALESCE(u.is_active, true) as is_active
-        FROM user_sessions s
-        JOIN users u ON s.${userColumn}::text = u.id::text
-        WHERE s.session_token = $1 AND s.expires_at > NOW() AND COALESCE(u.is_active, true) = true
-      `;
-    }
 
     const result = await client.query(sessionQuery, [sessionToken]);
 
@@ -192,7 +155,7 @@ export async function getSession(sessionToken: string): Promise<Session | null> 
 
     return {
       id: row.id,
-      userId: row.u_id.toString(),
+      userId: row.u_id,
       sessionToken: row.session_token,
       expiresAt: new Date(row.expires_at),
       user: {
