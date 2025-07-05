@@ -1,0 +1,168 @@
+          section          
+---------------------------
+ === DATABASE OVERVIEW ===
+(1 row)
+
+ database_name | size_mb |          checked_at           
+---------------+---------+-------------------------------
+ virtual_lab   |      12 | 2025-07-05 13:48:46.197841+07
+(1 row)
+
+          section          
+---------------------------
+ === TOTAL TABLE COUNT ===
+(1 row)
+
+ total_tables | tbl_tables | lms_tables | student_tables | user_tables | simulation_tables 
+--------------+------------+------------+----------------+-------------+-------------------
+           65 |          5 |         22 |              4 |           6 |                 3
+(1 row)
+
+              section               
+------------------------------------
+ === ALL TABLES WITH ROW COUNTS ===
+(1 row)
+
+           table_name           | row_count |  category  
+--------------------------------+-----------+------------
+ tbl_child                      |         0 | Base TaRL
+ tbl_child_information          |         0 | Base TaRL
+ tbl_province                   |         0 | Base TaRL
+ tbl_school_list                |         0 | Base TaRL
+ tbl_teacher_information        |         0 | Base TaRL
+ lms_activity_logs              |        70 | LMS
+ lms_announcements              |         0 | LMS
+ lms_assignments                |         0 | LMS
+ lms_attendance                 |         0 | LMS
+ lms_course_enrollments         |         0 | LMS
+ lms_course_schedules           |         0 | LMS
+ lms_courses                    |         2 | LMS
+ lms_lab_resources              |         0 | LMS
+ lms_lab_versions               |         0 | LMS
+ lms_labs                       |         2 | LMS
+ lms_messages                   |         0 | LMS
+ lms_parent_students            |         0 | LMS
+ lms_permissions                |        39 | LMS
+ lms_resources                  |         8 | LMS
+ lms_role_permissions           |       168 | LMS
+ lms_roles                      |        12 | LMS
+ lms_rubric_criteria            |         0 | LMS
+ lms_rubrics                    |         0 | LMS
+ lms_student_lab_activities     |         0 | LMS
+ lms_student_progress           |         0 | LMS
+ lms_submission_files           |         0 | LMS
+ lms_submissions                |         0 | LMS
+ schema_migrations              |        20 | Migration
+ clusters                       |         0 | Other
+ curriculum_collaborators       |         0 | Other
+ curriculum_labs                |         0 | Other
+ curriculum_progress            |         0 | Other
+ curriculum_templates           |         0 | Other
+ curriculums                    |         0 | Other
+ districts                      |         0 | Other
+ exercise_rubrics               |         0 | Other
+ lab_analytics_cache            |         0 | Other
+ lab_auto_grading_rules         |         0 | Other
+ lab_rubric_criteria            |         0 | Other
+ lab_score_annotations          |         0 | Other
+ lab_scores                     |         0 | Other
+ lab_sessions                   |         0 | Other
+ lab_skill_tags                 |         0 | Other
+ lab_skills                     |        12 | Other
+ lab_submissions                |         0 | Other
+ learning_analytics             |        24 | Other
+ stem_program_enrollment        |         0 | Other
+ stem_simulations_catalog       |         9 | Other
+ stem_simulations_log           |         0 | Other
+ tarl_assessments               |         0 | Other
+ tarl_student_selection         |         0 | Other
+ teacher_simulation_assignments |         1 | Other
+ simulation_achievements        |         8 | Simulation
+ simulation_exercises           |         4 | Simulation
+ simulations_catalog            |         1 | Simulation
+ student_achievements           |         5 | Student
+ student_assignments            |         3 | Student
+ student_exercise_submissions   |         0 | Student
+ student_simulation_progress    |         1 | Student
+ user_achievements              |         2 | User/Auth
+ user_permissions               |        21 | User/Auth
+ user_preferences               |        32 | User/Auth
+ user_school_access             |         0 | User/Auth
+ user_sessions                  |        10 | User/Auth
+ users                          |         8 | User/Auth
+(65 rows)
+
+          section          
+---------------------------
+ === KEY TABLES DETAIL ===
+(1 row)
+
+     info     
+--------------
+ USERS TABLE:
+(1 row)
+
+ total_users | students | teachers | admins | active_users 
+-------------+----------+----------+--------+--------------
+           8 |        2 |        2 |      1 |            8
+(1 row)
+
+      info       
+-----------------
+ STUDENTS TABLE:
+(1 row)
+
+ total_students | active_students | schools_count | with_photos 
+----------------+-----------------+---------------+-------------
+              0 |               0 |             0 |           0
+(1 row)
+
+     info     
+--------------
+ SIMULATIONS:
+(1 row)
+
+psql:compare_databases.sql:83: ERROR:  relation "lms_simulations" does not exist
+LINE 4:             (SELECT COUNT(*) FROM lms_simulations)::text || ...
+                                          ^
+    info    
+------------
+ EXERCISES:
+(1 row)
+
+psql:compare_databases.sql:95: ERROR:  relation "lms_exercises" does not exist
+LINE 4:             (SELECT COUNT(*) FROM lms_exercises)::text || ' ...
+                                          ^
+       info        
+-------------------
+ STUDENT PROGRESS:
+(1 row)
+
+psql:compare_databases.sql:104: ERROR:  column "status" does not exist
+LINE 4:     COUNT(CASE WHEN status = 'completed' THEN 1 END) as comp...
+                            ^
+          section          
+---------------------------
+ === TABLES COMPARISON ===
+(1 row)
+
+   table_name    |  status   
+-----------------+-----------
+ lms_exercises   | ✗ MISSING
+ lms_simulations | ✗ MISSING
+(2 rows)
+
+         section          
+--------------------------
+ === MIGRATION STATUS ===
+(1 row)
+
+ total_migrations |      first_migration       |       last_migration       
+------------------+----------------------------+----------------------------
+               20 | 2025-07-04 22:02:02.794101 | 2025-07-04 22:02:08.285302
+(1 row)
+
+psql:compare_databases.sql:179: ERROR:  column "applied_by" does not exist
+LINE 4:     applied_by
+            ^
+HINT:  Perhaps you meant to reference the column "schema_migrations.applied_at".
