@@ -87,13 +87,15 @@ BEGIN
                AND column_name = 'student_id'
                AND data_type = 'integer') THEN
         
-        -- Try to update student_uuid from users table
-        UPDATE student_simulation_progress ssp
-        SET student_uuid = u.id::UUID
-        FROM users u
-        WHERE u.role = 'student'
-        AND ssp.student_uuid IS NULL
-        LIMIT 1; -- Just update demo records
+        -- Try to update student_uuid from users table for demo student
+        UPDATE student_simulation_progress 
+        SET student_uuid = (
+            SELECT u.id::UUID 
+            FROM users u 
+            WHERE u.email = 'student@vlab.edu.kh' 
+            LIMIT 1
+        )
+        WHERE student_uuid IS NULL;
     END IF;
 END $$;
 

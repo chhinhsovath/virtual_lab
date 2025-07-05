@@ -27,17 +27,17 @@ export async function GET(request: NextRequest) {
     const client = await pool.connect();
     
     try {
-      // Overall statistics - using old schema columns
+      // Overall statistics - using new standardized columns
       const overallStatsQuery = `
         SELECT 
           COUNT(DISTINCT ssp.simulation_id) as simulations_attempted,
-          COUNT(CASE WHEN ssp.completed_at IS NOT NULL THEN 1 END) as simulations_completed,
-          COALESCE(SUM(ssp.total_time_spent / 60), 0) as total_time_minutes,
+          COUNT(CASE WHEN ssp.completed = true THEN 1 END) as simulations_completed,
+          COALESCE(SUM(ssp.time_spent), 0) as total_time_minutes,
           COALESCE(AVG(ssp.best_score), 0) as average_score,
           0 as achievements_earned,
           0 as total_points
         FROM student_simulation_progress ssp
-        WHERE (ssp.student_uuid = $1 OR ssp.student_id = $1::TEXT::INTEGER)
+        WHERE ssp.student_uuid = $1
         AND ssp.created_at >= NOW() - ($2::integer * INTERVAL '1 day')
       `;
 
@@ -48,12 +48,12 @@ export async function GET(request: NextRequest) {
         SELECT 
           s.subject_area,
           COUNT(DISTINCT ssp.simulation_id) as simulations_attempted,
-          COUNT(CASE WHEN ssp.completed_at IS NOT NULL THEN 1 END) as simulations_completed,
+          COUNT(CASE WHEN ssp.completed = true THEN 1 END) as simulations_completed,
           COALESCE(AVG(ssp.best_score), 0) as average_score,
-          COALESCE(SUM(ssp.total_time_spent / 60), 0) as total_time_minutes
+          COALESCE(SUM(ssp.time_spent), 0) as total_time_minutes
         FROM student_simulation_progress ssp
         JOIN stem_simulations_catalog s ON ssp.simulation_id = s.id
-        WHERE (ssp.student_uuid = $1 OR ssp.student_id = $1::TEXT::INTEGER)
+        WHERE ssp.student_uuid = $1
         AND ssp.created_at >= NOW() - ($2::integer * INTERVAL '1 day')
         GROUP BY s.subject_area
         ORDER BY average_score DESC
@@ -71,22 +71,17 @@ export async function GET(request: NextRequest) {
           s.subject_area,
           s.difficulty_level,
           CASE 
-            WHEN ssp.completed_at IS NOT NULL THEN 'completed'
-            WHEN ssp.current_progress IS NOT NULL THEN 'in_progress'
+            WHEN ssp.completed = true THEN 'completed'
+            WHEN ssp.progress_percentage > 0 THEN 'in_progress'
             ELSE 'started'
           END as status,
-          CASE 
-            WHEN ssp.completed_at IS NOT NULL THEN 100
-            WHEN ssp.current_progress IS NOT NULL THEN 
-              COALESCE((ssp.current_progress->>'percentage')::numeric, 0)
-            ELSE 0
-          END as progress_percentage,
-          COALESCE(ssp.total_time_spent / 60, 0) as total_time_spent,
-          ssp.updated_at
+          ssp.progress_percentage,
+          ssp.time_spent as total_time_spent,
+          ssp.last_accessed as updated_at
         FROM student_simulation_progress ssp
         JOIN stem_simulations_catalog s ON ssp.simulation_id = s.id
-        WHERE (ssp.student_uuid = $1 OR ssp.student_id = $1::TEXT::INTEGER)
-        ORDER BY ssp.updated_at DESC
+        WHERE ssp.student_uuid = $1
+        ORDER BY ssp.last_accessed DESC
         LIMIT 10
       `;
 
@@ -97,10 +92,10 @@ export async function GET(request: NextRequest) {
         SELECT 
           DATE(ssp.created_at) as activity_date,
           COUNT(*) as sessions_count,
-          SUM(ssp.total_time_spent / 60) as daily_time_minutes,
+          SUM(ssp.time_spent) as daily_time_minutes,
           AVG(ssp.best_score) as daily_average_score
         FROM student_simulation_progress ssp
-        WHERE (ssp.student_uuid = $1 OR ssp.student_id = $1::TEXT::INTEGER)
+        WHERE ssp.student_uuid = $1
         AND ssp.created_at >= NOW() - ($2::integer * INTERVAL '1 day')
         GROUP BY DATE(ssp.created_at)
         ORDER BY activity_date DESC
@@ -116,24 +111,24 @@ export async function GET(request: NextRequest) {
         WITH student_avg AS (
           SELECT AVG(best_score) as student_average
           FROM student_simulation_progress 
-          WHERE (student_uuid = $1 OR student_id = $1::TEXT::INTEGER) 
-          AND completed_at IS NOT NULL
+          WHERE student_uuid = $1
+          AND completed = true
         ),
         all_students_avg AS (
           SELECT 
-            COALESCE(student_uuid::TEXT, student_id::TEXT) as student_ref,
+            student_uuid,
             AVG(best_score) as student_average
           FROM student_simulation_progress 
-          WHERE completed_at IS NOT NULL
-          GROUP BY COALESCE(student_uuid::TEXT, student_id::TEXT)
+          WHERE completed = true
+          GROUP BY student_uuid
         )
         SELECT 
           sa.student_average,
-          COUNT(asa.student_ref) as total_students,
+          COUNT(asa.student_uuid) as total_students,
           COUNT(CASE WHEN asa.student_average < sa.student_average THEN 1 END) as students_below,
           ROUND(
             (COUNT(CASE WHEN asa.student_average < sa.student_average THEN 1 END) * 100.0 / 
-             NULLIF(COUNT(asa.student_ref), 0)), 2
+             NULLIF(COUNT(asa.student_uuid), 0)), 2
           ) as percentile_rank
         FROM student_avg sa
         CROSS JOIN all_students_avg asa
