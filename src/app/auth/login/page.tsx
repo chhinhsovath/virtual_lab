@@ -162,15 +162,15 @@ export default function LoginPage() {
         <div className="relative z-10 flex flex-col justify-center px-12 py-16 text-white">
           <div className="mb-12">
             <div className="flex items-center mb-6">
-              <GraduationCap className="h-12 w-12 mr-4" />
+              <FlaskConical className="h-12 w-12 mr-4" />
               <div>
-                <h1 className="text-3xl font-bold font-hanuman">TaRL Assessment</h1>
-                <p className="font-hanuman text-xl">ការវាយតម្លៃ TaRL</p>
+                <h1 className="text-3xl font-bold font-hanuman">Virtual Lab Cambodia</h1>
+                <p className="font-hanuman text-xl">មន្ទីរពិសោធន៍និម្មិតកម្ពុជា</p>
               </div>
             </div>
             
             <p className="text-lg text-blue-100 leading-relaxed mb-8">
-              Teaching at the Right Level - Empowering educators with data-driven assessment tools for effective learning outcomes.
+              Interactive STEM Simulations - Empowering Cambodian students to discover science through hands-on virtual experiments and exploration.
             </p>
             
             <div className="space-y-6">
@@ -179,8 +179,8 @@ export default function LoginPage() {
                   <MapPin className="h-6 w-6" />
                 </div>
                 <div>
-                  <h3 className="font-semibold">Multi-Province Coverage</h3>
-                  <p className="text-blue-100">Battambang & Kampong Cham</p>
+                  <h3 className="font-semibold">Nationwide Coverage</h3>
+                  <p className="text-blue-100">All provinces across Cambodia</p>
                 </div>
               </div>
               
@@ -189,8 +189,8 @@ export default function LoginPage() {
                   <Users className="h-6 w-6" />
                 </div>
                 <div>
-                  <h3 className="font-semibold">60+ Teachers</h3>
-                  <p className="text-blue-100">Across 30+ schools</p>
+                  <h3 className="font-semibold">1,500+ Students</h3>
+                  <p className="text-blue-100">Discovering science daily</p>
                 </div>
               </div>
               
@@ -199,8 +199,8 @@ export default function LoginPage() {
                   <BarChart3 className="h-6 w-6" />
                 </div>
                 <div>
-                  <h3 className="font-semibold">Real-time Analytics</h3>
-                  <p className="text-blue-100">Comprehensive assessment tracking</p>
+                  <h3 className="font-semibold">Interactive Learning</h3>
+                  <p className="text-blue-100">Physics, Chemistry, Biology & Math</p>
                 </div>
               </div>
             </div>
@@ -214,10 +214,10 @@ export default function LoginPage() {
           {/* Mobile Header */}
           <div className="lg:hidden text-center mb-8">
             <div className="flex items-center justify-center mb-4">
-              <GraduationCap className="h-10 w-10 text-blue-600 mr-3" />
+              <FlaskConical className="h-10 w-10 text-blue-600 mr-3" />
               <div>
-                <h1 className="text-2xl font-bold text-slate-800 font-hanuman">TaRL Assessment</h1>
-                <p className="font-hanuman text-lg text-slate-600">ការវាយតម្លៃ TaRL</p>
+                <h1 className="text-2xl font-bold text-slate-800 font-hanuman">Virtual Lab Cambodia</h1>
+                <p className="font-hanuman text-lg text-slate-600">មន្ទីរពិសោធន៍និម្មិតកម្ពុជា</p>
               </div>
             </div>
           </div>
@@ -225,9 +225,9 @@ export default function LoginPage() {
           {/* Login Card */}
           <Card className="border-0 shadow-2xl bg-white/80 backdrop-blur-sm">
             <CardHeader className="text-center pb-6">
-              <CardTitle className="text-2xl font-bold text-slate-800">Welcome Back</CardTitle>
+              <CardTitle className="text-2xl font-bold text-slate-800">Welcome to Virtual Lab</CardTitle>
               <CardDescription className="text-slate-600">
-                Sign in to access your assessment dashboard
+                Sign in to explore interactive STEM simulations
               </CardDescription>
             </CardHeader>
             
@@ -370,15 +370,15 @@ export default function LoginPage() {
 
                 {/* Role Information */}
                 <div className="text-center space-y-2 mt-4">
-                  <p className="text-sm text-slate-600 font-medium">Virtual Lab LMS Roles</p>
+                  <p className="text-sm text-slate-600 font-medium">Interactive STEM Learning Roles</p>
                   <div className="text-xs text-slate-500 space-y-1">
-                    <p><strong>Administrator:</strong> Full platform access, user management</p>
-                    <p><strong>Teacher:</strong> Create labs, assess students, manage curriculum</p>
-                    <p><strong>Student:</strong> Complete lab simulations and worksheets</p>
-                    <p><strong>Parent:</strong> Monitor child's lab activity and progress</p>
+                    <p><strong>Administrator:</strong> Platform management and analytics</p>
+                    <p><strong>Teacher:</strong> Create lessons with simulations and track progress</p>
+                    <p><strong>Student:</strong> Explore simulations and build scientific understanding</p>
+                    <p><strong>Parent:</strong> Monitor child's STEM learning journey</p>
                   </div>
                   <p className="font-hanuman text-sm text-slate-500 mt-3">
-                    ប្រព័ន្ធគ្រប់គ្រងការសិក្សាមន្ទីរពិសោធន៍និម្មិត
+                    ស្វែងរកវិទ្យាសាស្ត្រតាមរយៈការលេង និងការពិសោធន៍
                   </p>
                 </div>
               </div>
