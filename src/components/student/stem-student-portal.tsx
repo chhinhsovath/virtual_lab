@@ -420,7 +420,17 @@ export function STEMStudentPortal({ user }: STEMStudentPortalProps) {
                 <Button 
                   variant="ghost" 
                   className="text-white hover:bg-white/20"
-                  onClick={() => router.push('/auth/signin')}
+                  onClick={async () => {
+                    try {
+                      // Call logout API
+                      await fetch('/api/auth/logout', { method: 'POST' });
+                      // Redirect to login page
+                      router.push('/auth/login');
+                    } catch (error) {
+                      console.error('Logout error:', error);
+                      router.push('/auth/login');
+                    }
+                  }}
                 >
                   <LogOut className="h-5 w-5 mr-2" />
                   <span className="font-hanuman">ចាកចេញ</span>
