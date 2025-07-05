@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { Badge } from './ui/badge';
-import { User, LogOut, BarChart3, FileText, Users, Menu, X, GraduationCap, Settings, Bell, ChevronDown } from 'lucide-react';
+import { User, LogOut, BarChart3, FileText, Users, Menu, X, GraduationCap, Settings, Bell, ChevronDown, FlaskConical } from 'lucide-react';
 import { type Session } from '../lib/auth';
 import { toast } from 'sonner';
 
@@ -77,6 +77,13 @@ export function DashboardNav({ session }: DashboardNavProps) {
           label: 'Student Selection',
           labelKh: 'ជ្រើសរើសសិស្ស',
           icon: Users,
+          roles: ['teacher'],
+        },
+        {
+          href: '/dashboard/simulations',
+          label: 'STEM Simulations',
+          labelKh: 'ការពិសោធន៍ STEM',
+          icon: FlaskConical,
           roles: ['teacher'],
         }
       );
