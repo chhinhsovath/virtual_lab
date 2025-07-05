@@ -215,7 +215,7 @@ export default function SimulationsPage() {
                 </div>
                 <div>
                   <h1 className="text-2xl font-black bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 bg-clip-text text-transparent animate-gradient-x">
-                    Virtual Lab Cambodia
+                    Virtual Lab
                   </h1>
                   <p className="text-sm text-purple-600 font-bold font-hanuman">🚀 ការពិសោធន៍វិទ្យាសាស្ត្រ</p>
                 </div>
@@ -264,9 +264,9 @@ export default function SimulationsPage() {
         <div className="max-w-7xl mx-auto">
           <Card className="bg-white/95 backdrop-blur border-2 border-purple-200 shadow-xl">
             <CardContent className="p-6">
-              <div className="flex flex-col lg:flex-row gap-6 items-center">
+              <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 items-start lg:items-center">
                 {/* Search */}
-                <div className="relative flex-1">
+                <div className="relative w-full lg:flex-1">
                   <Search className="h-5 w-5 text-purple-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
                   <Input
                     placeholder="ស្វែងរកការពិសោធន៍..."
@@ -277,7 +277,7 @@ export default function SimulationsPage() {
                 </div>
 
                 {/* Subject Filter */}
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex gap-2 flex-wrap w-full lg:w-auto justify-center lg:justify-start">
                   {subjects.map((subject) => (
                     <Button
                       key={subject.name}
@@ -297,12 +297,12 @@ export default function SimulationsPage() {
                 </div>
 
                 {/* Sort */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 w-full lg:w-auto">
                   <Filter className="h-5 w-5 text-purple-500" />
                   <select 
                     value={sortBy} 
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="border-2 border-purple-200 rounded-lg px-3 py-2 text-sm font-hanuman font-bold"
+                    className="border-2 border-purple-200 rounded-lg px-3 py-2 text-sm font-hanuman font-bold w-full lg:w-auto"
                   >
                     <option value="featured">ពិសេស</option>
                     <option value="rating">ពិន្ទុខ្ពស់</option>
@@ -343,7 +343,7 @@ export default function SimulationsPage() {
               <p className="text-purple-600 font-hanuman">សូមសាកល្បងកែសម្រួលការស្វែងរក ឬតម្រងរបស់អ្នក</p>
             </div>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {filteredSimulations.map((sim) => {
                 const SubjectIcon = sim.icon;
                 const subjectColor = sim.color;
@@ -361,9 +361,9 @@ export default function SimulationsPage() {
                     )}
                     
                     <CardHeader className="pb-4">
-                      <div className="flex items-start justify-between">
-                        <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br from-${subjectColor}-100 to-${subjectColor}-200 flex items-center justify-center mb-3 group-hover:scale-110 transition-all shadow-lg`}>
-                          <SubjectIcon className={`h-7 w-7 text-${subjectColor}-600 group-hover:animate-pulse`} />
+                      <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-2 sm:gap-0">
+                        <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-${subjectColor}-100 to-${subjectColor}-200 flex items-center justify-center mb-2 sm:mb-3 group-hover:scale-110 transition-all shadow-lg`}>
+                          <SubjectIcon className={`h-6 w-6 sm:h-7 sm:w-7 text-${subjectColor}-600 group-hover:animate-pulse`} />
                         </div>
                         <Badge className={`${difficultyColors[sim.difficulty]} font-hanuman font-bold text-xs px-3 py-1 border`}>
                           {sim.difficulty === 'Beginner' ? 'មូលដ្ឋាន' : 
@@ -389,8 +389,8 @@ export default function SimulationsPage() {
                         ))}
                       </div>
                       
-                      <div className="flex items-center justify-between text-sm text-purple-600">
-                        <div className="flex items-center gap-4">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4 text-sm text-purple-600">
+                        <div className="flex items-center gap-2 sm:gap-4">
                           <div className="flex items-center gap-1">
                             <GraduationCap className="h-4 w-4" />
                             <span className="font-hanuman">ថ្នាក់ {sim.grade}</span>
@@ -412,8 +412,8 @@ export default function SimulationsPage() {
                         </div>
                       )}
                       
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3 text-sm text-purple-500">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+                        <div className="flex items-center gap-2 sm:gap-3 text-sm text-purple-500">
                           <div className="flex items-center gap-1 bg-yellow-100 px-2 py-1 rounded-full">
                             <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                             <span className="font-bold text-yellow-700">{sim.rating.toFixed(1)}</span>

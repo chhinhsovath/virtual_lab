@@ -137,10 +137,10 @@ export default function CreateSimulationPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6 md:mb-8">
           <Button
             variant="ghost"
             onClick={() => router.push('/dashboard/simulations')}
@@ -150,19 +150,19 @@ export default function CreateSimulationPage() {
             Back to Simulations
           </Button>
           
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
             Create New Simulation
           </h1>
-          <p className="text-gray-600 mt-2">Add a new STEM simulation to the virtual lab</p>
+          <p className="text-gray-600 mt-2 text-sm sm:text-base">Add a new STEM simulation to the virtual lab</p>
         </div>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <Tabs defaultValue="basic" className="w-full">
               <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="basic">Basic Information</TabsTrigger>
-                <TabsTrigger value="content">Content & Objectives</TabsTrigger>
-                <TabsTrigger value="settings">Settings & Media</TabsTrigger>
+                <TabsTrigger value="basic" className="text-xs sm:text-sm">Basic Info</TabsTrigger>
+                <TabsTrigger value="content" className="text-xs sm:text-sm">Content</TabsTrigger>
+                <TabsTrigger value="settings" className="text-xs sm:text-sm">Settings</TabsTrigger>
               </TabsList>
 
               <TabsContent value="basic" className="space-y-6">
@@ -189,7 +189,7 @@ export default function CreateSimulationPage() {
                       )}
                     />
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
                         name="display_name_en"
@@ -219,7 +219,7 @@ export default function CreateSimulationPage() {
                       />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
                         name="subject_area"
@@ -275,7 +275,7 @@ export default function CreateSimulationPage() {
                         <FormItem>
                           <FormLabel>Grade Levels</FormLabel>
                           <FormControl>
-                            <div className="flex flex-wrap gap-2">
+                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
                               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((grade) => (
                                 <Badge
                                   key={grade}
@@ -365,7 +365,7 @@ export default function CreateSimulationPage() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <div className="flex gap-2">
+                      <div className="flex flex-col sm:flex-row gap-2">
                         <Input
                           placeholder="Learning objective (English)"
                           value={newObjectiveEn}
@@ -454,7 +454,7 @@ export default function CreateSimulationPage() {
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
                       <FormLabel>Tags</FormLabel>
-                      <div className="flex gap-2">
+                      <div className="flex flex-col sm:flex-row gap-2">
                         <Input
                           placeholder="Add tag..."
                           value={newTag}
@@ -524,18 +524,19 @@ export default function CreateSimulationPage() {
               </TabsContent>
             </Tabs>
 
-            <div className="flex justify-end gap-4">
+            <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => router.push('/dashboard/simulations')}
+                className="w-full sm:w-auto"
               >
                 Cancel
               </Button>
               <Button 
                 type="submit" 
                 disabled={loading}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 w-full sm:w-auto"
               >
                 {loading ? (
                   <>

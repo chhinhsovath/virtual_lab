@@ -130,45 +130,47 @@ export default function TeacherSimulationsPage() {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+        <div className="mb-6 md:mb-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-6">
+            <div className="flex-1">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                 STEM Simulations Management
               </h1>
-              <p className="text-gray-600 mt-2">Manage your virtual lab simulations</p>
+              <p className="text-gray-600 mt-2 text-sm sm:text-base">Manage your virtual lab simulations</p>
             </div>
             <Button
               onClick={() => router.push('/dashboard/simulations/new')}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 w-full sm:w-auto"
+              size="sm"
             >
               <Plus className="mr-2 h-4 w-4" />
-              Create New Simulation
+              <span className="hidden sm:inline">Create New Simulation</span>
+              <span className="sm:hidden">Create New</span>
             </Button>
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
             <Card className="bg-white/90 backdrop-blur">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-gray-600">Total Simulations</CardTitle>
+              <CardHeader className="pb-2 md:pb-3">
+                <CardTitle className="text-xs md:text-sm font-medium text-gray-600">Total Simulations</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-purple-600">{simulations.length}</div>
+              <CardContent className="pt-0">
+                <div className="text-lg md:text-2xl font-bold text-purple-600">{simulations.length}</div>
               </CardContent>
             </Card>
             {Object.entries(subjectStats).map(([subject, count]) => {
               const Icon = subjectIcons[subject] || BookOpen;
               return (
                 <Card key={subject} className="bg-white/90 backdrop-blur">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                      <Icon className="h-4 w-4" />
-                      {subject}
+                  <CardHeader className="pb-2 md:pb-3">
+                    <CardTitle className="text-xs md:text-sm font-medium text-gray-600 flex items-center gap-1 md:gap-2">
+                      <Icon className="h-3 w-3 md:h-4 md:w-4" />
+                      <span className="hidden sm:inline">{subject}</span>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-purple-600">{count}</div>
+                  <CardContent className="pt-0">
+                    <div className="text-lg md:text-2xl font-bold text-purple-600">{count}</div>
                   </CardContent>
                 </Card>
               );
@@ -176,7 +178,7 @@ export default function TeacherSimulationsPage() {
           </div>
 
           {/* Filters */}
-          <div className="flex gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
             <div className="flex-1">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -184,12 +186,12 @@ export default function TeacherSimulationsPage() {
                   placeholder="Search simulations..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 text-sm"
                 />
               </div>
             </div>
             <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-              <SelectTrigger className="w-[200px]">
+              <SelectTrigger className="w-full sm:w-[200px]">
                 <SelectValue placeholder="Filter by subject" />
               </SelectTrigger>
               <SelectContent>
@@ -205,30 +207,30 @@ export default function TeacherSimulationsPage() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-6">
-            <TabsTrigger value="all">All ({simulations.length})</TabsTrigger>
-            <TabsTrigger value="active">Active ({simulations.filter(s => s.is_active).length})</TabsTrigger>
-            <TabsTrigger value="inactive">Inactive ({simulations.filter(s => !s.is_active).length})</TabsTrigger>
-            <TabsTrigger value="featured">Featured ({simulations.filter(s => s.is_featured).length})</TabsTrigger>
+          <TabsList className="mb-4 md:mb-6 grid grid-cols-2 md:grid-cols-4 w-full">
+            <TabsTrigger value="all" className="text-xs sm:text-sm">All ({simulations.length})</TabsTrigger>
+            <TabsTrigger value="active" className="text-xs sm:text-sm">Active ({simulations.filter(s => s.is_active).length})</TabsTrigger>
+            <TabsTrigger value="inactive" className="text-xs sm:text-sm">Inactive ({simulations.filter(s => !s.is_active).length})</TabsTrigger>
+            <TabsTrigger value="featured" className="text-xs sm:text-sm">Featured ({simulations.filter(s => s.is_featured).length})</TabsTrigger>
           </TabsList>
 
           <TabsContent value={activeTab}>
             {/* Simulations Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {filteredSimulations.map((simulation) => {
                 const Icon = subjectIcons[simulation.subject_area] || BookOpen;
                 
                 return (
                   <Card key={simulation.id} className="bg-white/90 backdrop-blur hover:shadow-lg transition-shadow">
                     <CardHeader>
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex items-center gap-2">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0 mb-2">
+                        <div className="flex items-center gap-2 flex-1">
                           <div className="p-2 bg-purple-100 rounded-lg">
                             <Icon className="h-5 w-5 text-purple-600" />
                           </div>
                           <Badge variant="outline">{simulation.subject_area}</Badge>
                         </div>
-                        <div className="flex gap-1">
+                        <div className="flex flex-wrap gap-1">
                           {simulation.is_featured && (
                             <Badge className="bg-yellow-100 text-yellow-800">Featured</Badge>
                           )}
@@ -237,8 +239,8 @@ export default function TeacherSimulationsPage() {
                           </Badge>
                         </div>
                       </div>
-                      <CardTitle className="text-lg line-clamp-1">{simulation.display_name_en}</CardTitle>
-                      <CardDescription className="text-sm text-gray-600 line-clamp-1">
+                      <CardTitle className="text-base md:text-lg line-clamp-1">{simulation.display_name_en}</CardTitle>
+                      <CardDescription className="text-xs md:text-sm text-gray-600 line-clamp-1">
                         {simulation.display_name_km}
                       </CardDescription>
                     </CardHeader>
@@ -263,33 +265,33 @@ export default function TeacherSimulationsPage() {
                         </div>
                       </div>
 
-                      <div className="flex gap-2">
+                      <div className="flex flex-col sm:flex-row gap-2">
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => window.open(simulation.simulation_url, '_blank')}
-                          className="flex-1"
+                          className="flex-1 text-xs sm:text-sm"
                           disabled={!simulation.simulation_url || simulation.simulation_url === '#'}
                         >
-                          <Eye className="h-4 w-4 mr-1" />
+                          <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                           Preview
                         </Button>
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => router.push(`/dashboard/simulations/${simulation.id}/edit`)}
-                          className="flex-1"
+                          className="flex-1 text-xs sm:text-sm"
                         >
-                          <Edit className="h-4 w-4 mr-1" />
+                          <Edit className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                           Edit
                         </Button>
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => handleDelete(simulation.id, simulation.display_name_en)}
-                          className="text-red-600 hover:bg-red-50"
+                          className="text-red-600 hover:bg-red-50 px-2 sm:px-3"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                         </Button>
                       </div>
                     </CardContent>
