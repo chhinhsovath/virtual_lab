@@ -75,6 +75,39 @@ export async function POST(request: NextRequest) {
         }, { status: 404 });
       }
 
+      // Define studentId and studentIdColumn outside the loop
+      const studentId = session.user_id || session.user?.id;
+      
+      // Check which column exists in student_exercise_submissions
+      let studentIdColumn = 'student_id'; // default
+      try {
+        const columnCheck = await client.query(`
+          SELECT column_name 
+          FROM information_schema.columns 
+          WHERE table_name = 'student_exercise_submissions' 
+          AND column_name IN ('student_id', 'student_uuid')
+        `);
+        
+        const hasStudentUuid = columnCheck.rows.some(row => row.column_name === 'student_uuid');
+        const hasStudentId = columnCheck.rows.some(row => row.column_name === 'student_id');
+        
+        if (typeof studentId === 'string' && studentId.includes('-')) {
+          // UUID format
+          if (hasStudentUuid) {
+            studentIdColumn = 'student_uuid';
+          } else if (!hasStudentId) {
+            // No compatible column
+            await client.query('ROLLBACK');
+            return NextResponse.json({
+              error: 'Database schema not compatible with UUID users. Please run migration.',
+              migration_needed: true
+            }, { status: 500 });
+          }
+        }
+      } catch (err) {
+        console.error('Error checking columns:', err);
+      }
+
       // Process each answer
       for (const exercise of exercises) {
         maxScore += exercise.points;
@@ -109,10 +142,6 @@ export async function POST(request: NextRequest) {
           totalScore += pointsEarned;
 
           // Insert submission record
-          const studentId = session.user_id || session.user?.id;
-          const studentIdColumn = typeof studentId === 'string' && studentId.includes('-') 
-            ? 'student_uuid' : 'student_id';
-          
           const submissionResult = await client.query(`
             INSERT INTO student_exercise_submissions (
               exercise_id,
@@ -238,8 +267,25 @@ export async function GET(request: NextRequest) {
     
     try {
       const studentId = session.user_id || session.user?.id;
-      const studentIdColumn = typeof studentId === 'string' && studentId.includes('-') 
-        ? 'student_uuid' : 'student_id';
+      
+      // Check which column to use
+      let studentIdColumn = 'student_id';
+      try {
+        const columnCheck = await client.query(`
+          SELECT column_name 
+          FROM information_schema.columns 
+          WHERE table_name = 'student_exercise_submissions' 
+          AND column_name IN ('student_id', 'student_uuid')
+        `);
+        
+        const hasStudentUuid = columnCheck.rows.some(row => row.column_name === 'student_uuid');
+        
+        if (typeof studentId === 'string' && studentId.includes('-') && hasStudentUuid) {
+          studentIdColumn = 'student_uuid';
+        }
+      } catch (err) {
+        console.error('Error checking columns in GET:', err);
+      }
         
       let query = `
         SELECT 
