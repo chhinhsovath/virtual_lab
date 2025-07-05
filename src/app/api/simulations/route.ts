@@ -4,57 +4,78 @@ import { getAPISession, createMockStudentSession } from '@/lib/api-auth';
 
 export async function GET(request: NextRequest) {
   try {
-    let session = await getAPISession(request);
-    
-    // In development, use mock session if no real session exists
-    if (!session && process.env.NODE_ENV === 'development') {
-      session = createMockStudentSession();
-    }
-    
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const { searchParams } = new URL(request.url);
     const subject = searchParams.get('subject');
     const difficulty = searchParams.get('difficulty');
     const grade = searchParams.get('grade');
     const featured = searchParams.get('featured');
+    
+    let session = await getAPISession(request);
+    
+    // Allow unauthenticated access for featured simulations only
+    if (!session && featured !== 'true') {
+      // In development, use mock session if no real session exists
+      if (process.env.NODE_ENV === 'development') {
+        session = createMockStudentSession();
+      } else {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+    }
 
     const client = await pool.connect();
     
     try {
-      let query = `
-        SELECT 
-          s.*,
-          COALESCE(
-            (SELECT AVG(ssp.best_score) 
-             FROM student_simulation_progress ssp 
-             WHERE ssp.simulation_id = s.id AND ssp.student_id = $1
-            ), 0
-          ) as user_average_score,
-          COALESCE(
+      let query: string;
+      let queryParams: any[] = [];
+      let paramIndex = 1;
+
+      if (session) {
+        query = `
+          SELECT 
+            s.*,
+            COALESCE(
+              (SELECT AVG(ssp.best_score) 
+               FROM student_simulation_progress ssp 
+               WHERE ssp.simulation_id = s.id AND ssp.student_id = $1
+              ), 0
+            ) as user_average_score,
+            COALESCE(
+              (SELECT COUNT(*) 
+               FROM student_simulation_progress ssp 
+               WHERE ssp.simulation_id = s.id AND ssp.student_id = $1
+              ), 0
+            ) as user_attempts,
+            COALESCE(
+              (SELECT MAX(ssp.total_time_spent) 
+               FROM student_simulation_progress ssp 
+               WHERE ssp.simulation_id = s.id AND ssp.student_id = $1
+              ), 0
+            ) as user_total_time,
             (SELECT COUNT(*) 
              FROM student_simulation_progress ssp 
-             WHERE ssp.simulation_id = s.id AND ssp.student_id = $1
-            ), 0
-          ) as user_attempts,
-          COALESCE(
-            (SELECT MAX(ssp.total_time_spent) 
+             WHERE ssp.simulation_id = s.id AND ssp.completed_at IS NOT NULL
+            ) as total_completions
+          FROM stem_simulations_catalog s
+          WHERE s.is_active = true
+        `;
+        queryParams = [session.user_id];
+        paramIndex = 2;
+      } else {
+        // For unauthenticated requests (featured simulations on home page)
+        query = `
+          SELECT 
+            s.*,
+            0 as user_average_score,
+            0 as user_attempts,
+            0 as user_total_time,
+            (SELECT COUNT(*) 
              FROM student_simulation_progress ssp 
-             WHERE ssp.simulation_id = s.id AND ssp.student_id = $1
-            ), 0
-          ) as user_total_time,
-          (SELECT COUNT(*) 
-           FROM student_simulation_progress ssp 
-           WHERE ssp.simulation_id = s.id AND ssp.completed_at IS NOT NULL
-          ) as total_completions
-        FROM stem_simulations_catalog s
-        WHERE s.is_active = true
-      `;
-
-      const queryParams: any[] = [session.user_id];
-      let paramIndex = 2;
+             WHERE ssp.simulation_id = s.id AND ssp.completed_at IS NOT NULL
+            ) as total_completions
+          FROM stem_simulations_catalog s
+          WHERE s.is_active = true
+        `;
+      }
 
       if (subject) {
         query += ` AND s.subject_area = $${paramIndex}`;
@@ -101,7 +122,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getSession();
+    const session = await getAPISession(request);
     if (!session || session.user.role_name !== 'teacher') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

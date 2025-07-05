@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { User } from '@/lib/auth';
-import { STEMStudentPortal } from '../../components/student/stem-student-portal';
+import { EnhancedStudentDashboard } from '../../components/student/enhanced-student-dashboard';
 
 export default function StudentPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -59,5 +59,5 @@ export default function StudentPage() {
     return null;
   }
 
-  return <STEMStudentPortal user={user} />;
+  return <EnhancedStudentDashboard user={user} />;
 }

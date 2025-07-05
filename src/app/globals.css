@@ -55,4 +55,56 @@
   .education-gradient {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   }
+
+  /* Animated gradient background */
+  @keyframes gradient-x {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  .animate-gradient-x {
+    background-size: 200% 200%;
+    animation: gradient-x 4s ease infinite;
+  }
+
+  /* Fun bounce animation for cards */
+  @keyframes card-bounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+
+  .hover\:animate-card-bounce:hover {
+    animation: card-bounce 0.5s ease-in-out;
+  }
+
+  /* Sparkle animation */
+  @keyframes sparkle {
+    0% {
+      opacity: 0;
+      transform: scale(0) rotate(0deg);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1) rotate(180deg);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(0) rotate(360deg);
+    }
+  }
+
+  .animate-sparkle {
+    animation: sparkle 2s ease-in-out infinite;
+  }
 }

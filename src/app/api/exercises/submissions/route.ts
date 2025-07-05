@@ -25,37 +25,31 @@ export async function GET(request: NextRequest) {
         SELECT 
           ses.id,
           ses.student_id,
-          COALESCE(tc.child_name, 'សិស្សគ្មានឈ្មោះ') as student_name,
-          ses.exercise_id,
-          se.question_number,
-          se.question_km,
-          se.question_type,
-          ses.student_answer,
-          ses.is_correct,
-          ses.points_earned,
-          se.points as max_points,
+          COALESCE(tc.chiNameKh, tc.chiNameEn, 'សិស្សគ្មានឈ្មោះ') as student_name,
+          ses.simulation_id,
+          ssc.display_name_km as simulation_name,
+          COUNT(DISTINCT ses.exercise_id) as exercise_count,
+          ses.total_score,
+          ses.max_score,
           ses.time_spent,
           ses.submitted_at,
-          ses.feedback_from_teacher,
-          ses.graded_by,
-          ses.graded_at
+          ses.is_graded,
+          ses.graded_at,
+          ses.teacher_feedback
         FROM student_exercise_submissions ses
-        JOIN simulation_exercises se ON ses.exercise_id = se.id
-        LEFT JOIN tbl_child tc ON ses.student_id = tc.child_id
-        WHERE se.simulation_id = $1
+        JOIN stem_simulations_catalog ssc ON ses.simulation_id = ssc.id
+        LEFT JOIN tbl_child tc ON ses.student_id = tc.chiID
+        WHERE ses.simulation_id = $1
       `;
       const queryParams: any[] = [simulation_id];
-
-      // Filter by teacher's exercises
-      query += ` AND se.teacher_id = $${queryParams.length + 1}`;
-      queryParams.push(session.user_id);
 
       if (student_id) {
         query += ` AND ses.student_id = $${queryParams.length + 1}`;
         queryParams.push(parseInt(student_id));
       }
 
-      query += ` ORDER BY ses.submitted_at DESC, se.question_number`;
+      query += ` GROUP BY ses.id, ses.student_id, tc.chiNameKh, tc.chiNameEn, ses.simulation_id, ssc.display_name_km
+                 ORDER BY ses.submitted_at DESC`;
 
       const result = await client.query(query, queryParams);
 

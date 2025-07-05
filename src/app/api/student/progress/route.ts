@@ -30,10 +30,10 @@ export async function GET(request: NextRequest) {
         role: session.user.role_name
       });
 
-      // Query using the new standardized columns
+      // Query to get ALL simulations with optional progress
       let query = `
         SELECT 
-          ssp.*,
+          s.id,
           s.simulation_name,
           s.display_name_en,
           s.display_name_km,
@@ -41,18 +41,22 @@ export async function GET(request: NextRequest) {
           s.difficulty_level,
           s.estimated_duration,
           s.preview_image,
+          COALESCE(ssp.progress_percentage, 0) as progress_percentage,
+          COALESCE(ssp.time_spent, 0) as total_time_spent,
+          COALESCE(ssp.attempts, 0) as attempts_count,
+          COALESCE(ssp.best_score, 0) as best_score,
+          COALESCE(ssp.completed, false) as completed,
+          COALESCE(ssp.last_accessed, s.created_at) as updated_at,
           CASE 
             WHEN ssp.completed = true THEN 'completed'
             WHEN ssp.progress_percentage > 0 THEN 'in_progress'
             ELSE 'not_started'
-          END as status,
-          ssp.progress_percentage,
-          ssp.time_spent as total_time_spent,
-          ssp.attempts as attempts_count,
-          ssp.last_accessed as updated_at
-        FROM student_simulation_progress ssp
-        JOIN stem_simulations_catalog s ON ssp.simulation_id = s.id
-        WHERE ssp.student_uuid = $1 AND s.is_active = true
+          END as status
+        FROM stem_simulations_catalog s
+        LEFT JOIN student_simulation_progress ssp 
+          ON s.id = ssp.simulation_id 
+          AND ssp.student_uuid = $1
+        WHERE s.is_active = true
       `;
 
       const queryParams: any[] = [session.user_uuid || session.user_id];
@@ -70,15 +74,30 @@ export async function GET(request: NextRequest) {
         paramIndex++;
       }
 
-      query += ` ORDER BY ssp.updated_at DESC LIMIT $${paramIndex}`;
+      query += ` ORDER BY 
+        CASE 
+          WHEN ssp.last_accessed IS NOT NULL THEN ssp.last_accessed 
+          ELSE s.created_at 
+        END DESC 
+        LIMIT $${paramIndex}`;
       queryParams.push(limit);
 
       const result = await client.query(query, queryParams);
 
-      // If no progress records exist, return empty array instead of error
+      // Transform the results to ensure consistent format
+      const transformedResults = result.rows.map(row => ({
+        ...row,
+        id: row.id,
+        simulation_id: row.id,
+        progress_percentage: parseInt(row.progress_percentage) || 0,
+        total_time_spent: parseInt(row.total_time_spent) || 0,
+        attempts_count: parseInt(row.attempts_count) || 0,
+        best_score: parseFloat(row.best_score) || 0
+      }));
+
       return NextResponse.json({
         success: true,
-        progress: result.rows || []
+        progress: transformedResults
       });
       
     } finally {

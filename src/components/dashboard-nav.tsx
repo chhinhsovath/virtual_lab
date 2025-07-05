@@ -32,7 +32,7 @@ export function DashboardNav({ session }: DashboardNavProps) {
 
       if (response.ok) {
         toast.success('Logged out successfully');
-        router.push('/auth/login');
+        router.push('/');
       } else {
         toast.error('Logout failed');
       }

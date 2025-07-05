@@ -8,6 +8,7 @@ import { Button } from '../../components/ui/button';
 import ModernSidebar from '../../components/dashboard/ModernSidebar';
 import ModernSuperAdminDashboard from '../../components/dashboard/ModernSuperAdminDashboard';
 import ExerciseStats from '../../components/dashboard/ExerciseStats';
+import { EnhancedTeacherDashboard } from '../../components/dashboard/EnhancedTeacherDashboard';
 import { useLanguage } from '../../components/LanguageProvider';
 import {
   Users,
@@ -84,7 +85,7 @@ export default function DashboardPage() {
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
-      router.push('/auth/login');
+      router.push('/');
     } catch (error) {
       console.error('Logout error:', error);
     }
@@ -453,10 +454,10 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          {/* Exercise Statistics for Teachers */}
+          {/* Enhanced Teacher Dashboard */}
           {user.roles.includes('teacher') && (
             <div className="mt-6">
-              <ExerciseStats />
+              <EnhancedTeacherDashboard user={user} />
             </div>
           )}
         </main>

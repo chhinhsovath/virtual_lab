@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import { 
   Clock, Calendar, Activity, BookOpen, CheckCircle, AlertCircle,
   Play, Save, Send, HelpCircle, Globe, ChevronRight, TrendingUp,
-  Award, Sparkles, ArrowLeft
+  Award, Sparkles, ArrowLeft, FlaskConical, Trophy, Target
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -297,28 +297,46 @@ export default function SimulationPage() {
 
   const getDifficultyColor = (level: string) => {
     switch (level?.toLowerCase()) {
-      case 'easy': return 'bg-green-100 text-green-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      case 'hard': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'easy': 
+      case 'beginner': return 'bg-gradient-to-r from-green-100 to-green-200 text-green-800 border-green-300';
+      case 'medium': 
+      case 'intermediate': return 'bg-gradient-to-r from-yellow-100 to-yellow-200 text-yellow-800 border-yellow-300';
+      case 'hard': 
+      case 'advanced': return 'bg-gradient-to-r from-red-100 to-red-200 text-red-800 border-red-300';
+      default: return 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border-gray-300';
     }
   };
 
   const getDifficultyText = (level: string) => {
     switch (level?.toLowerCase()) {
-      case 'easy': return 'ងាយ';
-      case 'medium': return 'មធ្យម';
-      case 'hard': return 'ពិបាក';
+      case 'easy': 
+      case 'beginner': return 'ងាយ 🌱';
+      case 'medium': 
+      case 'intermediate': return 'មធ្យម 🌳';
+      case 'hard': 
+      case 'advanced': return 'ពិបាក 🌲';
       default: return level;
     }
   };
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 font-hanuman">កំពុងផ្ទុកការសាកល្បង...</p>
+          <div className="relative">
+            <div className="w-24 h-24 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full animate-pulse mx-auto"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <FlaskConical className="h-12 w-12 text-white animate-bounce" />
+            </div>
+          </div>
+          <p className="mt-6 text-2xl font-black text-purple-700 font-hanuman animate-pulse">
+            កំពុងផ្ទុកការសាកល្បង... 🚀
+          </p>
+          <div className="flex justify-center mt-4 space-x-2">
+            <div className="w-3 h-3 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
+            <div className="w-3 h-3 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            <div className="w-3 h-3 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+          </div>
         </div>
       </div>
     );
@@ -326,13 +344,20 @@ export default function SimulationPage() {
 
   if (!simulation) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Card>
-          <CardContent className="p-6">
-            <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-            <p className="text-center font-hanuman">រកមិនឃើញការសាកល្បង</p>
-            <Button onClick={() => router.push('/student')} className="mt-4 w-full font-hanuman">
-              ត្រឡប់ទៅផ្ទាំងគ្រប់គ្រង
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100">
+        <Card className="border-2 border-red-300 shadow-2xl">
+          <CardContent className="p-8 text-center">
+            <div className="relative inline-block">
+              <AlertCircle className="h-20 w-20 text-red-400 mx-auto mb-4 animate-pulse" />
+              <Sparkles className="h-8 w-8 text-yellow-400 absolute -top-2 -right-2 animate-spin" />
+            </div>
+            <p className="text-2xl font-black text-red-600 font-hanuman mb-4">អូ៎! រកមិនឃើញការសាកល្បង 😢</p>
+            <Button 
+              onClick={() => router.push('/student')} 
+              className="mt-4 w-full font-hanuman bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-lg py-6 transform hover:scale-105 transition-all shadow-lg"
+            >
+              <ArrowLeft className="h-5 w-5 mr-2" />
+              ត្រឡប់ទៅផ្ទាំងគ្រប់គ្រង 🏠
             </Button>
           </CardContent>
         </Card>
@@ -341,9 +366,16 @@ export default function SimulationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100 relative overflow-hidden">
+      {/* Animated background shapes */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-20 -right-20 w-80 h-80 bg-purple-300 rounded-full opacity-20 animate-pulse"></div>
+        <div className="absolute top-1/2 -left-32 w-96 h-96 bg-pink-300 rounded-full opacity-20 animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute bottom-20 right-1/3 w-64 h-64 bg-blue-300 rounded-full opacity-20 animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/4 left-1/2 w-48 h-48 bg-yellow-300 rounded-full opacity-20 animate-pulse" style={{ animationDelay: '3s' }}></div>
+      </div>
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-white/95 backdrop-blur-md shadow-xl border-b-2 border-purple-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -351,31 +383,37 @@ export default function SimulationPage() {
                 variant="ghost"
                 size="icon"
                 onClick={() => router.push('/student')}
-                className="hover:bg-gray-100"
+                className="hover:bg-purple-100 text-purple-600 transform hover:scale-110 transition-all"
               >
-                <ArrowLeft className="h-5 w-5" />
+                <ArrowLeft className="h-6 w-6" />
               </Button>
-              <div className="h-8 w-px bg-gray-300" />
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900 font-hanuman">
-                  {simulation.display_name_km}
-                </h1>
-                <p className="text-sm text-gray-500 mt-1">
-                  {simulation.display_name_en}
-                </p>
+              <div className="h-10 w-px bg-gradient-to-b from-purple-300 to-pink-300" />
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <FlaskConical className="h-10 w-10 text-purple-600 animate-pulse" />
+                  <Sparkles className="h-5 w-5 text-yellow-400 absolute -top-2 -right-2 animate-ping" />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent font-hanuman">
+                    {simulation.display_name_km} 🎮
+                  </h1>
+                  <p className="text-sm text-purple-600 font-semibold mt-1">
+                    {simulation.display_name_en}
+                  </p>
+                </div>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <Badge variant="outline" className="flex items-center gap-1">
-                <Clock className="h-3 w-3" />
+            <div className="flex items-center gap-3">
+              <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white border-0 px-4 py-2 text-sm font-bold flex items-center gap-2 shadow-lg">
+                <Clock className="h-4 w-4 animate-pulse" />
                 {formatDuration(elapsedTime)}
               </Badge>
-              <Badge variant="outline" className="flex items-center gap-1">
-                <Calendar className="h-3 w-3" />
+              <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 px-4 py-2 text-sm font-bold flex items-center gap-2 shadow-lg">
+                <Calendar className="h-4 w-4" />
                 {format(new Date(), 'dd/MM/yyyy')}
               </Badge>
-              <Badge className={getDifficultyColor(simulation.difficulty_level)}>
-                {getDifficultyText(simulation.difficulty_level)}
+              <Badge className={`${getDifficultyColor(simulation.difficulty_level)} font-bold text-sm px-4 py-2 border-2 shadow-lg`}>
+                {getDifficultyText(simulation.difficulty_level)} ⭐
               </Badge>
             </div>
           </div>
@@ -387,30 +425,38 @@ export default function SimulationPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Simulation Area */}
           <div className="lg:col-span-2">
-            <Card className="h-full">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between font-hanuman">
-                  <span>ការសាកល្បង</span>
-                  <Button onClick={saveProgress} size="sm" variant="outline">
-                    <Save className="h-4 w-4 mr-1" />
-                    រក្សាទុកវឌ្ឍនភាព
+            <Card className="h-full border-2 border-purple-200 shadow-2xl hover:shadow-3xl transition-all bg-gradient-to-br from-white to-purple-50">
+              <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b-2 border-purple-200">
+                <CardTitle className="flex items-center justify-between">
+                  <span className="text-2xl font-black text-purple-800 font-hanuman flex items-center gap-2">
+                    <FlaskConical className="h-6 w-6 text-purple-600" />
+                    ការសាកល្បង 🧪
+                  </span>
+                  <Button 
+                    onClick={saveProgress} 
+                    size="sm" 
+                    className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold shadow-lg transform hover:scale-105 transition-all"
+                  >
+                    <Save className="h-4 w-4 mr-1 animate-pulse" />
+                    រក្សាទុកវឌ្ឍនភាព 💾
                   </Button>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="bg-gray-100 rounded-lg overflow-hidden" style={{ height: '600px' }}>
+              <CardContent className="p-4">
+                <div className="bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl overflow-hidden shadow-inner border-2 border-purple-200" style={{ height: '600px' }}>
                   <iframe
                     ref={iframeRef}
-                    src={simulation.simulation_url}
+                    src={simulation.simulation_url || '#'}
                     className="w-full h-full"
                     title={simulation.display_name_km}
+                    sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
                     onLoad={() => {
                       if (session?.id) {
                         logActivity(
                           'Simulation loaded',
                           'បានផ្ទុកការសាកល្បង',
-                          'Iframe content ready',
-                          'មាតិកា Iframe រួចរាល់'
+                          `${simulation.display_name_en} ready`,
+                          `${simulation.display_name_km} រួចរាល់`
                         );
                       }
                     }}
@@ -423,63 +469,92 @@ export default function SimulationPage() {
           {/* Side Panel */}
           <div className="space-y-6">
             {/* Progress Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg font-hanuman">វឌ្ឍនភាព</CardTitle>
+            <Card className="border-2 border-purple-200 shadow-xl hover:shadow-2xl transition-all bg-gradient-to-br from-white to-purple-50">
+              <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b-2 border-purple-200">
+                <CardTitle className="text-xl font-black text-purple-800 font-hanuman flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-purple-600 animate-pulse" />
+                  វឌ្ឍនភាព 📈
+                </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
+              <CardContent className="p-6">
+                <div className="space-y-6">
                   <div>
-                    <div className="flex justify-between text-sm mb-2 font-hanuman">
-                      <span>ការបញ្ចប់</span>
-                      <span>{calculateProgress()}%</span>
+                    <div className="flex justify-between text-sm mb-3 font-hanuman font-bold">
+                      <span className="text-purple-700">ការបញ្ចប់ 🎯</span>
+                      <span className="text-2xl font-black text-purple-800 animate-pulse">{calculateProgress()}%</span>
                     </div>
-                    <Progress value={calculateProgress()} />
+                    <div className="relative">
+                      <Progress value={calculateProgress()} className="h-4 bg-purple-200" />
+                      <div className="absolute inset-0 h-4 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full opacity-30 animate-pulse" style={{ width: `${calculateProgress()}%` }}></div>
+                    </div>
                   </div>
-                  <div className="text-sm space-y-1 font-hanuman">
-                    <div className="flex justify-between">
-                      <span>រយៈពេលប្រើប្រាស់:</span>
-                      <span className="font-medium">{formatDuration(elapsedTime)}</span>
+                  <div className="space-y-3 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4">
+                    <div className="flex justify-between items-center font-hanuman">
+                      <span className="text-purple-700 font-bold flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-purple-600" />
+                        រយៈពេលប្រើប្រាស់
+                      </span>
+                      <span className="font-black text-purple-800 text-lg">{formatDuration(elapsedTime)}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span>សំណួរដែលបានឆ្លើយ:</span>
-                      <span className="font-medium">{Object.keys(answers).length}/{exercises.length}</span>
+                    <div className="flex justify-between items-center font-hanuman">
+                      <span className="text-purple-700 font-bold flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                        សំណួរដែលបានឆ្លើយ
+                      </span>
+                      <span className="font-black text-purple-800 text-lg">{Object.keys(answers).length}/{exercises.length}</span>
                     </div>
                     {submission && (
-                      <div className="flex justify-between font-bold text-green-600">
-                        <span>ពិន្ទុ:</span>
-                        <span>{submission.total_score}/{submission.max_score}</span>
+                      <div className="flex justify-between items-center font-bold bg-gradient-to-r from-green-100 to-emerald-100 rounded-lg p-3 border-2 border-green-300">
+                        <span className="text-green-700 font-hanuman flex items-center gap-2">
+                          <Trophy className="h-5 w-5 text-green-600" />
+                          ពិន្ទុ 🏆
+                        </span>
+                        <span className="text-2xl font-black text-green-800">{submission.total_score}/{submission.max_score}</span>
                       </div>
                     )}
                   </div>
+                  {calculateProgress() === 100 && !submission && (
+                    <div className="text-center p-3 bg-gradient-to-r from-yellow-100 to-orange-100 rounded-xl border-2 border-yellow-300">
+                      <p className="text-yellow-800 font-bold font-hanuman">ល្អណាស់! ជាន់ដាក់ស្នើចម្លើយ 🎆</p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
 
             {/* Activity Log */}
-            <Card className="border-blue-200 shadow-lg">
-              <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50">
-                <CardTitle className="text-lg flex items-center gap-2 font-hanuman">
-                  <Activity className="h-4 w-4 text-blue-600" />
-                  កំណត់ហេតុសកម្មភាព
+            <Card className="border-2 border-blue-200 shadow-xl hover:shadow-2xl transition-all bg-gradient-to-br from-white to-blue-50">
+              <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 border-b-2 border-blue-200">
+                <CardTitle className="text-xl font-black text-blue-800 flex items-center gap-2 font-hanuman">
+                  <Activity className="h-5 w-5 text-blue-600 animate-pulse" />
+                  កំណត់ហេតុសកម្មភាព 📋
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-2 max-h-64 overflow-y-auto">
+              <CardContent className="p-4">
+                <div className="space-y-3 max-h-64 overflow-y-auto custom-scrollbar">
                   {activityLogs.map((log, index) => (
-                    <div key={index} className="text-xs border-l-2 border-gray-200 pl-3 py-1">
-                      <div className="font-medium font-hanuman">{log.action_km}</div>
-                      <div className="text-gray-500 font-hanuman">{log.details_km}</div>
-                      <div className="text-gray-400">
+                    <div key={index} className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-3 border-l-4 border-blue-400 hover:shadow-md transition-all transform hover:scale-102">
+                      <div className="font-bold text-blue-800 font-hanuman text-sm">{log.action_km}</div>
+                      <div className="text-blue-600 font-hanuman text-xs mt-1">{log.details_km}</div>
+                      <div className="text-blue-400 text-xs mt-2 flex items-center gap-2">
+                        <Clock className="h-3 w-3" />
                         {format(new Date(log.timestamp), 'HH:mm:ss')}
-                        {log.duration && ` • ${formatDuration(log.duration)}`}
+                        {log.duration && (
+                          <>
+                            <span className="text-blue-300">•</span>
+                            <span className="font-bold">{formatDuration(log.duration)}</span>
+                          </>
+                        )}
                       </div>
                     </div>
                   ))}
                   {activityLogs.length === 0 && (
-                    <p className="text-gray-500 text-sm font-hanuman">
-                      មិនមានសកម្មភាពនៅឡើយទេ
-                    </p>
+                    <div className="text-center py-8">
+                      <Activity className="h-12 w-12 text-gray-300 mx-auto mb-3 animate-pulse" />
+                      <p className="text-gray-500 font-hanuman font-semibold">
+                        មិនមានសកម្មភាពនៅឡើយទេ 😴
+                      </p>
+                    </div>
                   )}
                 </div>
               </CardContent>
@@ -488,45 +563,68 @@ export default function SimulationPage() {
         </div>
 
         {/* Exercises Section */}
-        <Card className="mt-6 border-blue-200 shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50">
-            <CardTitle className="flex items-center gap-2 font-hanuman">
-              <BookOpen className="h-5 w-5 text-blue-600" />
-              លំហាត់
+        <Card className="mt-6 border-2 border-purple-200 shadow-2xl bg-gradient-to-br from-white to-purple-50">
+          <CardHeader className="bg-gradient-to-r from-purple-100 via-pink-100 to-blue-100 border-b-2 border-purple-200">
+            <CardTitle className="flex items-center justify-between">
+              <span className="flex items-center gap-3 text-2xl font-black text-purple-800 font-hanuman">
+                <div className="relative">
+                  <BookOpen className="h-8 w-8 text-purple-600 animate-pulse" />
+                  <Sparkles className="h-4 w-4 text-yellow-400 absolute -top-1 -right-1 animate-ping" />
+                </div>
+                លំហាត់វិទ្យាសាស្ត្រ 📝
+              </span>
+              {exercises.length > 0 && (
+                <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-lg px-4 py-2 font-bold shadow-lg">
+                  {Object.keys(answers).length}/{exercises.length} បានឆ្លើយ ✨
+                </Badge>
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="exercises" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="exercises" className="font-hanuman data-[state=active]:bg-blue-600 data-[state=active]:text-white">សំណួរ</TabsTrigger>
-                <TabsTrigger value="instructions" className="font-hanuman data-[state=active]:bg-blue-600 data-[state=active]:text-white">ការណែនាំ</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2 bg-gradient-to-r from-purple-100 to-pink-100 p-1 rounded-xl">
+                <TabsTrigger value="exercises" className="font-hanuman font-bold text-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all">
+                  <HelpCircle className="h-5 w-5 mr-2" />
+                  សំណួរ 🤔
+                </TabsTrigger>
+                <TabsTrigger value="instructions" className="font-hanuman font-bold text-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all">
+                  <BookOpen className="h-5 w-5 mr-2" />
+                  ការណែនាំ 📖
+                </TabsTrigger>
               </TabsList>
               
               <TabsContent value="exercises" className="space-y-6 mt-6">
                 {exercises.map((exercise, index) => (
-                  <div key={exercise.id} className="border border-blue-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                  <div key={exercise.id} className="border-2 border-purple-200 rounded-2xl p-6 hover:shadow-xl transition-all bg-gradient-to-br from-white to-purple-50 hover:scale-102 transform">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
-                        <h3 className="font-medium flex items-center gap-2 font-hanuman">
-                          សំណួរទី {index + 1}
-                          <Badge variant="outline">{exercise.points} ពិន្ទុ</Badge>
+                        <h3 className="text-xl font-black flex items-center gap-3 font-hanuman mb-3">
+                          <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                            សំណួរទី {index + 1}
+                          </span>
+                          <Badge className="bg-gradient-to-r from-yellow-400 to-orange-400 text-white font-bold px-3 py-1 shadow-md">
+                            {exercise.points} ពិន្ទុ ⭐
+                          </Badge>
                           {exercise.difficulty_level && (
-                            <Badge className={getDifficultyColor(exercise.difficulty_level)}>
+                            <Badge className={`${getDifficultyColor(exercise.difficulty_level)} font-bold border-2 shadow-md`}>
                               {getDifficultyText(exercise.difficulty_level)}
                             </Badge>
                           )}
                         </h3>
-                        <p className="mt-2 font-medium font-hanuman">
+                        <p className="text-lg font-bold text-purple-800 font-hanuman mb-2">
                           {exercise.question_km}
                         </p>
                         {exercise.instructions_km && (
-                          <p className="text-sm text-gray-600 mt-1 italic font-hanuman">
-                            {exercise.instructions_km}
+                          <p className="text-sm text-purple-600 bg-purple-50 rounded-lg p-3 italic font-hanuman border border-purple-200">
+                            💡 {exercise.instructions_km}
                           </p>
                         )}
                       </div>
                       {answers[exercise.id] && (
-                        <CheckCircle className="h-5 w-5 text-green-500 ml-2" />
+                        <div className="relative">
+                          <CheckCircle className="h-8 w-8 text-green-500 animate-bounce" />
+                          <Sparkles className="h-4 w-4 text-yellow-400 absolute -top-1 -right-1 animate-ping" />
+                        </div>
                       )}
                     </div>
                     
@@ -543,13 +641,13 @@ export default function SimulationPage() {
                             `សំណួរទី ${index + 1}: ${value}`
                           );
                         }}
-                        className="space-y-2 mt-3"
+                        className="space-y-3 mt-4"
                       >
                         {exercise.options.options_km.map((option, optIndex) => (
                           <div key={optIndex} className="flex items-center space-x-2">
-                            <RadioGroupItem value={exercise.options!.options_en[optIndex]} id={`${exercise.id}-${optIndex}`} />
-                            <Label htmlFor={`${exercise.id}-${optIndex}`} className="cursor-pointer font-hanuman">
-                              {option}
+                            <RadioGroupItem value={exercise.options!.options_en[optIndex]} id={`${exercise.id}-${optIndex}`} className="border-2 border-purple-300 text-purple-600" />
+                            <Label htmlFor={`${exercise.id}-${optIndex}`} className="cursor-pointer font-hanuman text-lg font-semibold text-purple-700 hover:text-purple-900 transition-colors flex-1 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-3 hover:shadow-md transition-all">
+                              {String.fromCharCode(65 + optIndex)}. {option}
                             </Label>
                           </div>
                         ))}
@@ -572,15 +670,15 @@ export default function SimulationPage() {
                         className="flex gap-4 mt-3"
                       >
                         <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="true" id={`${exercise.id}-true`} />
-                          <Label htmlFor={`${exercise.id}-true`} className="cursor-pointer font-hanuman">
-                            ពិត
+                          <RadioGroupItem value="true" id={`${exercise.id}-true`} className="border-2 border-green-400 text-green-600" />
+                          <Label htmlFor={`${exercise.id}-true`} className="cursor-pointer font-hanuman text-lg font-bold bg-gradient-to-r from-green-50 to-green-100 text-green-700 px-6 py-3 rounded-xl hover:shadow-lg transition-all border-2 border-green-200">
+                            ✅ ពិត
                           </Label>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="false" id={`${exercise.id}-false`} />
-                          <Label htmlFor={`${exercise.id}-false`} className="cursor-pointer font-hanuman">
-                            មិនពិត
+                          <RadioGroupItem value="false" id={`${exercise.id}-false`} className="border-2 border-red-400 text-red-600" />
+                          <Label htmlFor={`${exercise.id}-false`} className="cursor-pointer font-hanuman text-lg font-bold bg-gradient-to-r from-red-50 to-red-100 text-red-700 px-6 py-3 rounded-xl hover:shadow-lg transition-all border-2 border-red-200">
+                            ❌ មិនពិត
                           </Label>
                         </div>
                       </RadioGroup>
@@ -588,40 +686,50 @@ export default function SimulationPage() {
                     
                     {/* Calculation */}
                     {exercise.question_type === 'calculation' && (
-                      <Input
-                        type="text"
-                        placeholder="បញ្ចូលចម្លើយរបស់អ្នក..."
-                        value={answers[exercise.id] || ''}
-                        onChange={(e) => {
-                          setAnswers(prev => ({ ...prev, [exercise.id]: e.target.value }));
-                        }}
-                        onBlur={() => logActivity(
-                          'Answered question',
-                          'បានឆ្លើយសំណួរ',
-                          `Question ${index + 1}: ${answers[exercise.id]}`,
-                          `សំណួរទី ${index + 1}: ${answers[exercise.id]}`
-                        )}
-                        className="mt-3 font-hanuman border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                      />
+                      <div className="relative mt-4">
+                        <Input
+                          type="text"
+                          placeholder="បញ្ចូលចម្លើយរបស់អ្នក... 📝"
+                          value={answers[exercise.id] || ''}
+                          onChange={(e) => {
+                            setAnswers(prev => ({ ...prev, [exercise.id]: e.target.value }));
+                          }}
+                          onBlur={() => logActivity(
+                            'Answered question',
+                            'បានឆ្លើយសំណួរ',
+                            `Question ${index + 1}: ${answers[exercise.id]}`,
+                            `សំណួរទី ${index + 1}: ${answers[exercise.id]}`
+                          )}
+                          className="font-hanuman text-lg border-2 border-purple-300 focus:border-purple-500 focus:ring-purple-500 bg-gradient-to-r from-purple-50 to-pink-50 pl-12 pr-4 py-3 rounded-xl shadow-inner font-bold text-purple-800"
+                        />
+                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                          <span className="text-2xl">📝</span>
+                        </div>
+                      </div>
                     )}
                     
                     {/* Short Answer */}
                     {exercise.question_type === 'short_answer' && (
-                      <Textarea
-                        placeholder="សរសេរចម្លើយរបស់អ្នក..."
-                        value={answers[exercise.id] || ''}
-                        onChange={(e) => {
-                          setAnswers(prev => ({ ...prev, [exercise.id]: e.target.value }));
-                        }}
-                        onBlur={() => logActivity(
-                          'Answered question',
-                          'បានឆ្លើយសំណួរ',
-                          `Question ${index + 1}: Text answer`,
-                          `សំណួរទី ${index + 1}: ចម្លើយអត្ថបទ`
-                        )}
-                        className="mt-3 font-hanuman border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                        rows={3}
-                      />
+                      <div className="relative mt-4">
+                        <Textarea
+                          placeholder="សរសេរចម្លើយរបស់អ្នក... ✍️"
+                          value={answers[exercise.id] || ''}
+                          onChange={(e) => {
+                            setAnswers(prev => ({ ...prev, [exercise.id]: e.target.value }));
+                          }}
+                          onBlur={() => logActivity(
+                            'Answered question',
+                            'បានឆ្លើយសំណួរ',
+                            `Question ${index + 1}: Text answer`,
+                            `សំណួរទី ${index + 1}: ចម្លើយអត្ថបទ`
+                          )}
+                          className="font-hanuman text-lg border-2 border-purple-300 focus:border-purple-500 focus:ring-purple-500 bg-gradient-to-r from-purple-50 to-pink-50 pl-12 pr-4 py-3 rounded-xl shadow-inner font-semibold text-purple-800"
+                          rows={3}
+                        />
+                        <div className="absolute left-3 top-4">
+                          <span className="text-2xl">✍️</span>
+                        </div>
+                      </div>
                     )}
                     
                     {/* Hint Button */}
@@ -631,15 +739,16 @@ export default function SimulationPage() {
                           variant="ghost"
                           size="sm"
                           onClick={() => setShowHint(prev => ({ ...prev, [exercise.id]: !prev[exercise.id] }))}
-                          className="text-blue-600 hover:bg-blue-50 font-hanuman"
+                          className="bg-gradient-to-r from-yellow-400 to-orange-400 hover:from-yellow-500 hover:to-orange-500 text-white font-hanuman font-bold shadow-lg transform hover:scale-105 transition-all"
                         >
-                          <HelpCircle className="h-4 w-4 mr-1" />
-                          ជំនួយ
+                          <HelpCircle className="h-5 w-5 mr-2 animate-pulse" />
+                          ជំនួយ 💡
                         </Button>
                         {showHint[exercise.id] && (
-                          <Alert className="mt-2 border-blue-200 bg-blue-50">
-                            <AlertDescription className="font-hanuman text-blue-800">
-                              {exercise.hints_km}
+                          <Alert className="mt-3 border-2 border-yellow-300 bg-gradient-to-r from-yellow-50 to-orange-50 shadow-lg animate-fadeIn">
+                            <AlertDescription className="font-hanuman text-yellow-800 font-semibold text-base flex items-start gap-2">
+                              <span className="text-2xl">💡</span>
+                              <span>{exercise.hints_km}</span>
                             </AlertDescription>
                           </Alert>
                         )}
@@ -648,13 +757,24 @@ export default function SimulationPage() {
                     
                     {/* Show explanation after submission */}
                     {submission && submission.details?.[exercise.id] && (
-                      <Alert className={`mt-3 ${submission.details[exercise.id].is_correct ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
+                      <Alert className={`mt-4 border-2 shadow-lg animate-fadeIn ${
+                        submission.details[exercise.id].is_correct 
+                          ? 'border-green-300 bg-gradient-to-r from-green-50 to-emerald-50' 
+                          : 'border-red-300 bg-gradient-to-r from-red-50 to-pink-50'
+                      }`}>
                         <AlertDescription>
-                          <div className={`font-medium mb-1 font-hanuman ${submission.details[exercise.id].is_correct ? 'text-green-800' : 'text-red-800'}`}>
-                            {submission.details[exercise.id].is_correct ? '✓ ត្រឹមត្រូវ!' : '✗ មិនត្រឹមត្រូវ'}
+                          <div className={`text-lg font-black mb-2 font-hanuman flex items-center gap-2 ${
+                            submission.details[exercise.id].is_correct 
+                              ? 'text-green-800' 
+                              : 'text-red-800'
+                          }`}>
+                            {submission.details[exercise.id].is_correct 
+                              ? <><span className="text-3xl">🎉</span> ត្រឹមត្រូវ! ល្អណាស់!</> 
+                              : <><span className="text-2xl">😔</span> មិនត្រឹមត្រូវ សាកល្បងម្តងទៀត!</>
+                          }
                           </div>
                           {exercise.explanation_km && (
-                            <div className="font-hanuman">{exercise.explanation_km}</div>
+                            <div className="font-hanuman font-semibold">📖 {exercise.explanation_km}</div>
                           )}
                         </AlertDescription>
                       </Alert>
@@ -662,55 +782,157 @@ export default function SimulationPage() {
                   </div>
                 ))}
                 
-                <div className="flex justify-end gap-3 mt-6">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => {
-                      saveProgress();
-                      router.push('/student');
-                    }}
-                    className="font-hanuman border-gray-300 hover:bg-gray-50"
-                  >
-                    <Save className="h-4 w-4 mr-1" />
-                    រក្សាទុក និងចាកចេញ
-                  </Button>
-                  <Button 
-                    onClick={submitExercises}
-                    disabled={Object.keys(answers).length === 0 || isSubmitting || !!submission}
-                    className="font-hanuman bg-blue-600 hover:bg-blue-700 text-white"
-                  >
-                    <Send className="h-4 w-4 mr-1" />
-                    {isSubmitting ? 'កំពុងដាក់ស្នើ...' : 'ដាក់ស្នើលំហាត់'}
-                  </Button>
+                <div className="flex justify-between items-center mt-8">
+                  <div className="text-sm font-hanuman text-purple-600 font-semibold">
+                    {Object.keys(answers).length === 0 && '📝 សូមឆ្លើយសំណួរទាំងអស់មុនដាក់ស្នើ'}
+                    {Object.keys(answers).length > 0 && Object.keys(answers).length < exercises.length && `😊 បានឆ្លើយ ${Object.keys(answers).length}/${exercises.length} សំណួរ`}
+                    {Object.keys(answers).length === exercises.length && !submission && '🎉 ល្អណាស់! អ្នកអាចដាក់ស្នើបានហើយ!'}
+                    {submission && '✅ បានដាក់ស្នើរួចរាល់!'}
+                  </div>
+                  <div className="flex gap-3">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        saveProgress();
+                        router.push('/student');
+                      }}
+                      className="font-hanuman border-2 border-purple-300 hover:bg-purple-50 text-purple-700 font-bold transform hover:scale-105 transition-all shadow-lg"
+                    >
+                      <Save className="h-5 w-5 mr-2 animate-pulse" />
+                      រក្សាទុក និងចាកចេញ 💾
+                    </Button>
+                    <Button 
+                      onClick={submitExercises}
+                      disabled={Object.keys(answers).length === 0 || isSubmitting || !!submission}
+                      className={`font-hanuman font-bold text-lg px-6 py-3 transform transition-all shadow-lg ${
+                        isSubmitting 
+                          ? 'bg-gray-400 cursor-not-allowed' 
+                          : submission 
+                          ? 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 cursor-not-allowed' 
+                          : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 hover:scale-105'
+                      }`}
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                          កំពុងដាក់ស្នើ... 🚀
+                        </>
+                      ) : submission ? (
+                        <>
+                          <CheckCircle className="h-5 w-5 mr-2" />
+                          បានដាក់ស្នើរួចរាល់! 🎆
+                        </>
+                      ) : (
+                        <>
+                          <Send className="h-5 w-5 mr-2 animate-pulse" />
+                          ដាក់ស្នើលំហាត់ 🚀
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </TabsContent>
               
               <TabsContent value="instructions" className="mt-6">
-                <div className="prose max-w-none font-hanuman">
-                  <h3>ការណែនាំ</h3>
-                  <p>{simulation.description_km}</p>
+                <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-8 border-2 border-purple-200 shadow-xl">
+                  <h3 className="text-2xl font-black text-purple-800 mb-6 font-hanuman flex items-center gap-3">
+                    <BookOpen className="h-8 w-8 text-purple-600" />
+                    ការណែនាំ 📖
+                  </h3>
+                  <p className="text-lg text-purple-700 font-semibold mb-6 font-hanuman bg-white/70 rounded-xl p-4 border border-purple-200">
+                    {simulation.description_km}
+                  </p>
                   
-                  <h4>របៀបបញ្ចប់ការសាកល្បងនេះ:</h4>
-                  <ol>
-                    <li>ធ្វើអន្តរកម្មជាមួយការសាកល្បងដើម្បីស្វែងយល់គោលគំនិត</li>
-                    <li>សង្កេតមើលរបៀបដែលប៉ារ៉ាម៉ែត្រផ្សេងៗប៉ះពាល់ដល់លទ្ធផល</li>
-                    <li>ឆ្លើយសំណួរលំហាត់ទាំងអស់ដោយផ្អែកលើការសង្កេតរបស់អ្នក</li>
-                    <li>ដាក់ស្នើចម្លើយរបស់អ្នកនៅពេលបញ្ចប់</li>
-                  </ol>
+                  <div className="mb-8">
+                    <h4 className="text-xl font-black text-purple-800 mb-4 font-hanuman flex items-center gap-2">
+                      <Target className="h-6 w-6 text-purple-600" />
+                      របៀបបញ្ចប់ការសាកល្បងនេះ 🎯
+                    </h4>
+                    <ol className="space-y-3">
+                      <li className="bg-white/70 rounded-xl p-4 border border-purple-200 font-hanuman font-semibold text-purple-700 flex items-start gap-3">
+                        <span className="text-2xl">1️⃣</span>
+                        <span>ធ្វើអន្តរកម្មជាមួយការសាកល្បងដើម្បីស្វែងយល់គោលគំនិត 🧪</span>
+                      </li>
+                      <li className="bg-white/70 rounded-xl p-4 border border-purple-200 font-hanuman font-semibold text-purple-700 flex items-start gap-3">
+                        <span className="text-2xl">2️⃣</span>
+                        <span>សង្កេតមើលរបៀបដែលប៉ារ៉ាម៉ែត្រផ្សេងៗប៉ះពាល់ដល់លទ្ធផល 🔍</span>
+                      </li>
+                      <li className="bg-white/70 rounded-xl p-4 border border-purple-200 font-hanuman font-semibold text-purple-700 flex items-start gap-3">
+                        <span className="text-2xl">3️⃣</span>
+                        <span>ឆ្លើយសំណួរលំហាត់ទាំងអស់ដោយផ្អែកលើការសង្កេតរបស់អ្នក ✍️</span>
+                      </li>
+                      <li className="bg-white/70 rounded-xl p-4 border border-purple-200 font-hanuman font-semibold text-purple-700 flex items-start gap-3">
+                        <span className="text-2xl">4️⃣</span>
+                        <span>ដាក់ស្នើចម្លើយរបស់អ្នកនៅពេលបញ្ចប់ 🚀</span>
+                      </li>
+                    </ol>
+                  </div>
                   
-                  <h4>គន្លឹះ:</h4>
-                  <ul>
-                    <li>ចំណាយពេលដើម្បីយល់ពីការសាកល្បង</li>
-                    <li>សាកល្បងតម្លៃផ្សេងៗហើយសង្កេតលំនាំ</li>
-                    <li>វឌ្ឍនភាពរបស់អ្នកត្រូវបានរក្សាទុកដោយស្វ័យប្រវត្តិ</li>
-                    <li>អ្នកអាចត្រឡប់មកការសាកល្បងនេះក្រោយពេលក្រោយប្រសិនបើចាំបាច់</li>
-                  </ul>
+                  <div>
+                    <h4 className="text-xl font-black text-purple-800 mb-4 font-hanuman flex items-center gap-2">
+                      <Sparkles className="h-6 w-6 text-yellow-500" />
+                      គន្លឹះពិសេស 💡
+                    </h4>
+                    <ul className="space-y-3">
+                      <li className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-4 border border-yellow-300 font-hanuman font-semibold text-yellow-800 flex items-start gap-3">
+                        <span className="text-2xl">⏰</span>
+                        <span>ចំណាយពេលដើម្បីយល់ពីការសាកល្បង</span>
+                      </li>
+                      <li className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-4 border border-yellow-300 font-hanuman font-semibold text-yellow-800 flex items-start gap-3">
+                        <span className="text-2xl">🧪</span>
+                        <span>សាកល្បងតម្លៃផ្សេងៗហើយសង្កេតលំនាំ</span>
+                      </li>
+                      <li className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-4 border border-yellow-300 font-hanuman font-semibold text-yellow-800 flex items-start gap-3">
+                        <span className="text-2xl">💾</span>
+                        <span>វឌ្ឍនភាពរបស់អ្នកត្រូវបានរក្សាទុកដោយស្វ័យប្រវត្តិ</span>
+                      </li>
+                      <li className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-4 border border-yellow-300 font-hanuman font-semibold text-yellow-800 flex items-start gap-3">
+                        <span className="text-2xl">🔄</span>
+                        <span>អ្នកអាចត្រឡប់មកការសាកល្បងនេះក្រោយពេលក្រោយប្រសិនបើចាំបាច់</span>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               </TabsContent>
             </Tabs>
           </CardContent>
         </Card>
       </div>
+      
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .animate-fadeIn {
+          animation: fadeIn 0.5s ease-out;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #f3e8ff;
+          border-radius: 10px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #c084fc;
+          border-radius: 10px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #a855f7;
+        }
+      `}</style>
     </div>
   );
 }

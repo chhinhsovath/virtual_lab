@@ -11,9 +11,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { 
   FileText, CheckCircle, XCircle, Clock, Award, 
-  MessageSquare, Save, Search, Filter
+  MessageSquare, Save, Search, Filter, Eye, ArrowRight
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { useRouter } from 'next/navigation';
 
 interface Simulation {
   id: string;
@@ -26,17 +27,16 @@ interface Submission {
   id: string;
   student_id: number;
   student_name: string;
-  exercise_id: string;
-  question_number: number;
-  question_km: string;
-  question_type: string;
-  student_answer: string;
-  is_correct: boolean | null;
-  points_earned: number;
-  max_points: number;
+  simulation_id: string;
+  simulation_name: string;
+  exercise_count: number;
+  total_score: number;
+  max_score: number;
   time_spent: number;
   submitted_at: string;
-  feedback_from_teacher?: string;
+  is_graded: boolean;
+  graded_at?: string;
+  teacher_feedback?: string;
 }
 
 export default function SubmissionsPage() {
@@ -50,6 +50,7 @@ export default function SubmissionsPage() {
   const [feedback, setFeedback] = useState('');
   const [manualScore, setManualScore] = useState('');
   const [showFeedbackDialog, setShowFeedbackDialog] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     loadSimulations();
@@ -236,12 +237,12 @@ export default function SubmissionsPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="font-hanuman">សិស្ស</TableHead>
+                    <TableHead className="font-hanuman">ការសាកល្បង</TableHead>
                     <TableHead className="font-hanuman">សំណួរ</TableHead>
-                    <TableHead className="font-hanuman">ប្រភេទ</TableHead>
-                    <TableHead className="font-hanuman">ចម្លើយ</TableHead>
                     <TableHead className="font-hanuman">ពិន្ទុ</TableHead>
                     <TableHead className="font-hanuman">រយៈពេល</TableHead>
-                    <TableHead className="font-hanuman">កាលបរិច្ឆេទ</TableHead>
+                    <TableHead className="font-hanuman">ដាក់ស្នើនៅ</TableHead>
+                    <TableHead className="font-hanuman">ស្ថានភាព</TableHead>
                     <TableHead className="font-hanuman">សកម្មភាព</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -249,21 +250,11 @@ export default function SubmissionsPage() {
                   {submissions.map((submission) => (
                     <TableRow key={submission.id}>
                       <TableCell className="font-hanuman">{submission.student_name}</TableCell>
+                      <TableCell className="font-hanuman">{submission.simulation_name}</TableCell>
+                      <TableCell className="font-hanuman">{submission.exercise_count} សំណួរ</TableCell>
                       <TableCell>
-                        <div>
-                          <span className="font-hanuman">សំណួរទី {submission.question_number}</span>
-                          <p className="text-sm text-gray-600 mt-1 font-hanuman">{submission.question_km}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{getQuestionTypeText(submission.question_type)}</Badge>
-                      </TableCell>
-                      <TableCell className="max-w-xs">
-                        <p className="truncate font-hanuman">{submission.student_answer}</p>
-                      </TableCell>
-                      <TableCell>
-                        <span className={`font-medium ${getScoreColor(submission.points_earned, submission.max_points)}`}>
-                          {submission.points_earned}/{submission.max_points}
+                        <span className={`font-medium ${getScoreColor(submission.total_score, submission.max_score)}`}>
+                          {submission.total_score}/{submission.max_score}
                         </span>
                       </TableCell>
                       <TableCell className="font-hanuman">{formatDuration(submission.time_spent)}</TableCell>
@@ -271,18 +262,30 @@ export default function SubmissionsPage() {
                         {format(new Date(submission.submitted_at), 'dd/MM/yyyy HH:mm')}
                       </TableCell>
                       <TableCell>
+                        {submission.is_graded ? (
+                          <Badge className="bg-green-100 text-green-800">
+                            <CheckCircle className="h-3 w-3 mr-1" />
+                            បានដាក់ពិន្ទុ
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-yellow-100 text-yellow-800">
+                            <Clock className="h-3 w-3 mr-1" />
+                            រង់ចាំដាក់ពិន្ទុ
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>
                         <div className="flex items-center gap-2">
-                          {submission.is_correct !== null && (
-                            submission.is_correct ? 
-                              <CheckCircle className="h-4 w-4 text-green-500" /> : 
-                              <XCircle className="h-4 w-4 text-red-500" />
-                          )}
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => openFeedbackDialog(submission)}
+                            onClick={() => router.push(`/dashboard/exercises/grade/${submission.id}`)}
                           >
-                            <MessageSquare className="h-4 w-4" />
+                            {submission.is_graded ? (
+                              <><Eye className="h-4 w-4 mr-1" />មើល</>
+                            ) : (
+                              <><ArrowRight className="h-4 w-4 mr-1" />ដាក់ពិន្ទុ</>
+                            )}
                           </Button>
                         </div>
                       </TableCell>

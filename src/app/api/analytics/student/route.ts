@@ -137,10 +137,27 @@ export async function GET(request: NextRequest) {
 
       const performanceComparison = await client.query(performanceComparisonQuery, [student_uuid]);
 
+      // Format the statistics to avoid excessive decimal places
+      const formattedOverallStats = overallStats.rows[0] ? {
+        simulations_attempted: parseInt(overallStats.rows[0].simulations_attempted) || 0,
+        simulations_completed: parseInt(overallStats.rows[0].simulations_completed) || 0,
+        total_time_minutes: parseInt(overallStats.rows[0].total_time_minutes) || 0,
+        average_score: Math.round(parseFloat(overallStats.rows[0].average_score) || 0),
+        achievements_earned: parseInt(overallStats.rows[0].achievements_earned) || 0,
+        total_points: Math.round(parseFloat(overallStats.rows[0].total_points) || 0)
+      } : {
+        simulations_attempted: 0,
+        simulations_completed: 0,
+        total_time_minutes: 0,
+        average_score: 0,
+        achievements_earned: 0,
+        total_points: 0
+      };
+
       return NextResponse.json({
         success: true,
         analytics: {
-          overall_stats: overallStats.rows[0],
+          overall_stats: formattedOverallStats,
           subject_performance: subjectStats.rows,
           recent_activity: recentActivity.rows,
           learning_patterns: learningPatterns.rows,
