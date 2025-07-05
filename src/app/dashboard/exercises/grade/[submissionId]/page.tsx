@@ -94,12 +94,13 @@ export default function TeacherGradingPage() {
 
           setSubmission(transformedSubmission);
         
-        // Initialize scores with current values
-        const initialScores: Record<string, number> = {};
-        mockSubmission.exercises.forEach(ex => {
-          initialScores[ex.id] = ex.points_earned;
-        });
-        setScores(initialScores);
+          // Initialize scores with current values
+          const initialScores: Record<string, number> = {};
+          transformedSubmission.exercises.forEach(ex => {
+            initialScores[ex.id] = ex.points_earned;
+          });
+          setScores(initialScores);
+        }
 
       } catch (error) {
         console.error('Error fetching submission:', error);
