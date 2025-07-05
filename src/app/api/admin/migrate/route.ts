@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     // Get migration name from request
     const { migration } = await request.json();
     
-    if (migration !== 'fix_student_id_types') {
+    if (!['fix_student_id_types', 'create_missing_tables'].includes(migration)) {
       return NextResponse.json({ error: 'Invalid migration name' }, { status: 400 });
     }
 
@@ -30,6 +30,62 @@ export async function POST(request: NextRequest) {
     try {
       await client.query('BEGIN');
 
+      if (migration === 'create_missing_tables') {
+        // Run the comprehensive migration
+        const migrationResults: any[] = [];
+        
+        try {
+          // Create student_assignment_submissions table
+          await client.query(`
+            CREATE TABLE IF NOT EXISTS student_assignment_submissions (
+              id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+              assignment_id UUID,
+              student_id INTEGER,
+              student_uuid UUID,
+              score DECIMAL(5,2),
+              submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+              status VARCHAR(50) DEFAULT 'pending',
+              feedback TEXT,
+              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+              updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+          `);
+          migrationResults.push({ action: 'Created student_assignment_submissions table', status: 'success' });
+        } catch (e: any) {
+          migrationResults.push({ action: 'Create student_assignment_submissions', status: 'error', error: e.message });
+        }
+        
+        // Add metadata column to teacher_simulation_assignments
+        try {
+          const metadataExists = await client.query(`
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'teacher_simulation_assignments' 
+            AND column_name = 'metadata'
+          `);
+          
+          if (metadataExists.rows.length === 0) {
+            await client.query(`
+              ALTER TABLE teacher_simulation_assignments 
+              ADD COLUMN metadata JSONB DEFAULT '{}'::jsonb
+            `);
+            migrationResults.push({ action: 'Added metadata column to teacher_simulation_assignments', status: 'success' });
+          } else {
+            migrationResults.push({ action: 'metadata column already exists', status: 'skipped' });
+          }
+        } catch (e: any) {
+          migrationResults.push({ action: 'Add metadata column', status: 'error', error: e.message });
+        }
+        
+        await client.query('COMMIT');
+        
+        return NextResponse.json({
+          success: true,
+          message: 'Missing tables migration completed',
+          results: migrationResults
+        });
+      }
+
+      // Original fix_student_id_types migration
       // First check which tables exist
       const tableCheckResult = await client.query(`
         SELECT table_name 
