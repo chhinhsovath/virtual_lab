@@ -117,10 +117,12 @@ export async function createSession(user: User, ipAddress?: string, userAgent?: 
     const userColumn = columnResult.rows.length > 0 ? columnResult.rows[0].column_name : 'user_id';
     
     // Insert session using the correct column name
-    const insertQuery = `
-      INSERT INTO user_sessions (${userColumn}, session_token, user_role, ip_address, user_agent, expires_at)
-      VALUES ($1, $2, $3, $4, $5, NOW() + INTERVAL '24 hours')
-    `;
+    // If both columns exist, use user_uuid for UUID values
+    const insertQuery = columnResult.rows.length > 1 
+      ? `INSERT INTO user_sessions (user_uuid, session_token, user_role, ip_address, user_agent, expires_at)
+         VALUES ($1, $2, $3, $4, $5, NOW() + INTERVAL '24 hours')`
+      : `INSERT INTO user_sessions (${userColumn}, session_token, user_role, ip_address, user_agent, expires_at)
+         VALUES ($1, $2, $3, $4, $5, NOW() + INTERVAL '24 hours')`;
     
     await client.query(insertQuery, [user.id, sessionToken, user.role, ipAddress, userAgent]);
 
@@ -154,14 +156,28 @@ export async function getSession(sessionToken: string): Promise<Session | null> 
     const columnResult = await client.query(columnCheckQuery);
     const userColumn = columnResult.rows.length > 0 ? columnResult.rows[0].column_name : 'user_id';
 
-    const sessionQuery = `
-      SELECT 
-        s.id, s.${userColumn} as user_id, s.session_token, s.expires_at,
-        u.id as u_id, u.email, u.name, u.role, COALESCE(u.is_active, true) as is_active
-      FROM user_sessions s
-      JOIN users u ON s.${userColumn} = u.id
-      WHERE s.session_token = $1 AND s.expires_at > NOW() AND COALESCE(u.is_active, true) = true
-    `;
+    // Build query based on which columns exist
+    let sessionQuery;
+    if (columnResult.rows.length > 1) {
+      // Both columns exist, try user_uuid first for UUID match
+      sessionQuery = `
+        SELECT 
+          s.id, COALESCE(s.user_uuid, s.user_id::uuid) as user_id, s.session_token, s.expires_at,
+          u.id as u_id, u.email, u.name, u.role, COALESCE(u.is_active, true) as is_active
+        FROM user_sessions s
+        JOIN users u ON (s.user_uuid = u.id OR s.user_id::text = u.id::text)
+        WHERE s.session_token = $1 AND s.expires_at > NOW() AND COALESCE(u.is_active, true) = true
+      `;
+    } else {
+      sessionQuery = `
+        SELECT 
+          s.id, s.${userColumn} as user_id, s.session_token, s.expires_at,
+          u.id as u_id, u.email, u.name, u.role, COALESCE(u.is_active, true) as is_active
+        FROM user_sessions s
+        JOIN users u ON s.${userColumn}::text = u.id::text
+        WHERE s.session_token = $1 AND s.expires_at > NOW() AND COALESCE(u.is_active, true) = true
+      `;
+    }
 
     const result = await client.query(sessionQuery, [sessionToken]);
 
