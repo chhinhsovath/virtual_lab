@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Language Test</title>
+</head>
+<body>
+    <h1>Testing Language Detection</h1>
+    <div id="results"></div>
+    
+    <script>
+        // Clear any existing language preference
+        localStorage.removeItem('preferred_language');
+        
+        // Test browser language detection
+        const browserLang = navigator.language.toLowerCase();
+        const results = document.getElementById('results');
+        
+        results.innerHTML = `
+            <p><strong>Browser Language:</strong> ${navigator.language}</p>
+            <p><strong>Browser Language (lowercase):</strong> ${browserLang}</p>
+            <p><strong>Starts with 'en':</strong> ${browserLang.startsWith('en')}</p>
+            <p><strong>Expected Result:</strong> ${browserLang.startsWith('en') ? 'en' : 'km'}</p>
+            <p><strong>localStorage preferred_language:</strong> ${localStorage.getItem('preferred_language') || 'null'}</p>
+        `;
+    </script>
+</body>
+</html>

@@ -1,94 +1,99 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { pool } from '../../../lib/db';
+import { pool } from '@/lib/db';
+import { getAPISession, createMockStudentSession } from '@/lib/api-auth';
 
 export async function GET(request: NextRequest) {
   try {
+    let session = await getAPISession(request);
+    
+    // In development, use mock session if no real session exists
+    if (!session && process.env.NODE_ENV === 'development') {
+      session = createMockStudentSession();
+    }
+    
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const subject = searchParams.get('subject');
     const difficulty = searchParams.get('difficulty');
+    const grade = searchParams.get('grade');
     const featured = searchParams.get('featured');
-    const search = searchParams.get('search');
 
     const client = await pool.connect();
     
     try {
       let query = `
         SELECT 
-          id,
-          simulation_name,
-          display_name_en,
-          display_name_km,
-          description_en,
-          description_km,
-          subject_area,
-          difficulty_level,
-          grade_levels,
-          estimated_duration,
-          learning_objectives_en,
-          learning_objectives_km,
-          simulation_url,
-          preview_image,
-          tags,
-          is_featured,
-          is_active,
-          created_at,
-          updated_at
-        FROM stem_simulations_catalog 
-        WHERE is_active = true
+          s.*,
+          COALESCE(
+            (SELECT AVG(ssp.best_score) 
+             FROM student_simulation_progress ssp 
+             WHERE ssp.simulation_id = s.id AND ssp.student_id = $1
+            ), 0
+          ) as user_average_score,
+          COALESCE(
+            (SELECT COUNT(*) 
+             FROM student_simulation_progress ssp 
+             WHERE ssp.simulation_id = s.id AND ssp.student_id = $1
+            ), 0
+          ) as user_attempts,
+          COALESCE(
+            (SELECT MAX(ssp.total_time_spent) 
+             FROM student_simulation_progress ssp 
+             WHERE ssp.simulation_id = s.id AND ssp.student_id = $1
+            ), 0
+          ) as user_total_time,
+          (SELECT COUNT(*) 
+           FROM student_simulation_progress ssp 
+           WHERE ssp.simulation_id = s.id AND ssp.completed_at IS NOT NULL
+          ) as total_completions
+        FROM stem_simulations_catalog s
+        WHERE s.is_active = true
       `;
-      
-      const params: any[] = [];
-      let paramCount = 0;
 
-      if (subject && subject !== 'All') {
-        paramCount++;
-        query += ` AND subject_area = $${paramCount}`;
-        params.push(subject);
+      const queryParams: any[] = [session.user_id];
+      let paramIndex = 2;
+
+      if (subject) {
+        query += ` AND s.subject_area = $${paramIndex}`;
+        queryParams.push(subject);
+        paramIndex++;
       }
 
       if (difficulty) {
-        paramCount++;
-        query += ` AND difficulty_level = $${paramCount}`;
-        params.push(difficulty);
+        query += ` AND s.difficulty_level = $${paramIndex}`;
+        queryParams.push(difficulty);
+        paramIndex++;
+      }
+
+      if (grade) {
+        query += ` AND $${paramIndex} = ANY(s.grade_levels)`;
+        queryParams.push(parseInt(grade));
+        paramIndex++;
       }
 
       if (featured === 'true') {
-        query += ` AND is_featured = true`;
+        query += ` AND s.is_featured = true`;
       }
 
-      if (search) {
-        paramCount++;
-        query += ` AND (
-          display_name_en ILIKE $${paramCount} OR 
-          display_name_km ILIKE $${paramCount} OR 
-          description_en ILIKE $${paramCount} OR
-          tags && ARRAY[$${paramCount}]
-        )`;
-        params.push(`%${search}%`);
-      }
+      query += ` ORDER BY s.is_featured DESC, s.created_at DESC`;
 
-      query += ` ORDER BY is_featured DESC, display_name_en ASC`;
-
-      const result = await client.query(query, params);
+      const result = await client.query(query, queryParams);
       
       return NextResponse.json({
         success: true,
-        simulations: result.rows,
-        total: result.rows.length
+        simulations: result.rows
       });
-
+      
     } finally {
       client.release();
     }
   } catch (error) {
     console.error('Error fetching simulations:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to fetch simulations',
-        simulations: [],
-        total: 0
-      },
+      { error: 'Failed to fetch simulations' },
       { status: 500 }
     );
   }
@@ -96,6 +101,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session || session.user.role_name !== 'teacher') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const {
       simulation_name,
@@ -112,46 +122,37 @@ export async function POST(request: NextRequest) {
       simulation_url,
       preview_image,
       tags,
-      is_featured = false
+      is_featured
     } = body;
 
     const client = await pool.connect();
     
     try {
-      const query = `
+      const result = await client.query(`
         INSERT INTO stem_simulations_catalog (
           simulation_name, display_name_en, display_name_km, description_en, description_km,
           subject_area, difficulty_level, grade_levels, estimated_duration,
-          learning_objectives_en, learning_objectives_km, simulation_url, preview_image,
-          tags, is_featured
+          learning_objectives_en, learning_objectives_km, simulation_url, preview_image, tags, is_featured
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
         RETURNING *
-      `;
-
-      const values = [
+      `, [
         simulation_name, display_name_en, display_name_km, description_en, description_km,
         subject_area, difficulty_level, grade_levels, estimated_duration,
-        learning_objectives_en, learning_objectives_km, simulation_url, preview_image,
-        tags, is_featured
-      ];
+        learning_objectives_en, learning_objectives_km, simulation_url, preview_image, tags, is_featured
+      ]);
 
-      const result = await client.query(query, values);
-      
       return NextResponse.json({
         success: true,
         simulation: result.rows[0]
       });
-
+      
     } finally {
       client.release();
     }
   } catch (error) {
     console.error('Error creating simulation:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to create simulation'
-      },
+      { error: 'Failed to create simulation' },
       { status: 500 }
     );
   }

@@ -1,78 +1,86 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth';
 import { pool } from '@/lib/db';
+import { getAPISession, createMockStudentSession } from '@/lib/api-auth';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getSession();
-    if (!session?.user) {
+    let session = await getAPISession(request);
+    
+    // In development, use mock session if no real session exists
+    if (!session && process.env.NODE_ENV === 'development') {
+      session = createMockStudentSession();
+    }
+    
+    if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user has student role
-    if (!session.user.roles?.includes('student')) {
-      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
-    }
+    const { searchParams } = new URL(request.url);
+    const simulation_id = searchParams.get('simulation_id');
+    const subject = searchParams.get('subject');
+    const limit = parseInt(searchParams.get('limit') || '10');
 
     const client = await pool.connect();
+    
     try {
-      // Get student's simulation progress
-      const progressQuery = `
+      let query = `
         SELECT 
           ssp.*,
-          ssc.simulation_name,
-          ssc.display_name_en,
-          ssc.display_name_km,
-          ssc.subject_area,
-          ssc.difficulty_level,
-          ssc.estimated_duration,
-          ssc.simulation_url
+          s.simulation_name,
+          s.display_name_en,
+          s.display_name_km,
+          s.subject_area,
+          s.difficulty_level,
+          s.estimated_duration,
+          s.preview_image,
+          CASE 
+            WHEN ssp.completed_at IS NOT NULL THEN 'completed'
+            WHEN ssp.current_progress IS NOT NULL THEN 'in_progress'
+            ELSE 'not_started'
+          END as status,
+          ROUND(
+            CASE 
+              WHEN ssp.completed_at IS NOT NULL THEN 100
+              WHEN ssp.current_progress IS NOT NULL THEN 
+                COALESCE((ssp.current_progress->>'percentage')::numeric, 0)
+              ELSE 0
+            END
+          ) as progress_percentage
         FROM student_simulation_progress ssp
-        JOIN stem_simulations_catalog ssc ON ssp.simulation_id = ssc.id
-        WHERE ssp.student_id = $1
-        ORDER BY ssp.last_accessed DESC
+        JOIN stem_simulations_catalog s ON ssp.simulation_id = s.id
+        WHERE ssp.student_id = $1 AND s.is_active = true
       `;
-      
-      const progressResult = await client.query(progressQuery, [session.user.id]);
-      
-      // Get assignments
-      const assignmentsQuery = `
-        SELECT 
-          sa.*,
-          ssc.simulation_name,
-          ssc.display_name_en as simulation_display_name
-        FROM student_assignments sa
-        JOIN stem_simulations_catalog ssc ON sa.simulation_id = ssc.id
-        WHERE sa.student_id = $1
-        ORDER BY sa.due_date ASC
-      `;
-      
-      const assignmentsResult = await client.query(assignmentsQuery, [session.user.id]);
-      
-      // Get achievements
-      const achievementsQuery = `
-        SELECT * FROM student_achievements 
-        WHERE student_id = $1
-        ORDER BY unlocked_at DESC
-      `;
-      
-      const achievementsResult = await client.query(achievementsQuery, [session.user.id]);
+
+      const queryParams: any[] = [session.user_id];
+      let paramIndex = 2;
+
+      if (simulation_id) {
+        query += ` AND ssp.simulation_id = $${paramIndex}`;
+        queryParams.push(simulation_id);
+        paramIndex++;
+      }
+
+      if (subject) {
+        query += ` AND s.subject_area = $${paramIndex}`;
+        queryParams.push(subject);
+        paramIndex++;
+      }
+
+      query += ` ORDER BY ssp.updated_at DESC LIMIT $${paramIndex}`;
+      queryParams.push(limit);
+
+      const result = await client.query(query, queryParams);
 
       return NextResponse.json({
         success: true,
-        data: {
-          simulations: progressResult.rows,
-          assignments: assignmentsResult.rows,
-          achievements: achievementsResult.rows
-        }
+        progress: result.rows
       });
-
+      
     } finally {
       client.release();
     }
-
   } catch (error) {
-    console.error('Student progress API error:', error);
+    console.error('Error fetching student progress:', error);
     return NextResponse.json(
       { error: 'Failed to fetch student progress' },
       { status: 500 }
@@ -82,53 +90,143 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getSession();
-    if (!session?.user) {
+    let session = await getAPISession(request);
+    
+    // In development, use mock session if no real session exists
+    if (!session && process.env.NODE_ENV === 'development') {
+      session = createMockStudentSession();
+    }
+    
+    if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (!session.user.roles?.includes('student')) {
-      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
-    }
-
-    const { simulation_id, progress_percentage, time_spent, score } = await request.json();
+    const body = await request.json();
+    const { simulation_id, assignment_id, initial_progress } = body;
 
     const client = await pool.connect();
+    
     try {
-      // Update or insert progress
-      const upsertQuery = `
+      // Check if simulation exists
+      const simulationResult = await client.query(`
+        SELECT id FROM stem_simulations_catalog 
+        WHERE id = $1 AND is_active = true
+      `, [simulation_id]);
+
+      if (simulationResult.rows.length === 0) {
+        return NextResponse.json({ error: 'Simulation not found' }, { status: 404 });
+      }
+
+      // Create new progress record
+      const result = await client.query(`
         INSERT INTO student_simulation_progress (
-          student_id, simulation_id, progress_percentage, time_spent, 
-          best_score, attempts, last_accessed
-        ) VALUES ($1, $2, $3, $4, $5, 1, NOW())
-        ON CONFLICT (student_id, simulation_id) 
-        DO UPDATE SET 
-          progress_percentage = GREATEST(student_simulation_progress.progress_percentage, $3),
-          time_spent = student_simulation_progress.time_spent + $4,
-          best_score = GREATEST(student_simulation_progress.best_score, $5),
-          attempts = student_simulation_progress.attempts + 1,
-          last_accessed = NOW(),
-          completed = CASE WHEN $3 >= 100 THEN true ELSE student_simulation_progress.completed END
-      `;
+          student_id, simulation_id, assignment_id, started_at, current_progress
+        ) VALUES ($1, $2, $3, CURRENT_TIMESTAMP, $4)
+        RETURNING *
+      `, [session.user_id, simulation_id, assignment_id, initial_progress || {}]);
 
-      await client.query(upsertQuery, [
-        session.user.id,
-        simulation_id,
-        progress_percentage,
-        time_spent,
-        score
-      ]);
-
-      return NextResponse.json({ success: true });
-
+      return NextResponse.json({
+        success: true,
+        progress: result.rows[0]
+      });
+      
     } finally {
       client.release();
     }
-
   } catch (error) {
-    console.error('Update progress API error:', error);
+    console.error('Error creating student progress:', error);
     return NextResponse.json(
-      { error: 'Failed to update progress' },
+      { error: 'Failed to create student progress' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    let session = await getAPISession(request);
+    
+    // In development, use mock session if no real session exists
+    if (!session && process.env.NODE_ENV === 'development') {
+      session = createMockStudentSession();
+    }
+    
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { 
+      progress_id, 
+      current_progress, 
+      time_spent, 
+      current_score, 
+      simulation_data,
+      is_completed = false 
+    } = body;
+
+    const client = await pool.connect();
+    
+    try {
+      await client.query('BEGIN');
+
+      // Get current progress data
+      const currentResult = await client.query(`
+        SELECT * FROM student_simulation_progress 
+        WHERE id = $1 AND student_id = $2
+      `, [progress_id, session.user_id]);
+
+      if (currentResult.rows.length === 0) {
+        await client.query('ROLLBACK');
+        return NextResponse.json({ error: 'Progress record not found' }, { status: 404 });
+      }
+
+      const current = currentResult.rows[0];
+      const newTotalTime = (current.total_time_spent || 0) + (time_spent || 0);
+      const newBestScore = Math.max(current.best_score || 0, current_score || 0);
+      const completedAt = is_completed ? new Date() : current.completed_at;
+
+      // Update progress
+      const updateResult = await client.query(`
+        UPDATE student_simulation_progress 
+        SET 
+          current_progress = $1,
+          total_time_spent = $2,
+          current_score = $3,
+          best_score = $4,
+          simulation_data = $5,
+          completed_at = $6,
+          attempts_count = attempts_count + 1,
+          updated_at = CURRENT_TIMESTAMP
+        WHERE id = $7
+        RETURNING *
+      `, [
+        current_progress,
+        newTotalTime,
+        current_score,
+        newBestScore,
+        simulation_data,
+        completedAt,
+        progress_id
+      ]);
+
+      await client.query('COMMIT');
+
+      return NextResponse.json({
+        success: true,
+        progress: updateResult.rows[0]
+      });
+      
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    console.error('Error updating student progress:', error);
+    return NextResponse.json(
+      { error: 'Failed to update student progress' },
       { status: 500 }
     );
   }

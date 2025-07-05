@@ -47,3 +47,6 @@ documents/*.mp4
 # Temporary files
 *.tmp
 *.temp
+
+# User uploads
+public/uploads/

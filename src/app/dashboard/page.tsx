@@ -7,6 +7,7 @@ import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
 import ModernSidebar from '../../components/dashboard/ModernSidebar';
 import ModernSuperAdminDashboard from '../../components/dashboard/ModernSuperAdminDashboard';
+import ExerciseStats from '../../components/dashboard/ExerciseStats';
 import { useLanguage } from '../../components/LanguageProvider';
 import {
   Users,
@@ -451,6 +452,13 @@ export default function DashboardPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Exercise Statistics for Teachers */}
+          {user.roles.includes('teacher') && (
+            <div className="mt-6">
+              <ExerciseStats />
+            </div>
+          )}
         </main>
       </div>
     </div>

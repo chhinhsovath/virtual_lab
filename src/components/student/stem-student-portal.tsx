@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { User } from '../../lib/auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
@@ -34,7 +35,9 @@ import {
   Trophy,
   Sparkles,
   Eye,
-  Heart
+  Heart,
+  User as UserIcon,
+  LogOut
 } from 'lucide-react';
 
 interface STEMStudentPortalProps {
@@ -105,6 +108,7 @@ interface Achievement {
 }
 
 export function STEMStudentPortal({ user }: STEMStudentPortalProps) {
+  const router = useRouter();
   const [simulations, setSimulations] = useState<SimulationProgress[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
@@ -116,66 +120,102 @@ export function STEMStudentPortal({ user }: STEMStudentPortalProps) {
     loadStudentData();
   }, []);
 
+  const startSimulation = async (simulationId: string, assignmentId?: string) => {
+    try {
+      // Navigate to the simulation page
+      window.location.href = `/simulation/${simulationId}${assignmentId ? `?assignment=${assignmentId}` : ''}`;
+    } catch (error) {
+      console.error('Error starting simulation:', error);
+    }
+  };
+
   const loadStudentData = async () => {
     try {
-      // Fetch real student progress data
-      const [progressResponse, statsResponse] = await Promise.all([
+      // Fetch real student data
+      const [progressResponse, assignmentsResponse, achievementsResponse, analyticsResponse] = await Promise.all([
         fetch('/api/student/progress'),
-        fetch('/api/student/stats')
+        fetch('/api/assignments'),
+        fetch('/api/achievements'),
+        fetch('/api/analytics/student')
       ]);
 
-      if (progressResponse.ok && statsResponse.ok) {
+      // Load student progress
+      if (progressResponse.ok) {
         const progressData = await progressResponse.json();
-        const statsData = await statsResponse.json();
-
-        if (progressData.success && statsData.success) {
-          // Transform API data for component
-          const transformedSims: SimulationProgress[] = progressData.data.simulations.map((sim: any) => ({
+        if (progressData.success) {
+          const transformedSims: SimulationProgress[] = progressData.progress.map((sim: any) => ({
             id: sim.id,
             simulation_name: sim.simulation_name,
             display_name_en: sim.display_name_en,
             display_name_km: sim.display_name_km,
             subject_area: sim.subject_area,
             difficulty_level: sim.difficulty_level,
-            progress_percentage: sim.progress_percentage,
-            time_spent: sim.time_spent,
-            attempts: sim.attempts,
-            best_score: parseFloat(sim.best_score),
-            completed: sim.completed,
-            last_accessed: new Date(sim.last_accessed)
+            progress_percentage: sim.progress_percentage || 0,
+            time_spent: sim.total_time_spent || 0,
+            attempts: sim.attempts_count || 0,
+            best_score: sim.best_score ? parseFloat(sim.best_score) : 0,
+            completed: sim.status === 'completed',
+            last_accessed: new Date(sim.updated_at)
           }));
+          setSimulations(transformedSims);
+        }
+      }
 
-          const transformedAssignments: Assignment[] = progressData.data.assignments.map((assignment: any) => ({
+      // Load assignments
+      if (assignmentsResponse.ok) {
+        const assignmentsData = await assignmentsResponse.json();
+        if (assignmentsData.success) {
+          const transformedAssignments: Assignment[] = assignmentsData.assignments.map((assignment: any) => ({
             id: assignment.id,
             title: assignment.title,
             simulation_id: assignment.simulation_id,
-            simulation_name: assignment.simulation_display_name,
+            simulation_name: assignment.display_name_en,
             subject: assignment.subject_area || 'General',
             due_date: new Date(assignment.due_date),
-            instructions: assignment.instructions,
-            status: assignment.status as 'pending' | 'in_progress' | 'completed' | 'late',
-            score: assignment.score ? parseFloat(assignment.score) : undefined,
-            max_score: parseFloat(assignment.max_score)
+            instructions: assignment.instructions_en || assignment.description || '',
+            status: assignment.submission_status || 'pending',
+            score: assignment.student_score ? parseFloat(assignment.student_score) : undefined,
+            max_score: parseFloat(assignment.max_score || 100)
           }));
-
-          const transformedAchievements: Achievement[] = progressData.data.achievements.map((ach: any) => ({
-            id: ach.id,
-            title: ach.title,
-            description: ach.description,
-            icon: ach.icon,
-            category: ach.category,
-            unlocked_at: new Date(ach.unlocked_at),
-            points: ach.points
-          }));
-
-          setSimulations(transformedSims);
           setAssignments(transformedAssignments);
-          setAchievements(transformedAchievements);
-          setStats(statsData.stats);
         }
-      } else {
-        // Fallback to mock data if API fails
-        console.warn('API failed, using mock data');
+      }
+
+      // Load achievements
+      if (achievementsResponse.ok) {
+        const achievementsData = await achievementsResponse.json();
+        if (achievementsData.success) {
+          const transformedAchievements: Achievement[] = achievementsData.achievements.map((ach: any) => ({
+            id: ach.id,
+            title: ach.achievement_name || ach.name,
+            description: ach.description_en,
+            icon: ach.badge_icon || 'trophy',
+            category: ach.achievement_type || 'general',
+            unlocked_at: new Date(ach.earned_at),
+            points: ach.points_earned || ach.points || 0
+          }));
+          setAchievements(transformedAchievements);
+        }
+      }
+
+      // Load analytics/stats
+      if (analyticsResponse.ok) {
+        const analyticsData = await analyticsResponse.json();
+        if (analyticsData.success) {
+          setStats({
+            total_simulations: analyticsData.analytics.overall_stats.simulations_attempted || 0,
+            completed_simulations: analyticsData.analytics.overall_stats.simulations_completed || 0,
+            total_time: analyticsData.analytics.overall_stats.total_time_minutes || 0,
+            average_score: analyticsData.analytics.overall_stats.average_score || 0,
+            total_achievements: analyticsData.analytics.overall_stats.achievements_earned || 0,
+            total_points: analyticsData.analytics.overall_stats.total_points || 0
+          });
+        }
+      }
+
+      // If no API responses were successful, use mock data
+      if (!progressResponse.ok && !assignmentsResponse.ok && !achievementsResponse.ok) {
+        console.warn('All APIs failed, using mock data');
         loadMockData();
       }
 
@@ -367,11 +407,24 @@ export function STEMStudentPortal({ user }: STEMStudentPortalProps) {
                 <Globe className="h-4 w-4" />
                 <span className={`text-sm ${getFontClass()}`}>{t('student.vlab_cambodia')}</span>
               </div>
-              <div className="flex flex-col gap-2">
-                <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-                  <span className={getFontClass()}>{t('student.stem_student')}</span>
-                </Badge>
+              <div className="flex items-center gap-3">
                 <LanguageSwitcher />
+                <Button 
+                  variant="ghost" 
+                  className="text-white hover:bg-white/20"
+                  onClick={() => router.push('/student/profile')}
+                >
+                  <UserIcon className="h-5 w-5 mr-2" />
+                  <span className="font-hanuman">ព័ត៌មានផ្ទាល់ខ្លួន</span>
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className="text-white hover:bg-white/20"
+                  onClick={() => router.push('/auth/signin')}
+                >
+                  <LogOut className="h-5 w-5 mr-2" />
+                  <span className="font-hanuman">ចាកចេញ</span>
+                </Button>
               </div>
             </div>
           </div>
@@ -434,12 +487,55 @@ export function STEMStudentPortal({ user }: STEMStudentPortalProps) {
 
         {/* Main Tabs */}
         <Tabs defaultValue="dashboard" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="dashboard" className={getFontClass()}>{t('tab.dashboard')}</TabsTrigger>
-            <TabsTrigger value="simulations" className={getFontClass()}>{t('tab.my_simulations')}</TabsTrigger>
-            <TabsTrigger value="assignments" className={getFontClass()}>{t('tab.assignments')}</TabsTrigger>
-            <TabsTrigger value="achievements" className={getFontClass()}>{t('tab.achievements')}</TabsTrigger>
-            <TabsTrigger value="subjects" className={getFontClass()}>{t('tab.subjects')}</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-5 h-auto p-1">
+            <TabsTrigger 
+              value="dashboard" 
+              className={`${getFontClass()} relative flex items-center justify-center gap-2 py-3 px-4 data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:scale-105 transition-all duration-200`}
+            >
+              <BarChart3 className="h-4 w-4" />
+              {t('tab.dashboard')}
+              <Badge className="absolute -top-1 -right-1 h-2 w-2 p-0 bg-blue-500 data-[state=active]:bg-white data-[state=active]:text-blue-600" />
+            </TabsTrigger>
+            <TabsTrigger 
+              value="simulations" 
+              className={`${getFontClass()} relative flex items-center justify-center gap-2 py-3 px-4 data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:scale-105 transition-all duration-200`}
+            >
+              <Beaker className="h-4 w-4" />
+              {t('tab.my_simulations')}
+              <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 bg-blue-500 text-white text-xs flex items-center justify-center data-[state=active]:bg-white data-[state=active]:text-blue-600">
+                {stats?.completed_simulations || 0}
+              </Badge>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="assignments" 
+              className={`${getFontClass()} relative flex items-center justify-center gap-2 py-3 px-4 data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:scale-105 transition-all duration-200`}
+            >
+              <Target className="h-4 w-4" />
+              {t('tab.assignments')}
+              {assignments.filter(a => a.status !== 'completed').length > 0 && (
+                <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 bg-red-500 text-white text-xs flex items-center justify-center data-[state=active]:bg-white data-[state=active]:text-red-600">
+                  {assignments.filter(a => a.status !== 'completed').length}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger 
+              value="achievements" 
+              className={`${getFontClass()} relative flex items-center justify-center gap-2 py-3 px-4 data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:scale-105 transition-all duration-200`}
+            >
+              <Trophy className="h-4 w-4" />
+              {t('tab.achievements')}
+              <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 bg-yellow-500 text-white text-xs flex items-center justify-center data-[state=active]:bg-white data-[state=active]:text-yellow-600">
+                {stats?.total_achievements || 0}
+              </Badge>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="subjects" 
+              className={`${getFontClass()} relative flex items-center justify-center gap-2 py-3 px-4 data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:scale-105 transition-all duration-200`}
+            >
+              <BookOpen className="h-4 w-4" />
+              {t('tab.subjects')}
+              <Badge className="absolute -top-1 -right-1 h-2 w-2 p-0 bg-green-500 data-[state=active]:bg-white" />
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-6">
@@ -467,7 +563,11 @@ export function STEMStudentPortal({ user }: STEMStudentPortalProps) {
                           <Badge variant={assignment.status === 'pending' ? 'destructive' : 'default'}>
                             {assignment.status}
                           </Badge>
-                          <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                          <Button 
+                            size="sm" 
+                            className="bg-blue-600 hover:bg-blue-700"
+                            onClick={() => startSimulation(assignment.simulation_id, assignment.id)}
+                          >
                             <Play className="h-4 w-4 mr-1" />
                             Start
                           </Button>
@@ -503,7 +603,11 @@ export function STEMStudentPortal({ user }: STEMStudentPortalProps) {
                             <span className="text-xs text-gray-500">{sim.progress_percentage}%</span>
                           </div>
                         </div>
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => startSimulation(sim.id)}
+                        >
                           <Play className="h-4 w-4" />
                         </Button>
                       </div>
@@ -561,7 +665,10 @@ export function STEMStudentPortal({ user }: STEMStudentPortalProps) {
                       </Badge>
                     </div>
                     
-                    <Button className={`w-full bg-${colorMap[sim.subject_area]}-600 hover:bg-${colorMap[sim.subject_area]}-700`}>
+                    <Button 
+                      className={`w-full bg-${colorMap[sim.subject_area]}-600 hover:bg-${colorMap[sim.subject_area]}-700`}
+                      onClick={() => startSimulation(sim.id)}
+                    >
                       <Play className="h-4 w-4 mr-2" />
                       {sim.completed ? 'Review' : 'Continue'}
                     </Button>
@@ -617,7 +724,11 @@ export function STEMStudentPortal({ user }: STEMStudentPortalProps) {
                             View Details
                           </Button>
                           {assignment.status !== 'completed' && (
-                            <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                            <Button 
+                              size="sm" 
+                              className="bg-blue-600 hover:bg-blue-700"
+                              onClick={() => startSimulation(assignment.simulation_id, assignment.id)}
+                            >
                               <Play className="h-4 w-4 mr-1" />
                               {assignment.status === 'in_progress' ? 'Continue' : 'Start'}
                             </Button>
