@@ -249,7 +249,7 @@ export default function SimulationPage() {
       
       const data = await res.json();
       
-      if (data.success) {
+      if (res.ok && data.success) {
         setSubmission(data.submission);
         
         await fetch(`/api/simulations/${params.id}/start`, {
@@ -270,9 +270,13 @@ export default function SimulationPage() {
         });
         
         alert(`បានបញ្ចប់ការសាកល្បង! ពិន្ទុ: ${data.submission.total_score}/${data.submission.max_score}`);
+      } else {
+        console.error('Submission failed:', data);
+        alert(data.error || 'មានបញ្ហាក្នុងការដាក់ស្នើលំហាត់។ សូមព្យាយាមម្តងទៀត។');
       }
     } catch (error) {
       console.error('Error submitting exercises:', error);
+      alert('មានបញ្ហាក្នុងការដាក់ស្នើលំហាត់។ សូមព្យាយាមម្តងទៀត។');
     } finally {
       setIsSubmitting(false);
     }

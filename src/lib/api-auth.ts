@@ -5,9 +5,39 @@ import { getLMSSession } from './lms-auth';
 export async function getAPISession(request?: NextRequest) {
   // Try to get session from cookies first
   const cookieStore = cookies();
-  const sessionToken = cookieStore.get('virtual_lab_session')?.value;
+  const sessionToken = cookieStore.get('session')?.value || cookieStore.get('virtual_lab_session')?.value;
   
   if (sessionToken) {
+    // Check if this is our auth system session first
+    const { getSession } = await import('./auth');
+    const authSession = await getSession(sessionToken);
+    
+    if (authSession) {
+      // Convert auth session to API session format
+      return {
+        id: authSession.id,
+        user_id: authSession.user.id,
+        user_uuid: authSession.user.id,
+        token: sessionToken,
+        expires_at: authSession.expiresAt,
+        created_at: new Date(),
+        last_activity: new Date(),
+        user: {
+          id: authSession.user.id,
+          email: authSession.user.email,
+          name: authSession.user.name,
+          lms_role_id: authSession.user.role,
+          role_name: authSession.user.role,
+          preferred_language: 'km',
+          avatar_url: null,
+          phone_number: authSession.user.phoneNumber,
+          schools: [],
+          permissions: authSession.user.permissions
+        }
+      };
+    }
+    
+    // Fallback to LMS session if exists
     return await getLMSSession(sessionToken);
   }
   

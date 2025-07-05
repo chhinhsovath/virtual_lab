@@ -23,6 +23,22 @@ export async function POST(request: NextRequest) {
       time_spent 
     } = body;
 
+    // Validate required fields
+    if (!simulation_id || !answers) {
+      return NextResponse.json(
+        { error: 'Missing required fields: simulation_id and answers are required' },
+        { status: 400 }
+      );
+    }
+
+    console.log('Exercise submission:', {
+      simulation_id,
+      session_id,
+      assignment_id,
+      answer_count: Object.keys(answers).length,
+      user_id: session.user_id || session.user?.id
+    });
+
     const client = await pool.connect();
     
     try {
@@ -46,6 +62,18 @@ export async function POST(request: NextRequest) {
       let totalScore = 0;
       let maxScore = 0;
       const submissionDetails: any = {};
+
+      console.log('Found exercises:', exercises.length);
+      console.log('Answers received:', answers);
+
+      // If no exercises found, return error
+      if (exercises.length === 0) {
+        await client.query('ROLLBACK');
+        return NextResponse.json({
+          error: 'No exercises found for this simulation',
+          simulation_id
+        }, { status: 404 });
+      }
 
       // Process each answer
       for (const exercise of exercises) {
@@ -81,6 +109,8 @@ export async function POST(request: NextRequest) {
           totalScore += pointsEarned;
 
           // Insert submission record
+          const studentId = session.user_id || session.user?.id;
+          
           const submissionResult = await client.query(`
             INSERT INTO student_exercise_submissions (
               exercise_id,
@@ -102,7 +132,7 @@ export async function POST(request: NextRequest) {
             RETURNING id, is_correct, points_earned
           `, [
             exercise.id,
-            session.user_id,
+            studentId,
             session_id,
             assignment_id,
             studentAnswer,
@@ -137,7 +167,7 @@ export async function POST(request: NextRequest) {
               submitted_at = CURRENT_TIMESTAMP,
               status = 'completed'
             WHERE assignment_id = $2 AND student_id = $3
-          `, [totalScore, assignment_id, session.user_id]);
+          `, [totalScore, assignment_id, studentId]);
         } else {
           // If table doesn't exist, update the assignment progress directly
           await client.query(`
@@ -153,7 +183,7 @@ export async function POST(request: NextRequest) {
               ))
             )
             WHERE id = $4
-          `, [totalScore, session.user_id.toString(), new Date().toISOString(), assignment_id]);
+          `, [totalScore, studentId.toString(), new Date().toISOString(), assignment_id]);
         }
       }
 
@@ -216,7 +246,8 @@ export async function GET(request: NextRequest) {
         JOIN simulation_exercises se ON ses.exercise_id = se.id
         WHERE ses.student_id = $1
       `;
-      const queryParams: any[] = [session.user_id];
+      const studentId = session.user_id || session.user?.id;
+      const queryParams: any[] = [studentId];
 
       if (simulation_id) {
         query += ` AND se.simulation_id = $${queryParams.length + 1}`;
