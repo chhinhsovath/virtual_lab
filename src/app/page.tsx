@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { useLanguage } from '../components/LanguageProvider';
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { 
   Play, 
   Users, 
@@ -56,6 +58,7 @@ export default function Home() {
   const [currentSim, setCurrentSim] = useState(0);
   const [featuredSims, setFeaturedSims] = useState<any[]>([]);
   const [simStats, setSimStats] = useState<any>(null);
+  const { t, getFontClass, language } = useLanguage();
 
   useEffect(() => {
     // Check if user is already logged in
@@ -144,21 +147,18 @@ export default function Home() {
                 <Sparkles className="h-4 w-4 text-yellow-500 absolute -top-1 -right-1" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Virtual Lab Cambodia
+                <h1 className={`text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent ${getFontClass()}`}>
+                  {t('home.title')}
                 </h1>
-                <p className="text-xs text-gray-500 font-medium">Interactive STEM Simulations</p>
+                <p className={`text-xs text-gray-500 font-medium ${getFontClass()}`}>{t('home.subtitle')}</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <Button variant="ghost" className="flex items-center gap-2 hover:bg-blue-50">
-                <Globe className="h-4 w-4" />
-                <span>ភាសាខ្មែរ</span>
-              </Button>
+              <LanguageSwitcher />
               <Link href="/auth/login">
                 <Button className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
                   <LogIn className="h-4 w-4" />
-                  ចូលប្រើ / Login
+                  {t('ui.login')}
                 </Button>
               </Link>
             </div>
@@ -172,33 +172,31 @@ export default function Home() {
         <div className="max-w-7xl mx-auto relative">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium mb-6">
+              <div className={`inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium mb-6 ${getFontClass()}`}>
                 <Sparkles className="h-4 w-4" />
-                Inspired by PhET Interactive Simulations
+                {t('home.inspired_by')}
               </div>
-              <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+              <h1 className={`text-5xl md:text-6xl font-bold mb-6 leading-tight ${getFontClass()}`}>
                 <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Discover Science
+                  {t('home.hero_title')}
                 </span>
                 <br />
-                <span className="text-gray-800">Through Play</span>
+                <span className="text-gray-800">{t('home.hero_subtitle')}</span>
               </h1>
-              <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-                <span className="font-medium text-blue-600">ស្វែងរកវិទ្យាសាស្ត្រតាមរយៈការលេង</span>
-                <br />
-                Interactive simulations that make complex concepts simple, engaging, and accessible to every Cambodian student.
+              <p className={`text-xl text-gray-600 mb-8 leading-relaxed ${getFontClass()}`}>
+                {t('home.hero_description')}
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/auth/login">
-                  <Button size="lg" className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                  <Button size="lg" className={`flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 ${getFontClass()}`}>
                     <Play className="h-5 w-5" />
-                    Start Exploring / ចាប់ផ្តើមស្វែងរក
+                    {t('home.start_exploring')}
                   </Button>
                 </Link>
                 <Link href="/simulations">
-                  <Button size="lg" variant="outline" className="flex items-center gap-2 border-2 hover:bg-blue-50">
+                  <Button size="lg" variant="outline" className={`flex items-center gap-2 border-2 hover:bg-blue-50 ${getFontClass()}`}>
                     <Target className="h-5 w-5" />
-                    View Simulations
+                    {t('home.view_simulations')}
                   </Button>
                 </Link>
               </div>
@@ -216,8 +214,9 @@ export default function Home() {
                         }
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-900">{featuredSims[currentSim]?.title}</h3>
-                        <p className="text-sm text-gray-500">{featuredSims[currentSim]?.titleKm}</p>
+                        <h3 className={`font-semibold text-gray-900 ${getFontClass()}`}>
+                          {language === 'km' ? featuredSims[currentSim]?.titleKm : featuredSims[currentSim]?.title}
+                        </h3>
                       </div>
                     </div>
                     <div className="text-xs bg-gray-100 px-2 py-1 rounded-full text-gray-600">
@@ -230,8 +229,10 @@ export default function Home() {
                       {featuredSims[currentSim]?.icon && 
                         React.createElement(featuredSims[currentSim].icon, { className: "h-12 w-12 text-gray-400 mx-auto mb-2" })
                       }
-                      <p className="text-gray-500 text-sm">Interactive Simulation Preview</p>
-                      <p className="text-gray-400 text-xs">{featuredSims[currentSim]?.description}</p>
+                      <p className={`text-gray-500 text-sm ${getFontClass()}`}>{t('home.simulation_preview')}</p>
+                      <p className={`text-gray-400 text-xs ${getFontClass()}`}>
+                        {language === 'km' ? featuredSims[currentSim]?.descriptionKm : featuredSims[currentSim]?.description}
+                      </p>
                     </div>
                   </div>
 
@@ -248,8 +249,8 @@ export default function Home() {
                       ))}
                     </div>
                     <Link href="/simulations">
-                      <Button size="sm" variant="ghost" className="text-blue-600 hover:text-blue-700">
-                        Try Now <ArrowRight className="h-4 w-4 ml-1" />
+                      <Button size="sm" variant="ghost" className={`text-blue-600 hover:text-blue-700 ${getFontClass()}`}>
+                        {t('home.try_now')} <ArrowRight className="h-4 w-4 ml-1" />
                       </Button>
                     </Link>
                   </div>
@@ -258,7 +259,7 @@ export default function Home() {
                 <div className="bg-white rounded-2xl shadow-2xl p-6 border flex items-center justify-center h-80">
                   <div className="text-center">
                     <FlaskConical className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500">Loading simulations...</p>
+                    <p className={`text-gray-500 ${getFontClass()}`}>{t('ui.loading')}</p>
                   </div>
                 </div>
               )}
@@ -271,11 +272,11 @@ export default function Home() {
       <section className="py-16 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Explore STEM Subjects / ស្វែងរកមុខវិជ្ជា STEM
+            <h2 className={`text-3xl font-bold text-gray-900 mb-4 ${getFontClass()}`}>
+              {t('home.explore_subjects')}
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Interactive simulations across physics, chemistry, biology, and mathematics—all designed for curious minds
+            <p className={`text-gray-600 max-w-2xl mx-auto ${getFontClass()}`}>
+              {t('home.subjects_description')}
             </p>
           </div>
           
@@ -283,30 +284,26 @@ export default function Home() {
             {[
               { 
                 icon: Waves, 
-                title: "Physics", 
-                titleKm: "រូបវិទ្យា", 
-                count: simStats ? `${simStats.by_subject.Physics} Simulations` : "Loading...", 
+                titleKey: "subjects.physics", 
+                count: simStats ? `${simStats.by_subject.Physics} ${t('ui.simulations')}` : t('ui.loading'), 
                 color: "blue" 
               },
               { 
                 icon: Beaker, 
-                title: "Chemistry", 
-                titleKm: "គីមីវិទ្យា", 
-                count: simStats ? `${simStats.by_subject.Chemistry} Simulations` : "Loading...", 
+                titleKey: "subjects.chemistry", 
+                count: simStats ? `${simStats.by_subject.Chemistry} ${t('ui.simulations')}` : t('ui.loading'), 
                 color: "green" 
               },
               { 
                 icon: Brain, 
-                title: "Biology", 
-                titleKm: "ជីវវិទ្យា", 
-                count: simStats ? `${simStats.by_subject.Biology} Simulations` : "Loading...", 
+                titleKey: "subjects.biology", 
+                count: simStats ? `${simStats.by_subject.Biology} ${t('ui.simulations')}` : t('ui.loading'), 
                 color: "purple" 
               },
               { 
                 icon: BarChart3, 
-                title: "Mathematics", 
-                titleKm: "គណិតវិទ្យា", 
-                count: simStats ? `${simStats.by_subject.Mathematics} Simulations` : "Loading...", 
+                titleKey: "subjects.mathematics", 
+                count: simStats ? `${simStats.by_subject.Mathematics} ${t('ui.simulations')}` : t('ui.loading'), 
                 color: "orange" 
               }
             ].map((subject, index) => (
@@ -315,13 +312,12 @@ export default function Home() {
                   <div className={`w-16 h-16 mx-auto rounded-2xl bg-${subject.color}-100 flex items-center justify-center mb-4 group-hover:bg-${subject.color}-200 transition-colors`}>
                     <subject.icon className={`h-8 w-8 text-${subject.color}-600`} />
                   </div>
-                  <CardTitle className="text-xl">{subject.title}</CardTitle>
-                  <p className="text-sm text-gray-600 font-medium">{subject.titleKm}</p>
+                  <CardTitle className={`text-xl ${getFontClass()}`}>{t(subject.titleKey)}</CardTitle>
                 </CardHeader>
                 <CardContent className="text-center">
-                  <p className="text-sm text-gray-500">{subject.count}</p>
-                  <Button variant="ghost" size="sm" className="mt-2 group-hover:bg-blue-50">
-                    Explore <ArrowRight className="h-4 w-4 ml-1" />
+                  <p className={`text-sm text-gray-500 ${getFontClass()}`}>{subject.count}</p>
+                  <Button variant="ghost" size="sm" className={`mt-2 group-hover:bg-blue-50 ${getFontClass()}`}>
+                    {t('ui.explore')} <ArrowRight className="h-4 w-4 ml-1" />
                   </Button>
                 </CardContent>
               </Card>
@@ -334,11 +330,11 @@ export default function Home() {
       <section className="py-16 px-4 bg-gradient-to-r from-blue-50 to-purple-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Learning Through Discovery / រៀនតាមរយៈការរកឃើញ
+            <h2 className={`text-3xl font-bold text-gray-900 mb-4 ${getFontClass()}`}>
+              {t('home.learning_philosophy')}
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Our approach mirrors how real scientists work—by asking questions, forming hypotheses, and testing ideas
+            <p className={`text-gray-600 max-w-2xl mx-auto ${getFontClass()}`}>
+              {t('home.philosophy_description')}
             </p>
           </div>
           
@@ -346,30 +342,26 @@ export default function Home() {
             {[
               {
                 icon: Target,
-                title: "Explore",
-                titleKm: "ស្វែងរក",
-                description: "Free play mode to build intuition and spark curiosity about scientific phenomena"
+                titleKey: "home.explore",
+                descriptionKey: "home.explore_description"
               },
               {
                 icon: Beaker,
-                title: "Investigate", 
-                titleKm: "ស្រាវជ្រាវ",
-                description: "Guided activities with specific learning goals and structured discovery paths"
+                titleKey: "home.investigate",
+                descriptionKey: "home.investigate_description"
               },
               {
                 icon: Heart,
-                title: "Apply",
-                titleKm: "អនុវត្ត",
-                description: "Real-world problem solving that connects science to everyday Cambodian life"
+                titleKey: "home.apply",
+                descriptionKey: "home.apply_description"
               }
             ].map((step, index) => (
               <div key={index} className="text-center group">
                 <div className="w-20 h-20 mx-auto rounded-full bg-white shadow-lg flex items-center justify-center mb-6 group-hover:shadow-xl transition-shadow">
                   <step.icon className="h-10 w-10 text-blue-600" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">{step.title}</h3>
-                <p className="text-blue-600 font-medium mb-3">{step.titleKm}</p>
-                <p className="text-gray-600 leading-relaxed">{step.description}</p>
+                <h3 className={`text-xl font-semibold text-gray-900 mb-2 ${getFontClass()}`}>{t(step.titleKey)}</h3>
+                <p className={`text-gray-600 leading-relaxed ${getFontClass()}`}>{t(step.descriptionKey)}</p>
               </div>
             ))}
           </div>
@@ -381,27 +373,25 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">
-                Designed for Cambodian Educators
-                <br />
-                <span className="text-blue-600">សម្រាប់គ្រូបង្រៀនកម្ពុជា</span>
+              <h2 className={`text-3xl font-bold text-gray-900 mb-6 ${getFontClass()}`}>
+                {t('home.for_educators')}
               </h2>
-              <p className="text-gray-600 mb-8 leading-relaxed">
-                Every simulation includes comprehensive teaching materials, assessment tools, and professional development resources—all culturally relevant and aligned with national curriculum standards.
+              <p className={`text-gray-600 mb-8 leading-relaxed ${getFontClass()}`}>
+                {t('home.educators_description')}
               </p>
               
               <div className="space-y-4">
                 {[
-                  "Lesson plans with learning objectives",
-                  "Real-time student progress tracking", 
-                  "Bilingual content and instructions",
-                  "Professional development workshops"
+                  t('home.feature_lesson_plans'),
+                  t('home.feature_progress_tracking'), 
+                  t('home.feature_bilingual'),
+                  t('home.feature_development')
                 ].map((feature, index) => (
                   <div key={index} className="flex items-center gap-3">
                     <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
                       <div className="w-2 h-2 rounded-full bg-green-600"></div>
                     </div>
-                    <span className="text-gray-700">{feature}</span>
+                    <span className={`text-gray-700 ${getFontClass()}`}>{feature}</span>
                   </div>
                 ))}
               </div>
@@ -410,12 +400,12 @@ export default function Home() {
             <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-8">
               <div className="text-center">
                 <GraduationCap className="h-16 w-16 text-blue-600 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Ready to Get Started?</h3>
-                <p className="text-gray-600 mb-6">
-                  Join our community of innovative educators transforming STEM education in Cambodia
+                <h3 className={`text-xl font-semibold text-gray-900 mb-2 ${getFontClass()}`}>{t('home.ready_to_start')}</h3>
+                <p className={`text-gray-600 mb-6 ${getFontClass()}`}>
+                  {t('home.join_community')}
                 </p>
-                <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                  Teacher Resources
+                <Button className={`bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 ${getFontClass()}`}>
+                  {t('home.teacher_resources')}
                 </Button>
               </div>
             </div>
@@ -427,24 +417,22 @@ export default function Home() {
       <section className="py-20 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="max-w-4xl mx-auto text-center relative">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Ready to Transform STEM Education?
-            <br />
-            <span className="text-blue-100">ត្រៀមខ្លួនបំប្លែងការអប់រំ STEM?</span>
+          <h2 className={`text-3xl md:text-4xl font-bold mb-6 ${getFontClass()}`}>
+            {t('home.cta_title')}
           </h2>
-          <p className="text-xl mb-8 opacity-90 leading-relaxed">
-            Join thousands of students and teachers already discovering science through interactive simulations
+          <p className={`text-xl mb-8 opacity-90 leading-relaxed ${getFontClass()}`}>
+            {t('home.cta_description')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/auth/login">
-              <Button size="lg" variant="secondary" className="flex items-center gap-2 bg-white text-blue-600 hover:bg-blue-50">
+              <Button size="lg" variant="secondary" className={`flex items-center gap-2 bg-white text-blue-600 hover:bg-blue-50 ${getFontClass()}`}>
                 <Play className="h-5 w-5" />
-                Start Learning Today
+                {t('home.start_learning')}
               </Button>
             </Link>
-            <Button size="lg" variant="outline" className="flex items-center gap-2 border-white text-white hover:bg-white/10">
+            <Button size="lg" variant="outline" className={`flex items-center gap-2 border-white text-white hover:bg-white/10 ${getFontClass()}`}>
               <School className="h-5 w-5" />
-              Request School Demo
+              {t('home.request_demo')}
             </Button>
           </div>
         </div>
@@ -458,42 +446,42 @@ export default function Home() {
               <div className="flex items-center gap-3 mb-4">
                 <FlaskConical className="h-8 w-8 text-blue-400" />
                 <div>
-                  <h3 className="text-xl font-bold text-white">Virtual Lab Cambodia</h3>
-                  <p className="text-sm text-gray-400">Interactive STEM Simulations</p>
+                  <h3 className={`text-xl font-bold text-white ${getFontClass()}`}>{t('home.title')}</h3>
+                  <p className={`text-sm text-gray-400 ${getFontClass()}`}>{t('home.subtitle')}</p>
                 </div>
               </div>
-              <p className="text-gray-400 leading-relaxed mb-4">
-                Inspiring the next generation of Cambodian scientists, engineers, and innovators through world-class interactive simulations.
+              <p className={`text-gray-400 leading-relaxed mb-4 ${getFontClass()}`}>
+                {t('home.footer_description')}
               </p>
-              <p className="text-sm text-blue-400">🇰🇭 Proudly serving Cambodia's future</p>
+              <p className={`text-sm text-blue-400 ${getFontClass()}`}>{t('home.proudly_serving')}</p>
             </div>
             
             <div>
-              <h4 className="font-semibold text-white mb-4">Quick Links</h4>
+              <h4 className={`font-semibold text-white mb-4 ${getFontClass()}`}>{t('footer.quick_links')}</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-blue-400 transition-colors">Physics Simulations</a></li>
-                <li><a href="#" className="hover:text-blue-400 transition-colors">Chemistry Labs</a></li>
-                <li><a href="#" className="hover:text-blue-400 transition-colors">Biology Experiments</a></li>
-                <li><a href="#" className="hover:text-blue-400 transition-colors">Math Visualizations</a></li>
+                <li><a href="#" className={`hover:text-blue-400 transition-colors ${getFontClass()}`}>{t('footer.physics_sims')}</a></li>
+                <li><a href="#" className={`hover:text-blue-400 transition-colors ${getFontClass()}`}>{t('footer.chemistry_labs')}</a></li>
+                <li><a href="#" className={`hover:text-blue-400 transition-colors ${getFontClass()}`}>{t('footer.biology_experiments')}</a></li>
+                <li><a href="#" className={`hover:text-blue-400 transition-colors ${getFontClass()}`}>{t('footer.math_visualizations')}</a></li>
               </ul>
             </div>
             
             <div>
-              <h4 className="font-semibold text-white mb-4">For Educators</h4>
+              <h4 className={`font-semibold text-white mb-4 ${getFontClass()}`}>{t('footer.for_educators')}</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-blue-400 transition-colors">Teacher Resources</a></li>
-                <li><a href="#" className="hover:text-blue-400 transition-colors">Professional Development</a></li>
-                <li><a href="#" className="hover:text-blue-400 transition-colors">Curriculum Alignment</a></li>
-                <li><a href="#" className="hover:text-blue-400 transition-colors">Assessment Tools</a></li>
+                <li><a href="#" className={`hover:text-blue-400 transition-colors ${getFontClass()}`}>{t('footer.teacher_resources')}</a></li>
+                <li><a href="#" className={`hover:text-blue-400 transition-colors ${getFontClass()}`}>{t('footer.professional_development')}</a></li>
+                <li><a href="#" className={`hover:text-blue-400 transition-colors ${getFontClass()}`}>{t('footer.curriculum_alignment')}</a></li>
+                <li><a href="#" className={`hover:text-blue-400 transition-colors ${getFontClass()}`}>{t('footer.assessment_tools')}</a></li>
               </ul>
             </div>
           </div>
           
           <div className="border-t border-gray-800 pt-8 text-center">
-            <p className="text-gray-400">
-              © 2024 Virtual Lab Cambodia. Empowering STEM education with interactive simulations.
+            <p className={`text-gray-400 ${getFontClass()}`}>
+              {t('footer.copyright')}
               <br />
-              <span className="text-sm">Built with ❤️ for Cambodia's future scientists</span>
+              <span className="text-sm">{t('footer.built_with_love')}</span>
             </p>
           </div>
         </div>
