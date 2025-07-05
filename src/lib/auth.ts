@@ -94,24 +94,11 @@ export async function createSession(user: User, ipAddress?: string, userAgent?: 
   const client = await pool.connect();
   
   try {
-    // Check if user_sessions table exists, create if not
+    // Insert session using existing user_sessions table structure
     await client.query(`
-      CREATE TABLE IF NOT EXISTS user_sessions (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        session_token VARCHAR(255) UNIQUE NOT NULL,
-        ip_address INET,
-        user_agent TEXT,
-        expires_at TIMESTAMP NOT NULL DEFAULT (NOW() + INTERVAL '24 hours'),
-        created_at TIMESTAMP DEFAULT NOW()
-      )
-    `);
-
-    // Insert session
-    await client.query(`
-      INSERT INTO user_sessions (user_id, session_token, ip_address, user_agent)
-      VALUES ($1, $2, $3, $4)
-    `, [user.id, sessionToken, ipAddress, userAgent]);
+      INSERT INTO user_sessions (user_uuid, session_token, user_role, ip_address, user_agent, expires_at)
+      VALUES ($1, $2, $3, $4, $5, NOW() + INTERVAL '24 hours')
+    `, [user.id, sessionToken, user.role, ipAddress, userAgent]);
 
     return sessionToken;
   } finally {
@@ -131,10 +118,10 @@ export async function getSession(sessionToken: string): Promise<Session | null> 
   try {
     const result = await client.query(`
       SELECT 
-        s.id, s.user_id, s.session_token, s.expires_at,
+        s.id, s.user_uuid, s.session_token, s.expires_at,
         u.id as user_id, u.email, u.name, u.role, u.is_active
       FROM user_sessions s
-      JOIN users u ON s.user_id = u.id
+      JOIN users u ON s.user_uuid = u.id
       WHERE s.session_token = $1 AND s.expires_at > NOW() AND u.is_active = true
     `, [sessionToken]);
 
