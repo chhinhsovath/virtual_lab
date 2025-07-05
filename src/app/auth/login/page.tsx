@@ -10,6 +10,8 @@ import { Label } from '../../../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui/card';
 import { toast } from 'sonner';
 import { Eye, EyeOff, BookOpen, Users, BarChart3, Shield, GraduationCap, MapPin, FlaskConical } from 'lucide-react';
+import { useLanguage } from '../../../components/LanguageProvider';
+import { LanguageSwitcher } from '../../../components/LanguageSwitcher';
 
 const loginSchema = z.object({
   username: z.string().min(1, 'Username is required'),
@@ -21,6 +23,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const { t, getFontClass, language } = useLanguage();
 
   const {
     register,
@@ -164,13 +167,13 @@ export default function LoginPage() {
             <div className="flex items-center mb-6">
               <FlaskConical className="h-12 w-12 mr-4" />
               <div>
-                <h1 className="text-3xl font-bold font-hanuman">Virtual Lab Cambodia</h1>
-                <p className="font-hanuman text-xl">មន្ទីរពិសោធន៍និម្មិតកម្ពុជា</p>
+                <h1 className={`text-3xl font-bold ${getFontClass()}`}>{t('home.title')}</h1>
+                <p className={`text-xl ${getFontClass()}`}>{t('home.subtitle')}</p>
               </div>
             </div>
             
-            <p className="text-lg text-blue-100 leading-relaxed mb-8">
-              Interactive STEM Simulations - Empowering Cambodian students to discover science through hands-on virtual experiments and exploration.
+            <p className={`text-lg text-blue-100 leading-relaxed mb-8 ${getFontClass()}`}>
+              {t('login.description')}
             </p>
             
             <div className="space-y-6">
@@ -179,8 +182,8 @@ export default function LoginPage() {
                   <MapPin className="h-6 w-6" />
                 </div>
                 <div>
-                  <h3 className="font-semibold">Nationwide Coverage</h3>
-                  <p className="text-blue-100">All provinces across Cambodia</p>
+                  <h3 className={`font-semibold ${getFontClass()}`}>{t('login.nationwide')}</h3>
+                  <p className={`text-blue-100 ${getFontClass()}`}>{t('login.all_provinces')}</p>
                 </div>
               </div>
               
@@ -189,8 +192,8 @@ export default function LoginPage() {
                   <Users className="h-6 w-6" />
                 </div>
                 <div>
-                  <h3 className="font-semibold">1,500+ Students</h3>
-                  <p className="text-blue-100">Discovering science daily</p>
+                  <h3 className={`font-semibold ${getFontClass()}`}>{t('login.students_count')}</h3>
+                  <p className={`text-blue-100 ${getFontClass()}`}>{t('login.discovering_daily')}</p>
                 </div>
               </div>
               
@@ -199,8 +202,8 @@ export default function LoginPage() {
                   <BarChart3 className="h-6 w-6" />
                 </div>
                 <div>
-                  <h3 className="font-semibold">Interactive Learning</h3>
-                  <p className="text-blue-100">Physics, Chemistry, Biology & Math</p>
+                  <h3 className={`font-semibold ${getFontClass()}`}>{t('home.subtitle')}</h3>
+                  <p className={`text-blue-100 ${getFontClass()}`}>{t('home.subjects_description')}</p>
                 </div>
               </div>
             </div>
@@ -225,20 +228,20 @@ export default function LoginPage() {
           {/* Login Card */}
           <Card className="border-0 shadow-2xl bg-white/80 backdrop-blur-sm">
             <CardHeader className="text-center pb-6">
-              <CardTitle className="text-2xl font-bold text-slate-800">Welcome to Virtual Lab</CardTitle>
-              <CardDescription className="text-slate-600">
-                Sign in to explore interactive STEM simulations
+              <CardTitle className={`text-2xl font-bold text-slate-800 ${getFontClass()}`}>{t('login.title')}</CardTitle>
+              <CardDescription className={`text-slate-600 ${getFontClass()}`}>
+                {t('login.subtitle')}
               </CardDescription>
             </CardHeader>
             
             <CardContent className="space-y-6">
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="username" className="text-slate-700 font-medium">Username</Label>
+                  <Label htmlFor="username" className={`text-slate-700 font-medium ${getFontClass()}`}>{t('login.username')}</Label>
                   <Input
                     id="username"
                     type="text"
-                    placeholder="Enter your username"
+                    placeholder={t('login.username')}
                     className="h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
                     {...register('username')}
                   />
@@ -251,12 +254,12 @@ export default function LoginPage() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-slate-700 font-medium">Password</Label>
+                  <Label htmlFor="password" className={`text-slate-700 font-medium ${getFontClass()}`}>{t('login.password')}</Label>
                   <div className="relative">
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="Enter your password"
+                      placeholder={t('login.password')}
                       className="h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500 pr-12"
                       {...register('password')}
                     />
@@ -284,10 +287,10 @@ export default function LoginPage() {
                   {isLoading ? (
                     <div className="flex items-center">
                       <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                      Signing in...
+                      {t('message.loading')}
                     </div>
                   ) : (
-                    'Sign In'
+                    t('login.signin')
                   )}
                 </Button>
               </form>

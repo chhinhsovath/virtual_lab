@@ -292,6 +292,18 @@ export const translations: Record<string, Translation> = {
   'ui.explore': { en: 'Explore', km: 'ស្វែងរក' },
   'ui.simulations': { en: 'Simulations', km: 'ការក្លែងធ្វើ' },
 
+  // Login page
+  'login.title': { en: 'Welcome Back', km: 'សូមស្វាគមន៍' },
+  'login.subtitle': { en: 'Please sign in to continue', km: 'សូមចូលប្រើប្រាស់ដើម្បីបន្ត' },
+  'login.username': { en: 'Username/Email', km: 'ឈ្មោះអ្នកប្រើប្រាស់/អីមែល' },
+  'login.password': { en: 'Password', km: 'ពាក្យសម្ងាត់' },
+  'login.signin': { en: 'Sign In', km: 'ចូលប្រើ' },
+  'login.nationwide': { en: 'Nationwide Coverage', km: 'គ្របដណ្តប់ទូទាំងប្រទេស' },
+  'login.all_provinces': { en: 'All provinces across Cambodia', km: 'គ្រប់ខេត្តទូទាំងកម្ពុជា' },
+  'login.students_count': { en: '1,500+ Students', km: 'សិស្សចំនួន ១៥០០+ នាក់' },
+  'login.discovering_daily': { en: 'Discovering science daily', km: 'រកឃើញវិទ្យាសាស្ត្រប្រចាំថ្ងៃ' },
+  'login.description': { en: 'Interactive STEM Simulations - Empowering Cambodian students to discover science through hands-on virtual experiments and exploration.', km: 'ការក្លែងធ្វើ STEM អន្តរកម្ម - បំផុសទឹកចិត្តសិស្សកម្ពុជាឱ្យរកឃើញវិទ្យាសាស្ត្រតាមរយៈការពិសោធន៍និម្មិត និងការស្វែងរកដោយដៃ។' },
+
   // Subjects
   'subjects.physics': { en: 'Physics', km: 'រូបវិទ្យា' },
   'subjects.chemistry': { en: 'Chemistry', km: 'គីមីវិទ្យា' },
@@ -309,13 +321,10 @@ export const translations: Record<string, Translation> = {
   'file.manual': { en: 'Manual', km: 'សៀវភៅណែនាំ' }
 };
 
-// Get browser language preference
+// Get browser language preference (Khmer-first for Cambodia Virtual Lab)
 export function getBrowserLanguage(): Language {
-  if (typeof window === 'undefined') return 'km';
-  
-  const browserLang = navigator.language.toLowerCase();
-  if (browserLang.startsWith('en')) return 'en';
-  return 'km'; // Default to Khmer for Cambodian students
+  // ALWAYS return Khmer as the primary language
+  return 'km';
 }
 
 // Get user's preferred language from localStorage
@@ -323,7 +332,11 @@ export function getUserLanguage(): Language {
   if (typeof window === 'undefined') return 'km';
   
   const stored = localStorage.getItem('preferred_language') as Language;
-  return stored || getBrowserLanguage();
+  // Always validate and default to Khmer if invalid
+  if (stored === 'en' || stored === 'km') {
+    return stored;
+  }
+  return 'km'; // Default to Khmer
 }
 
 // Set user's preferred language
@@ -335,6 +348,14 @@ export function setUserLanguage(lang: Language): void {
   
   // Update document direction for Khmer
   document.documentElement.dir = lang === 'km' ? 'ltr' : 'ltr';
+}
+
+// Reset language to default (Khmer)
+export function resetToKhmer(): void {
+  if (typeof window === 'undefined') return;
+  
+  localStorage.removeItem('preferred_language');
+  setUserLanguage('km');
 }
 
 // Translation function

@@ -26,6 +26,7 @@ import {
   Zap
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useLanguage } from '../LanguageProvider';
 
 interface DashboardData {
   stats: {
@@ -43,6 +44,7 @@ export default function ModernSuperAdminDashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { t, getFontClass } = useLanguage();
 
   useEffect(() => {
     fetchDashboardData();
@@ -303,14 +305,11 @@ export default function ModernSuperAdminDashboard() {
             <Sparkles className="h-8 w-8 text-white" />
           </div>
         </div>
-        <h1 className="text-4xl font-bold text-gray-900 mb-2 font-hanuman">
-          Cambodia Virtual Lab STEM Dashboard
+        <h1 className={`text-4xl font-bold text-gray-900 mb-2 ${getFontClass()}`}>
+          {t('dashboard.title')}
         </h1>
-        <p className="text-xl text-gray-600 font-hanuman mb-2">
-          Virtual Science, Technology, Engineering & Mathematics
-        </p>
-        <p className="text-lg text-gray-500 font-hanuman">
-          វិទ្យាសាស្ត្រ បច្ចេកវិទ្យា វិស្វកម្ម និងគណិតវិទ្យានិម្មិត
+        <p className={`text-xl text-gray-600 ${getFontClass()} mb-2`}>
+          {t('dashboard.subtitle')}
         </p>
       </motion.div>
 
