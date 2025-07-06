@@ -2,6 +2,16 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 🚀 BREAKTHROUGH METHODOLOGY (APPLY TO ALL WORK)
+
+**CRITICAL**: Follow this methodology for every task:
+1. **Map EVERY possible user journey** - Think through all paths users might take
+2. **Test with real browser automation** (not just code review) - Use actual browser testing
+3. **Use evidence-based debugging** (server logs + screenshots) - Gather concrete evidence
+4. **Fix the deepest layer first** (React state before styling) - Address root causes first
+
+Apply this methodology consistently throughout the codebase work.
+
 ## Development Commands
 
 ### Core Development

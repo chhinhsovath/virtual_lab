@@ -52,7 +52,7 @@ import {
   Users
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 
 function UserManagementContent() {
   const router = useRouter();
