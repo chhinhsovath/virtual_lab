@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LoadingSpinnerCompact } from '@/components/ui/loading-spinner';
 import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Progress } from '@/components/ui/progress';
 import { 
   Select,
   SelectContent,
@@ -35,7 +37,13 @@ import {
   UserPlus,
   FileText,
   TrendingUp,
-  Activity
+  Activity,
+  Star,
+  Award,
+  Target,
+  Zap,
+  Rocket,
+  Heart
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import {
@@ -44,6 +52,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from '@/lib/utils';
+import * as design from './design-system';
+import { StatCard, FeatureCard, ProgressCard, EmptyState, PageHeader, TabNav } from './ui-components';
 
 interface Module {
   id: string;
@@ -90,7 +101,7 @@ export function TeacherEngagementDashboard({ user }: TeacherEngagementDashboardP
   const [searchQuery, setSearchQuery] = useState('');
   const [filterSubject, setFilterSubject] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
-  const [activeTab, setActiveTab] = useState('modules');
+  const [activeTab, setActiveTab] = useState('overview');
   const router = useRouter();
 
   useEffect(() => {
@@ -98,100 +109,78 @@ export function TeacherEngagementDashboard({ user }: TeacherEngagementDashboardP
   }, []);
 
   useEffect(() => {
-    if (!loading) {
+    // Auto-refresh dashboard data every 30 seconds
+    const interval = setInterval(() => {
       fetchDashboardData();
-    }
-  }, [filterSubject, filterStatus]);
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const fetchDashboardData = async () => {
     try {
-      setLoading(true);
-      
-      // Fetch simulations from the API
-      const params = new URLSearchParams();
-      if (filterSubject !== 'all') params.append('subject', filterSubject);
-      if (filterStatus !== 'all') params.append('status', filterStatus);
-      if (searchQuery) params.append('search', searchQuery);
-
-      const response = await fetch(`/api/simulations?${params.toString()}`, {
+      // Fetch modules data
+      const modulesResponse = await fetch('/api/modules', {
         credentials: 'include'
       });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && data.modules) {
-          setModules(data.modules);
-        }
-      } else {
-        console.error('Failed to fetch simulations');
+      const modulesData = await modulesResponse.json();
+      
+      if (modulesData.success && modulesData.modules) {
+        setModules(modulesData.modules);
       }
 
+      // Mock student engagement data
       setStudents([
         {
           id: '1',
-          name: 'Sokha Lim',
-          lastActive: '10 minutes ago',
-          modulesCompleted: 12,
-          totalModules: 15,
+          name: 'Sokha Chen',
+          avatar: '/avatars/student1.jpg',
+          lastActive: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+          modulesCompleted: 15,
+          totalModules: 20,
           averageScore: 85,
           status: 'active',
-          recentActivity: 'Completed Pendulum Lab'
+          recentActivity: 'Completed Physics Simulation'
         },
         {
           id: '2',
-          name: 'Dara Chan',
-          lastActive: '2 hours ago',
-          modulesCompleted: 8,
-          totalModules: 15,
-          averageScore: 72,
+          name: 'Dara Kim',
+          lastActive: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+          modulesCompleted: 12,
+          totalModules: 20,
+          averageScore: 78,
           status: 'active',
-          recentActivity: 'Started Chemical Reactions'
+          recentActivity: 'Working on Chemistry Lab'
         },
         {
           id: '3',
-          name: 'Sophea Kim',
-          lastActive: '1 day ago',
+          name: 'Srey Mom',
+          lastActive: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
           modulesCompleted: 5,
-          totalModules: 15,
-          averageScore: 65,
+          totalModules: 20,
+          averageScore: 62,
           status: 'struggling',
-          recentActivity: 'Viewed Cell Structure'
-        },
-        {
-          id: '4',
-          name: 'Vichea Sok',
-          lastActive: '3 days ago',
-          modulesCompleted: 10,
-          totalModules: 15,
-          averageScore: 78,
-          status: 'inactive'
+          recentActivity: 'Started Math Exercise'
         }
       ]);
 
+      // Mock activities
       setActivities([
         {
           id: '1',
-          studentName: 'Sokha Lim',
+          studentName: 'Sokha Chen',
           action: 'completed',
-          module: 'Pendulum Lab',
-          timestamp: '10 minutes ago',
+          module: 'Physics: Pendulum Lab',
+          timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
           type: 'completed'
         },
         {
           id: '2',
-          studentName: 'Dara Chan',
+          studentName: 'Dara Kim',
           action: 'started',
-          module: 'Chemical Reactions',
-          timestamp: '2 hours ago',
+          module: 'Chemistry: Reaction Rates',
+          timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
           type: 'started'
-        },
-        {
-          id: '3',
-          studentName: 'Sophea Kim',
-          action: 'sent a message',
-          module: 'Cell Structure',
-          timestamp: '1 day ago',
-          type: 'message'
         }
       ]);
 
@@ -202,191 +191,227 @@ export function TeacherEngagementDashboard({ user }: TeacherEngagementDashboardP
     }
   };
 
-  const handleCreateModule = () => {
-    router.push('/dashboard/simulations/new');
-  };
-
-  const handleEditModule = (moduleId: string) => {
-    router.push(`/dashboard/simulations/${moduleId}/edit`);
-  };
-
-  const handleDeleteModule = async (moduleId: string) => {
-    if (confirm('Are you sure you want to delete this module?')) {
-      try {
-        const response = await fetch(`/api/simulations/${moduleId}`, {
-          method: 'DELETE',
-          credentials: 'include'
-        });
-
-        if (response.ok) {
-          // Refresh the modules list
-          fetchDashboardData();
-        } else {
-          const error = await response.json();
-          alert(error.error || 'Failed to delete module');
-        }
-      } catch (error) {
-        console.error('Error deleting module:', error);
-        alert('Failed to delete module');
-      }
-    }
-  };
-
-  const handleViewStudent = (studentId: string) => {
-    router.push(`/dashboard/students/${studentId}`);
-  };
-
-  const getStatusBadge = (status: string) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
-        return <Badge className="bg-green-100 text-green-800">Active</Badge>;
-      case 'draft':
-        return <Badge className="bg-yellow-100 text-yellow-800">Draft</Badge>;
-      case 'archived':
-        return <Badge className="bg-gray-100 text-gray-800">Archived</Badge>;
-      case 'struggling':
-        return <Badge className="bg-red-100 text-red-800">Needs Help</Badge>;
+        return 'success';
       case 'inactive':
-        return <Badge className="bg-gray-100 text-gray-800">Inactive</Badge>;
+        return 'warning';
+      case 'struggling':
+        return 'danger';
       default:
-        return null;
+        return 'secondary';
     }
   };
 
   const getActivityIcon = (type: string) => {
     switch (type) {
       case 'completed':
-        return <CheckCircle2 className="h-4 w-4 text-green-600" />;
+        return CheckCircle2;
       case 'started':
-        return <Play className="h-4 w-4 text-blue-600" />;
+        return Play;
       case 'submitted':
-        return <FileText className="h-4 w-4 text-purple-600" />;
+        return FileText;
       case 'message':
-        return <MessageSquare className="h-4 w-4 text-orange-600" />;
+        return MessageSquare;
       default:
-        return <Activity className="h-4 w-4 text-gray-600" />;
+        return Activity;
     }
   };
 
-  const filteredModules = modules.filter(module => {
-    const matchesSearch = module.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         module.titleKm.includes(searchQuery);
-    const matchesSubject = filterSubject === 'all' || module.subject === filterSubject;
-    const matchesStatus = filterStatus === 'all' || module.status === filterStatus;
-    return matchesSearch && matchesSubject && matchesStatus;
-  });
+  const getTimeAgo = (timestamp: string) => {
+    const seconds = Math.floor((new Date().getTime() - new Date(timestamp).getTime()) / 1000);
+    if (seconds < 60) return 'just now';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
+  };
 
-  const filteredStudents = students.filter(student => {
-    return student.name.toLowerCase().includes(searchQuery.toLowerCase());
-  });
+  const tabs = [
+    { id: 'overview', label: 'Overview', icon: Rocket },
+    { id: 'modules', label: 'Modules', icon: BookOpen, badge: modules.length },
+    { id: 'students', label: 'Students', icon: Users, badge: students.length },
+    { id: 'activity', label: 'Activity', icon: Activity }
+  ];
 
   if (loading) {
-    return <LoadingSpinnerCompact />;
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <LoadingSpinnerCompact />
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-6 text-white">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className={cn(design.spacing.section, "max-w-7xl mx-auto")}>
+      {/* Welcome Section */}
+      <div className={cn(
+        "rounded-2xl p-6 sm:p-8 mb-8",
+        design.gradients.sunset
+      )}>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold font-hanuman">
-              ផ្ទាំងគ្រប់គ្រងគ្រូបង្រៀន
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 flex items-center gap-2">
+              Welcome back, {user.firstName}! <Sparkles className="h-6 w-6 text-yellow-500" />
             </h2>
-            <p className="text-blue-100 mt-1">Teacher Engagement Dashboard</p>
+            <p className="text-gray-600 mt-1">Ready to inspire young minds today?</p>
           </div>
-          <div className="hidden sm:flex gap-2">
-            <Badge className="bg-white/20 text-white border-white/50 px-3 py-1.5">
-              <FlaskConical className="h-4 w-4 mr-1" />
-              STEM Lab Teacher
-            </Badge>
-          </div>
+          <Button 
+            onClick={() => router.push('/dashboard/simulations/new')}
+            className={cn(design.buttonVariants.primary, "shadow-xl")}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Create New Module
+          </Button>
         </div>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Active Students</p>
-                <p className="text-2xl font-bold">32</p>
-              </div>
-              <Users className="h-8 w-8 text-blue-500" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Active Modules</p>
-                <p className="text-2xl font-bold">3</p>
-              </div>
-              <BookOpen className="h-8 w-8 text-green-500" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Completion Rate</p>
-                <p className="text-2xl font-bold">73%</p>
-              </div>
-              <TrendingUp className="h-8 w-8 text-purple-500" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Needs Help</p>
-                <p className="text-2xl font-bold">5</p>
-              </div>
-              <AlertCircle className="h-8 w-8 text-orange-500" />
-            </div>
-          </CardContent>
-        </Card>
+      {/* Stats Overview */}
+      <div className={design.grids.stats}>
+        <StatCard
+          title="Active Students"
+          value={students.filter(s => s.status === 'active').length}
+          description="Currently engaged"
+          icon={Users}
+          trend="up"
+          trendValue="12%"
+          color="primary"
+          gradient
+        />
+        <StatCard
+          title="Modules Created"
+          value={modules.length}
+          description="Total learning modules"
+          icon={BookOpen}
+          color="secondary"
+          gradient
+        />
+        <StatCard
+          title="Completion Rate"
+          value="78%"
+          description="Average across all students"
+          icon={Target}
+          trend="up"
+          trendValue="5%"
+          color="success"
+          gradient
+        />
+        <StatCard
+          title="Engagement Score"
+          value="4.5"
+          description="Out of 5.0"
+          icon={Star}
+          color="warning"
+          gradient
+        />
       </div>
 
-      {/* Main Content Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3 lg:w-[400px]">
-          <TabsTrigger value="modules" className="font-hanuman">
-            <BookOpen className="h-4 w-4 mr-2" />
-            Modules
-          </TabsTrigger>
-          <TabsTrigger value="students" className="font-hanuman">
-            <Users className="h-4 w-4 mr-2" />
-            Students
-          </TabsTrigger>
-          <TabsTrigger value="activity" className="font-hanuman">
-            <Sparkles className="h-4 w-4 mr-2" />
-            Activity
-          </TabsTrigger>
-        </TabsList>
+      {/* Tab Navigation */}
+      <div className="mt-8">
+        <TabNav tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
+      </div>
 
-        {/* Search and Filter Bar */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input
-              type="text"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
+      {/* Tab Content */}
+      <div className="mt-6">
+        {activeTab === 'overview' && (
+          <div className={design.spacing.section}>
+            {/* Quick Actions */}
+            <h3 className={cn(design.typography.h3, "mb-4")}>Quick Actions</h3>
+            <div className={design.grids.cards}>
+              <FeatureCard
+                title="Launch Simulation"
+                titleKm="ចាប់ផ្តើមការពិសោធន៍"
+                description="Start an interactive STEM simulation for your students"
+                icon={FlaskConical}
+                onClick={() => router.push('/dashboard/simulations/launch')}
+                badge="Popular"
+                gradient={design.gradients.primary}
+              />
+              <FeatureCard
+                title="Create Exercise"
+                titleKm="បង្កើតលំហាត់"
+                description="Design custom exercises tailored to your curriculum"
+                icon={Edit}
+                onClick={() => router.push('/dashboard/exercises/create')}
+                gradient={design.gradients.secondary}
+              />
+              <FeatureCard
+                title="View Analytics"
+                titleKm="មើលការវិភាគ"
+                description="Track student progress and performance insights"
+                icon={TrendingUp}
+                onClick={() => router.push('/dashboard/analytics')}
+                badge="New"
+                badgeVariant="secondary"
+                gradient={design.gradients.success}
+              />
+            </div>
+
+            {/* Recent Activities */}
+            <h3 className={cn(design.typography.h3, "mt-8 mb-4")}>Recent Student Activity</h3>
+            <Card className={design.cardVariants.default}>
+              <CardContent className="p-0">
+                <div className="divide-y divide-gray-100">
+                  {activities.map((activity) => {
+                    const ActivityIcon = getActivityIcon(activity.type);
+                    return (
+                      <div key={activity.id} className="p-4 hover:bg-gray-50 transition-colors">
+                        <div className="flex items-center space-x-4">
+                          <div className={cn(
+                            "p-2 rounded-lg",
+                            activity.type === 'completed' ? 'bg-green-100' :
+                            activity.type === 'started' ? 'bg-blue-100' :
+                            activity.type === 'submitted' ? 'bg-purple-100' :
+                            'bg-gray-100'
+                          )}>
+                            <ActivityIcon className={cn(
+                              "h-4 w-4",
+                              activity.type === 'completed' ? 'text-green-600' :
+                              activity.type === 'started' ? 'text-blue-600' :
+                              activity.type === 'submitted' ? 'text-purple-600' :
+                              'text-gray-600'
+                            )} />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-gray-900">
+                              <span className="font-semibold">{activity.studentName}</span>
+                              {' '}{activity.action}{' '}
+                              <span className="text-blue-600">{activity.module}</span>
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {getTimeAgo(activity.timestamp)}
+                            </p>
+                          </div>
+                          <Button variant="ghost" size="sm">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
           </div>
-          
-          {activeTab === 'modules' && (
-            <>
+        )}
+
+        {activeTab === 'modules' && (
+          <div className={design.spacing.section}>
+            {/* Search and Filters */}
+            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  type="text"
+                  placeholder="Search modules..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
               <Select value={filterSubject} onValueChange={setFilterSubject}>
                 <SelectTrigger className="w-full sm:w-[180px]">
                   <SelectValue placeholder="All Subjects" />
@@ -399,7 +424,6 @@ export function TeacherEngagementDashboard({ user }: TeacherEngagementDashboardP
                   <SelectItem value="Mathematics">Mathematics</SelectItem>
                 </SelectContent>
               </Select>
-              
               <Select value={filterStatus} onValueChange={setFilterStatus}>
                 <SelectTrigger className="w-full sm:w-[180px]">
                   <SelectValue placeholder="All Status" />
@@ -411,202 +435,223 @@ export function TeacherEngagementDashboard({ user }: TeacherEngagementDashboardP
                   <SelectItem value="archived">Archived</SelectItem>
                 </SelectContent>
               </Select>
-            </>
-          )}
-        </div>
+            </div>
 
-        {/* Modules Tab */}
-        <TabsContent value="modules" className="space-y-4">
-          <div className="grid gap-4">
-            {filteredModules.map((module) => (
-              <Card key={module.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-4 sm:p-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex-1">
+            {/* Modules Grid */}
+            {modules.length === 0 ? (
+              <EmptyState
+                icon={BookOpen}
+                title="No modules yet"
+                description="Create your first learning module to get started"
+                action={{
+                  label: "Create Module",
+                  onClick: () => router.push('/dashboard/modules/create')
+                }}
+              />
+            ) : (
+              <div className={design.grids.cards}>
+                {modules.map((module) => (
+                  <Card key={module.id} className={cn(
+                    design.cardVariants.colorful,
+                    "group hover:ring-2 hover:ring-purple-400 hover:ring-offset-2"
+                  )}>
+                    <CardHeader>
                       <div className="flex items-start justify-between">
                         <div>
-                          <h3 className="font-semibold text-lg">{module.title}</h3>
-                          <p className="text-sm text-gray-600 font-hanuman">{module.titleKm}</p>
+                          <CardTitle className="text-lg">{module.title}</CardTitle>
+                          <p className="text-sm text-gray-600 font-khmer mt-1">{module.titleKm}</p>
                         </div>
-                        <div className="sm:hidden">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => router.push(`/dashboard/simulations/${module.id}`)}>
-                                <Eye className="mr-2 h-4 w-4" />
-                                View
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleEditModule(module.id)}>
-                                <Edit className="mr-2 h-4 w-4" />
-                                Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuItem 
-                                onClick={() => handleDeleteModule(module.id)}
-                                className="text-red-600"
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => router.push(`/dashboard/modules/${module.id}/edit`)}>
+                              <Edit className="h-4 w-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Eye className="h-4 w-4 mr-2" />
+                              Preview
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="text-red-600">
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
-                      
-                      <div className="flex flex-wrap items-center gap-4 mt-3">
-                        <Badge variant="secondary">{module.subject}</Badge>
-                        <Badge variant="outline" className="capitalize">{module.type}</Badge>
-                        {getStatusBadge(module.status)}
-                        <span className="text-sm text-gray-500">
-                          <Users className="inline h-3 w-3 mr-1" />
-                          {module.studentsAssigned} students
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-600">Subject</span>
+                          <Badge variant="secondary">{module.subject}</Badge>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-600">Students</span>
+                          <span className="font-medium">{module.studentsAssigned}</span>
+                        </div>
+                        <ProgressCard
+                          title="Completion"
+                          current={module.completionRate}
+                          total={100}
+                          unit="%"
+                          color="primary"
+                        />
+                      </div>
+                      <div className="mt-4 pt-4 border-t flex items-center justify-between">
+                        <span className="text-xs text-gray-500">
+                          Updated {getTimeAgo(module.lastModified)}
                         </span>
-                        <span className="text-sm text-gray-500">
-                          <Clock className="inline h-3 w-3 mr-1" />
-                          {module.lastModified}
-                        </span>
+                        <Button
+                          size="sm"
+                          className={design.buttonVariants.primary}
+                          onClick={() => router.push(`/dashboard/modules/${module.id}`)}
+                        >
+                          View Details
+                        </Button>
                       </div>
-                      
-                      <div className="mt-4">
-                        <div className="flex justify-between text-sm mb-1">
-                          <span className="text-gray-600">Completion Rate</span>
-                          <span className="font-medium">{module.completionRate}%</span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-blue-600 h-2 rounded-full transition-all"
-                            style={{ width: `${module.completionRate}%` }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="hidden sm:flex gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => router.push(`/dashboard/simulations/${module.id}`)}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleEditModule(module.id)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleDeleteModule(module.id)}
-                        className="text-red-600 hover:bg-red-50"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
-        </TabsContent>
+        )}
 
-        {/* Students Tab */}
-        <TabsContent value="students" className="space-y-4">
-          <div className="grid gap-4">
-            {filteredStudents.map((student) => (
-              <Card key={student.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-4 sm:p-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
-                          {student.name.split(' ').map(n => n[0]).join('')}
-                        </div>
+        {activeTab === 'students' && (
+          <div className={design.spacing.section}>
+            {/* Student Engagement List */}
+            <div className="grid gap-4">
+              {students.map((student) => (
+                <Card key={student.id} className={cn(
+                  design.cardVariants.default,
+                  "hover:shadow-md transition-all"
+                )}>
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                      <div className="flex items-center space-x-4">
+                        <Avatar className="h-12 w-12">
+                          <AvatarImage src={student.avatar} />
+                          <AvatarFallback className={design.gradients.primary}>
+                            {student.name.split(' ').map(n => n[0]).join('')}
+                          </AvatarFallback>
+                        </Avatar>
                         <div>
-                          <h3 className="font-semibold">{student.name}</h3>
-                          <p className="text-sm text-gray-600">Last active: {student.lastActive}</p>
+                          <h4 className="font-semibold text-gray-900">{student.name}</h4>
+                          <p className="text-sm text-gray-600">
+                            Last active {getTimeAgo(student.lastActive)}
+                          </p>
                         </div>
                       </div>
                       
-                      <div className="flex flex-wrap items-center gap-4 mt-3">
-                        {getStatusBadge(student.status)}
-                        <span className="text-sm text-gray-600">
-                          <BookOpen className="inline h-3 w-3 mr-1" />
-                          {student.modulesCompleted}/{student.totalModules} modules
-                        </span>
-                        <span className="text-sm text-gray-600">
-                          <TrendingUp className="inline h-3 w-3 mr-1" />
-                          {student.averageScore}% avg score
-                        </span>
+                      <div className="flex flex-wrap items-center gap-4 text-sm">
+                        <div className="flex items-center space-x-2">
+                          <Award className="h-4 w-4 text-yellow-500" />
+                          <span className="font-medium">{student.averageScore}%</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Target className="h-4 w-4 text-blue-500" />
+                          <span>{student.modulesCompleted}/{student.totalModules} modules</span>
+                        </div>
+                        <Badge variant={
+                          student.status === 'active' ? 'default' :
+                          student.status === 'struggling' ? 'destructive' : 'secondary'
+                        }>
+                          {student.status}
+                        </Badge>
                       </div>
-                      
-                      {student.recentActivity && (
-                        <p className="text-sm text-gray-500 mt-2">
-                          <Sparkles className="inline h-3 w-3 mr-1" />
-                          {student.recentActivity}
-                        </p>
-                      )}
                     </div>
                     
-                    <div className="flex gap-2">
+                    {student.recentActivity && (
+                      <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                        <p className="text-sm text-gray-600">
+                          <span className="font-medium">Recent:</span> {student.recentActivity}
+                        </p>
+                      </div>
+                    )}
+                    
+                    <div className="mt-4 flex flex-col sm:flex-row gap-2">
                       <Button 
                         variant="outline" 
                         size="sm"
-                        onClick={() => handleViewStudent(student.id)}
+                        onClick={() => router.push(`/dashboard/students/${student.id}`)}
                       >
+                        <Eye className="h-4 w-4 mr-2" />
                         View Profile
                       </Button>
                       <Button 
                         variant="outline" 
                         size="sm"
                       >
-                        <MessageSquare className="h-4 w-4" />
+                        <MessageSquare className="h-4 w-4 mr-2" />
+                        Send Message
                       </Button>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
-        </TabsContent>
+        )}
 
-        {/* Activity Tab */}
-        <TabsContent value="activity" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>Latest updates from your students</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {activities.map((activity) => (
-                  <div key={activity.id} className="flex items-start gap-3 pb-4 border-b last:border-0 last:pb-0">
-                    <div className="mt-1">
-                      {getActivityIcon(activity.type)}
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm">
-                        <span className="font-medium">{activity.studentName}</span>
-                        {' '}{activity.action}{' '}
-                        <span className="font-medium">{activity.module}</span>
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        <Clock className="inline h-3 w-3 mr-1" />
-                        {activity.timestamp}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+        {activeTab === 'activity' && (
+          <div className={design.spacing.section}>
+            <Card className={design.cardVariants.default}>
+              <CardHeader>
+                <CardTitle>Activity Timeline</CardTitle>
+                <CardDescription>Real-time updates from your classroom</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {activities.map((activity, index) => {
+                    const ActivityIcon = getActivityIcon(activity.type);
+                    return (
+                      <div key={activity.id} className="flex gap-4">
+                        <div className="relative">
+                          <div className={cn(
+                            "p-2 rounded-full",
+                            activity.type === 'completed' ? 'bg-green-100' :
+                            activity.type === 'started' ? 'bg-blue-100' :
+                            activity.type === 'submitted' ? 'bg-purple-100' :
+                            'bg-gray-100'
+                          )}>
+                            <ActivityIcon className={cn(
+                              "h-4 w-4",
+                              activity.type === 'completed' ? 'text-green-600' :
+                              activity.type === 'started' ? 'text-blue-600' :
+                              activity.type === 'submitted' ? 'text-purple-600' :
+                              'text-gray-600'
+                            )} />
+                          </div>
+                          {index < activities.length - 1 && (
+                            <div className="absolute top-10 left-1/2 transform -translate-x-1/2 w-0.5 h-16 bg-gray-200" />
+                          )}
+                        </div>
+                        <div className="flex-1 pb-8">
+                          <p className="text-sm font-medium text-gray-900">
+                            <span className="font-semibold">{activity.studentName}</span>
+                            {' '}{activity.action}{' '}
+                            <span className="text-blue-600 hover:underline cursor-pointer">
+                              {activity.module}
+                            </span>
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {getTimeAgo(activity.timestamp)}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

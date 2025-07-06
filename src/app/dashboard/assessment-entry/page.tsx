@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -12,7 +13,12 @@ import { Textarea } from '../../../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
 import { Badge } from '../../../components/ui/badge';
 import { toast } from 'sonner';
-import { FileText, Save, Users } from 'lucide-react';
+import ModernSidebar from '../../../components/dashboard/ModernSidebar';
+import { LoadingSpinner } from '../../../components/ui/loading-spinner';
+import { FileText, Save, Users, Bell, Menu, Calendar, Award, BookOpen, UserCheck, PenTool, ClipboardList, Sparkles, Trophy, Star } from 'lucide-react';
+import { PageHeader } from '../../../components/dashboard/ui-components';
+import * as design from '../../../components/dashboard/design-system';
+import { cn } from '../../../lib/utils';
 
 const assessmentSchema = z.object({
   studentId: z.string().min(1, 'Please select a student'),
@@ -31,18 +37,33 @@ interface Student {
   chiClass: number;
 }
 
-interface Session {
-  userId: number;
-  teacherId: number;
-  schoolAccess: { schoolId: number; accessType: string; subject?: string }[];
-  subject: string;
+interface User {
+  id: string;
+  username: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  roles: string[];
+  permissions: string[];
+  schoolAccess: Array<{
+    schoolId: number;
+    accessType: string;
+    subject: string;
+  }>;
+  teacherId?: number;
+  userId?: number;
+  subject?: string;
 }
 
 export default function AssessmentEntryPage() {
+  const [user, setUser] = useState<User | null>(null);
   const [students, setStudents] = useState<Student[]>([]);
-  const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [sessionLoading, setSessionLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const router = useRouter();
 
   const {
     register,
@@ -60,7 +81,7 @@ export default function AssessmentEntryPage() {
 
   const selectedStudentId = watch('studentId');
   const selectedCycle = watch('cycle');
-  const selectedSubject = session?.subject;
+  const selectedSubject = user?.subject;
 
   // Assessment levels based on subject
   const assessmentLevels = {
@@ -81,33 +102,46 @@ export default function AssessmentEntryPage() {
   };
 
   useEffect(() => {
+    const fetchSession = async () => {
+      try {
+        const response = await fetch('/api/auth/session');
+        if (response.ok) {
+          const data = await response.json();
+          const userData = data.user;
+          
+          // Check if user is a student and redirect to student portal
+          if (userData.roles?.includes('student') || userData.role === 'student') {
+            router.push('/student');
+            return;
+          }
+          
+          setUser(userData);
+        } else {
+          router.push('/auth/login');
+        }
+      } catch (error) {
+        console.error('Session fetch error:', error);
+        router.push('/auth/login');
+      } finally {
+        setSessionLoading(false);
+      }
+    };
+
     fetchSession();
-  }, []);
+  }, [router]);
 
   useEffect(() => {
-    if (session) {
+    if (user) {
       fetchStudents();
     }
-  }, [session]);
-
-  const fetchSession = async () => {
-    try {
-      const response = await fetch('/api/auth/session');
-      if (response.ok) {
-        const data = await response.json();
-        setSession(data.user);
-      }
-    } catch (error) {
-      console.error('Error fetching session:', error);
-    }
-  };
+  }, [user]);
 
   const fetchStudents = async () => {
-    if (!session?.schoolAccess?.length) return;
+    if (!user?.schoolAccess?.length) return;
 
     setIsLoading(true);
     try {
-      const firstSchoolId = session.schoolAccess[0]?.schoolId;
+      const firstSchoolId = user.schoolAccess[0]?.schoolId;
       if (!firstSchoolId) {
         toast.error('No school access found');
         return;
@@ -128,8 +162,17 @@ export default function AssessmentEntryPage() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      router.push('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
   const onSubmit = async (data: AssessmentFormData) => {
-    if (!session) return;
+    if (!user) return;
 
     setIsSubmitting(true);
     try {
@@ -140,9 +183,9 @@ export default function AssessmentEntryPage() {
         },
         body: JSON.stringify({
           studentId: parseInt(data.studentId),
-          teacherId: session.teacherId,
-          schoolId: session.schoolAccess[0]?.schoolId,
-          subject: session.subject,
+          teacherId: user.teacherId,
+          schoolId: user.schoolAccess[0]?.schoolId,
+          subject: user.subject,
           cycle: data.cycle,
           levelAchieved: data.levelAchieved,
           assessmentDate: data.assessmentDate,
@@ -170,182 +213,483 @@ export default function AssessmentEntryPage() {
   const selectedStudent = students.find(s => s.chiID.toString() === selectedStudentId);
   const currentLevels = selectedSubject ? assessmentLevels[selectedSubject as keyof typeof assessmentLevels] : [];
 
+  if (sessionLoading) {
+    return <LoadingSpinner />;
+  }
+
+  if (!user) {
+    return null;
+  }
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold text-gray-900">Assessment Entry</h1>
-        <p className="font-khmer text-xl text-gray-600">បញ្ចូលការវាយតម្លៃ</p>
-        <p className="text-gray-600">
-          Enter assessment results for {session?.subject} subject
-        </p>
-      </div>
+    <div className={cn("flex min-h-screen", design.gradients.sky)}>
+      {/* Sidebar - handles both desktop and mobile */}
+      <ModernSidebar 
+        user={user} 
+        onLogout={handleLogout} 
+        mobileOpen={mobileMenuOpen}
+        onMobileToggle={() => setMobileMenuOpen(!mobileMenuOpen)}
+        onCollapsedChange={setSidebarCollapsed}
+      />
 
-      {/* Assessment Form */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <FileText className="h-5 w-5" />
-            <span>New Assessment</span>
-          </CardTitle>
-          <CardDescription>
-            Fill in the assessment details for a student
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Student Selection */}
-              <div className="space-y-2">
-                <Label htmlFor="studentId">Student *</Label>
-                <Select
-                  value={selectedStudentId}
-                  onValueChange={(value) => setValue('studentId', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a student" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {isLoading ? (
-                      <SelectItem value="loading" disabled>Loading students...</SelectItem>
-                    ) : students.length === 0 ? (
-                      <SelectItem value="no-students" disabled>No students found</SelectItem>
-                    ) : (
-                      students.map((student) => (
-                        <SelectItem key={student.chiID} value={student.chiID.toString()}>
-                          {student.chiName} (Grade {student.chiClass}, {student.chiGender})
-                        </SelectItem>
-                      ))
-                    )}
-                  </SelectContent>
-                </Select>
-                {errors.studentId && (
-                  <p className="text-sm text-red-600">{errors.studentId.message}</p>
-                )}
-              </div>
-
-              {/* Cycle Selection */}
-              <div className="space-y-2">
-                <Label htmlFor="cycle">Assessment Cycle *</Label>
-                <Select
-                  value={selectedCycle}
-                  onValueChange={(value) => setValue('cycle', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select cycle" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Baseline">Baseline</SelectItem>
-                    <SelectItem value="Midline">Midline</SelectItem>
-                    <SelectItem value="Endline">Endline</SelectItem>
-                  </SelectContent>
-                </Select>
-                {errors.cycle && (
-                  <p className="text-sm text-red-600">{errors.cycle.message}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Subject and Level */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label>Subject</Label>
-                <div className="flex items-center space-x-2">
-                  <Badge variant="outline" className="text-base px-3 py-1">
-                    {session?.subject}
-                  </Badge>
-                  <span className="font-khmer text-gray-600">
-                    {session?.subject === 'Khmer' ? 'ភាសាខ្មែរ' : 'គណិតវិទ្យា'}
-                  </span>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="levelAchieved">Level Achieved *</Label>
-                <Select
-                  value={watch('levelAchieved')}
-                  onValueChange={(value) => setValue('levelAchieved', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select level achieved" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {currentLevels.map((level) => {
-                      const levelLabel = levelLabels[level] || { en: level, kh: level };
-                      return (
-                        <SelectItem key={level} value={level}>
-                          <div className="flex items-center space-x-2">
-                            <span>{levelLabel.en}</span>
-                            <span className="font-khmer text-sm text-gray-500">
-                              {levelLabel.kh}
-                            </span>
-                          </div>
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-                {errors.levelAchieved && (
-                  <p className="text-sm text-red-600">{errors.levelAchieved.message}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Assessment Date */}
-            <div className="space-y-2">
-              <Label htmlFor="assessmentDate">Assessment Date *</Label>
-              <Input
-                id="assessmentDate"
-                type="date"
-                {...register('assessmentDate')}
-              />
-              {errors.assessmentDate && (
-                <p className="text-sm text-red-600">{errors.assessmentDate.message}</p>
-              )}
-            </div>
-
-            {/* Notes */}
-            <div className="space-y-2">
-              <Label htmlFor="notes">Notes (Optional)</Label>
-              <Textarea
-                id="notes"
-                placeholder="Additional notes about the assessment..."
-                className="min-h-[100px]"
-                {...register('notes')}
-              />
-            </div>
-
-            {/* Selected Student Info */}
-            {selectedStudent && (
-              <Card className="bg-blue-50 border-blue-200">
-                <CardContent className="pt-6">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <Users className="h-4 w-4 text-blue-600" />
-                    <span className="font-medium text-blue-900">Selected Student</span>
-                  </div>
-                  <div className="text-sm space-y-1">
-                    <p><strong>Name:</strong> {selectedStudent.chiName}</p>
-                    <p><strong>Grade:</strong> {selectedStudent.chiClass}</p>
-                    <p><strong>Gender:</strong> {selectedStudent.chiGender}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Submit Button */}
-            <div className="flex justify-end">
+      {/* Main Content */}
+      <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${sidebarCollapsed ? 'md:ml-20' : 'md:ml-80'}`}>
+        {/* Top Header */}
+        <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 px-4 md:px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              {/* Mobile menu button */}
               <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="flex items-center space-x-2"
+                variant="ghost"
+                size="icon"
+                className="md:hidden"
+                onClick={() => setMobileMenuOpen(true)}
               >
-                <Save className="h-4 w-4" />
-                <span>{isSubmitting ? 'Saving...' : 'Save Assessment'}</span>
+                <Menu className="h-6 w-6" />
               </Button>
             </div>
-          </form>
-        </CardContent>
-      </Card>
+            <div className="flex items-center space-x-4">
+              <Button variant="outline" size="icon" className="relative group hover:scale-105 transition-transform">
+                <Bell className="h-5 w-5" />
+                <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full animate-pulse"></span>
+              </Button>
+            </div>
+          </div>
+        </header>
+
+        {/* Main Dashboard Content */}
+        <main className={cn("flex-1 overflow-y-auto", design.spacing.page)}>
+          <div className={design.spacing.section}>
+            {/* Page Header with animations */}
+            <PageHeader
+              title="Assessment Entry"
+              titleKm="បញ្ចូលការវាយតម្លៃ"
+              description={`Enter assessment results for ${user?.subject} subject`}
+              actions={
+                <div className="flex items-center gap-2">
+                  <Badge className={cn(
+                    "px-4 py-2 text-sm font-medium",
+                    design.animations.fadeIn,
+                    user?.subject === 'Khmer' ? design.gradients.primary : design.gradients.success
+                  )}>
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    {user?.subject}
+                  </Badge>
+                </div>
+              }
+            />
+
+            {/* Assessment Form with animations */}
+            <Card className={cn(
+              design.cardVariants.colorful,
+              design.animations.slideIn,
+              "overflow-hidden"
+            )}>
+              <div className={cn(
+                "h-2",
+                design.gradients.rainbow
+              )} />
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-3 text-2xl">
+                  <div className={cn(
+                    "p-3 rounded-xl shadow-lg",
+                    design.gradients.primary
+                  )}>
+                    <ClipboardList className="h-6 w-6 text-white" />
+                  </div>
+                  <span>New Assessment</span>
+                  <Sparkles className="h-5 w-5 text-yellow-500 animate-pulse" />
+                </CardTitle>
+                <CardDescription className="text-base mt-2">
+                  Let's record amazing progress! Fill in the assessment details below.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+                  {/* Student and Cycle Selection Row */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Student Selection Card */}
+                    <Card className={cn(
+                      "border-2 border-blue-100 hover:border-blue-300 transition-all duration-300",
+                      "hover:shadow-lg hover:scale-[1.02]",
+                      design.animations.fadeIn
+                    )}>
+                      <CardContent className="pt-6">
+                        <div className="flex items-center space-x-2 mb-4">
+                          <div className="p-2 rounded-lg bg-blue-100">
+                            <UserCheck className="h-5 w-5 text-blue-600" />
+                          </div>
+                          <Label htmlFor="studentId" className="text-lg font-semibold">
+                            Select Student
+                          </Label>
+                          <Badge variant="destructive" className="ml-auto">Required</Badge>
+                        </div>
+                        <Select
+                          value={selectedStudentId}
+                          onValueChange={(value) => setValue('studentId', value)}
+                        >
+                          <SelectTrigger className="h-12 text-base hover:border-blue-400 transition-colors">
+                            <SelectValue placeholder="Choose a student..." />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-[300px]">
+                            {isLoading ? (
+                              <div className="flex items-center justify-center p-4">
+                                <LoadingSpinner />
+                              </div>
+                            ) : students.length === 0 ? (
+                              <div className="p-4 text-center text-gray-500">
+                                <Users className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                                <p>No students found</p>
+                              </div>
+                            ) : (
+                              students.map((student) => (
+                                <SelectItem 
+                                  key={student.chiID} 
+                                  value={student.chiID.toString()}
+                                  className="py-3 hover:bg-blue-50"
+                                >
+                                  <div className="flex items-center space-x-3">
+                                    <div className={cn(
+                                      "w-8 h-8 rounded-full flex items-center justify-center text-white font-semibold",
+                                      student.chiGender === 'M' ? 'bg-blue-500' : 'bg-pink-500'
+                                    )}>
+                                      {student.chiName.charAt(0)}
+                                    </div>
+                                    <div>
+                                      <p className="font-medium">{student.chiName}</p>
+                                      <p className="text-sm text-gray-500">
+                                        Grade {student.chiClass} • {student.chiGender === 'M' ? 'Male' : 'Female'}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </SelectItem>
+                              ))
+                            )}
+                          </SelectContent>
+                        </Select>
+                        {errors.studentId && (
+                          <p className="text-sm text-red-600 mt-2 flex items-center">
+                            <span className="inline-block w-1 h-1 bg-red-600 rounded-full mr-2"></span>
+                            {errors.studentId.message}
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    {/* Cycle Selection Card */}
+                    <Card className={cn(
+                      "border-2 border-purple-100 hover:border-purple-300 transition-all duration-300",
+                      "hover:shadow-lg hover:scale-[1.02]",
+                      design.animations.fadeIn
+                    )}>
+                      <CardContent className="pt-6">
+                        <div className="flex items-center space-x-2 mb-4">
+                          <div className="p-2 rounded-lg bg-purple-100">
+                            <Calendar className="h-5 w-5 text-purple-600" />
+                          </div>
+                          <Label htmlFor="cycle" className="text-lg font-semibold">
+                            Assessment Cycle
+                          </Label>
+                          <Badge variant="destructive" className="ml-auto">Required</Badge>
+                        </div>
+                        <Select
+                          value={selectedCycle}
+                          onValueChange={(value) => setValue('cycle', value)}
+                        >
+                          <SelectTrigger className="h-12 text-base hover:border-purple-400 transition-colors">
+                            <SelectValue placeholder="Choose assessment cycle..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Baseline" className="py-3 hover:bg-purple-50">
+                              <div className="flex items-center space-x-3">
+                                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                                <div>
+                                  <p className="font-medium">Baseline</p>
+                                  <p className="text-sm text-gray-500">Initial assessment</p>
+                                </div>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="Midline" className="py-3 hover:bg-purple-50">
+                              <div className="flex items-center space-x-3">
+                                <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                                <div>
+                                  <p className="font-medium">Midline</p>
+                                  <p className="text-sm text-gray-500">Mid-term progress</p>
+                                </div>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="Endline" className="py-3 hover:bg-purple-50">
+                              <div className="flex items-center space-x-3">
+                                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                                <div>
+                                  <p className="font-medium">Endline</p>
+                                  <p className="text-sm text-gray-500">Final assessment</p>
+                                </div>
+                              </div>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {errors.cycle && (
+                          <p className="text-sm text-red-600 mt-2 flex items-center">
+                            <span className="inline-block w-1 h-1 bg-red-600 rounded-full mr-2"></span>
+                            {errors.cycle.message}
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Subject and Level Selection */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Subject Display Card */}
+                    <Card className={cn(
+                      "border-2 border-green-100",
+                      design.animations.fadeIn
+                    )}>
+                      <CardContent className="pt-6">
+                        <div className="flex items-center space-x-2 mb-4">
+                          <div className="p-2 rounded-lg bg-green-100">
+                            <BookOpen className="h-5 w-5 text-green-600" />
+                          </div>
+                          <Label className="text-lg font-semibold">Subject</Label>
+                        </div>
+                        <div className={cn(
+                          "p-4 rounded-xl text-center",
+                          user?.subject === 'Khmer' ? design.gradients.primary : design.gradients.success,
+                          "text-white"
+                        )}>
+                          <p className="text-2xl font-bold mb-1">{user?.subject}</p>
+                          <p className="font-khmer text-lg opacity-90">
+                            {user?.subject === 'Khmer' ? 'ភាសាខ្មែរ' : 'គណិតវិទ្យា'}
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Level Achievement Card */}
+                    <Card className={cn(
+                      "border-2 border-orange-100 hover:border-orange-300 transition-all duration-300",
+                      "hover:shadow-lg hover:scale-[1.02]",
+                      design.animations.fadeIn
+                    )}>
+                      <CardContent className="pt-6">
+                        <div className="flex items-center space-x-2 mb-4">
+                          <div className="p-2 rounded-lg bg-orange-100">
+                            <Trophy className="h-5 w-5 text-orange-600" />
+                          </div>
+                          <Label htmlFor="levelAchieved" className="text-lg font-semibold">
+                            Level Achieved
+                          </Label>
+                          <Badge variant="destructive" className="ml-auto">Required</Badge>
+                        </div>
+                        <Select
+                          value={watch('levelAchieved')}
+                          onValueChange={(value) => setValue('levelAchieved', value)}
+                        >
+                          <SelectTrigger className="h-12 text-base hover:border-orange-400 transition-colors">
+                            <SelectValue placeholder="Select achievement level..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {currentLevels.map((level, index) => {
+                              const levelLabel = levelLabels[level] || { en: level, kh: level };
+                              const levelColors = [
+                                'bg-gray-100 text-gray-700',
+                                'bg-blue-100 text-blue-700',
+                                'bg-purple-100 text-purple-700',
+                                'bg-green-100 text-green-700',
+                                'bg-orange-100 text-orange-700'
+                              ];
+                              const levelIcons = [
+                                '🌱', '📝', '📖', '📚', '🏆'
+                              ];
+                              
+                              return (
+                                <SelectItem key={level} value={level} className="py-3 hover:bg-orange-50">
+                                  <div className="flex items-center space-x-3">
+                                    <div className={cn(
+                                      "w-10 h-10 rounded-lg flex items-center justify-center text-lg",
+                                      levelColors[index]
+                                    )}>
+                                      {levelIcons[index]}
+                                    </div>
+                                    <div className="flex-1">
+                                      <p className="font-medium">{levelLabel.en}</p>
+                                      <p className="font-khmer text-sm text-gray-500">
+                                        {levelLabel.kh}
+                                      </p>
+                                    </div>
+                                    <div className="flex space-x-1">
+                                      {[...Array(index + 1)].map((_, i) => (
+                                        <Star key={i} className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                                      ))}
+                                    </div>
+                                  </div>
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
+                        {errors.levelAchieved && (
+                          <p className="text-sm text-red-600 mt-2 flex items-center">
+                            <span className="inline-block w-1 h-1 bg-red-600 rounded-full mr-2"></span>
+                            {errors.levelAchieved.message}
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Assessment Date and Notes Row */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Assessment Date Card */}
+                    <Card className={cn(
+                      "border-2 border-teal-100 hover:border-teal-300 transition-all duration-300",
+                      "hover:shadow-lg hover:scale-[1.02]",
+                      design.animations.fadeIn
+                    )}>
+                      <CardContent className="pt-6">
+                        <div className="flex items-center space-x-2 mb-4">
+                          <div className="p-2 rounded-lg bg-teal-100">
+                            <Calendar className="h-5 w-5 text-teal-600" />
+                          </div>
+                          <Label htmlFor="assessmentDate" className="text-lg font-semibold">
+                            Assessment Date
+                          </Label>
+                          <Badge variant="destructive" className="ml-auto">Required</Badge>
+                        </div>
+                        <Input
+                          id="assessmentDate"
+                          type="date"
+                          className="h-12 text-base hover:border-teal-400 transition-colors"
+                          {...register('assessmentDate')}
+                        />
+                        {errors.assessmentDate && (
+                          <p className="text-sm text-red-600 mt-2 flex items-center">
+                            <span className="inline-block w-1 h-1 bg-red-600 rounded-full mr-2"></span>
+                            {errors.assessmentDate.message}
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    {/* Notes Card */}
+                    <Card className={cn(
+                      "border-2 border-pink-100 hover:border-pink-300 transition-all duration-300",
+                      "hover:shadow-lg",
+                      design.animations.fadeIn
+                    )}>
+                      <CardContent className="pt-6">
+                        <div className="flex items-center space-x-2 mb-4">
+                          <div className="p-2 rounded-lg bg-pink-100">
+                            <PenTool className="h-5 w-5 text-pink-600" />
+                          </div>
+                          <Label htmlFor="notes" className="text-lg font-semibold">
+                            Additional Notes
+                          </Label>
+                          <Badge variant="secondary" className="ml-auto">Optional</Badge>
+                        </div>
+                        <Textarea
+                          id="notes"
+                          placeholder="Share any observations or special notes about this assessment..."
+                          className="min-h-[100px] text-base hover:border-pink-400 transition-colors resize-none"
+                          {...register('notes')}
+                        />
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Selected Student Info - Enhanced */}
+                  {selectedStudent && (
+                    <Card className={cn(
+                      "border-2 border-transparent",
+                      design.gradients.primary,
+                      design.animations.slideInRight,
+                      "transform hover:scale-[1.01] transition-all duration-300"
+                    )}>
+                      <CardContent className="pt-6">
+                        <div className="bg-white/90 backdrop-blur-sm rounded-lg p-6">
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center space-x-3">
+                              <div className={cn(
+                                "p-3 rounded-full shadow-lg",
+                                selectedStudent.chiGender === 'M' ? 'bg-blue-500' : 'bg-pink-500'
+                              )}>
+                                <UserCheck className="h-6 w-6 text-white" />
+                              </div>
+                              <div>
+                                <h3 className="text-xl font-bold text-gray-900">Selected Student</h3>
+                                <p className="text-sm text-gray-600">Ready for assessment</p>
+                              </div>
+                            </div>
+                            <div className="flex space-x-1">
+                              {[...Array(3)].map((_, i) => (
+                                <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400 animate-pulse" style={{ animationDelay: `${i * 0.1}s` }} />
+                              ))}
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div className="bg-gray-50 rounded-lg p-3 text-center">
+                              <p className="text-sm text-gray-600 mb-1">Name</p>
+                              <p className="font-semibold text-gray-900">{selectedStudent.chiName}</p>
+                            </div>
+                            <div className="bg-gray-50 rounded-lg p-3 text-center">
+                              <p className="text-sm text-gray-600 mb-1">Grade</p>
+                              <p className="font-semibold text-gray-900">Grade {selectedStudent.chiClass}</p>
+                            </div>
+                            <div className="bg-gray-50 rounded-lg p-3 text-center">
+                              <p className="text-sm text-gray-600 mb-1">Gender</p>
+                              <p className="font-semibold text-gray-900">
+                                {selectedStudent.chiGender === 'M' ? 'Male' : 'Female'}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Submit Button - Enhanced */}
+                  <div className="flex flex-col sm:flex-row justify-end gap-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => reset({
+                        assessmentDate: new Date().toISOString().split('T')[0],
+                      })}
+                      className="hover:bg-gray-100 transition-colors"
+                    >
+                      Clear Form
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className={cn(
+                        "min-w-[200px]",
+                        design.buttonVariants.success,
+                        "flex items-center justify-center space-x-2"
+                      )}
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                          <span>Saving Assessment...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Save className="h-5 w-5" />
+                          <span>Save Assessment</span>
+                          <Sparkles className="h-4 w-4" />
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

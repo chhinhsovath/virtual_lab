@@ -9,6 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import ModernSidebar from '@/components/dashboard/ModernSidebar';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { 
   Plus, 
   Search, 
@@ -34,7 +36,20 @@ import {
   Archive,
   Star,
   StarOff,
-  ArrowLeft
+  ArrowLeft,
+  Bell,
+  Menu,
+  Sparkles,
+  Rocket,
+  Microscope,
+  GraduationCap,
+  Activity,
+  Zap,
+  Heart,
+  Play,
+  BookOpen,
+  Clock,
+  Users
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -42,6 +57,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
 import {
   AlertDialog,
@@ -53,6 +69,25 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { PageHeader, StatCard, EmptyState, TabNav } from '@/components/dashboard/ui-components';
+import * as design from '@/components/dashboard/design-system';
+import { cn } from '@/lib/utils';
+
+interface User {
+  id: string;
+  username: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  roles: string[];
+  permissions: string[];
+  schoolAccess: Array<{
+    schoolId: number;
+    accessType: string;
+    subject: string;
+  }>;
+  teacherId?: number;
+}
 
 interface Simulation {
   id: string;
@@ -84,16 +119,37 @@ const subjectIcons: Record<string, any> = {
   'Mathematics': BarChart3
 };
 
-const difficultyColors: Record<string, string> = {
-  'Beginner': 'bg-green-100 text-green-800',
-  'Intermediate': 'bg-yellow-100 text-yellow-800',
-  'Advanced': 'bg-red-100 text-red-800'
+const subjectGradients: Record<string, string> = {
+  'Physics': design.gradients.primary,
+  'Chemistry': design.gradients.secondary,
+  'Biology': design.gradients.success,
+  'Mathematics': design.gradients.warning
+};
+
+const difficultyConfig: Record<string, { color: string; emoji: string; gradient: string }> = {
+  'Beginner': { 
+    color: 'bg-green-100 text-green-700 border-green-200',
+    emoji: '🌱',
+    gradient: design.gradients.success
+  },
+  'Intermediate': { 
+    color: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+    emoji: '🔥',
+    gradient: design.gradients.warning
+  },
+  'Advanced': { 
+    color: 'bg-red-100 text-red-700 border-red-200',
+    emoji: '🚀',
+    gradient: design.gradients.danger
+  }
 };
 
 export default function SimulationsManagementPage() {
   const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
   const [simulations, setSimulations] = useState<Simulation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sessionLoading, setSessionLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [subjectFilter, setSubjectFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -101,10 +157,43 @@ export default function SimulationsManagementPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedSimulation, setSelectedSimulation] = useState<Simulation | null>(null);
   const [activeTab, setActiveTab] = useState('active');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
-    fetchSimulations();
-  }, []);
+    const fetchSession = async () => {
+      try {
+        const response = await fetch('/api/auth/session');
+        if (response.ok) {
+          const data = await response.json();
+          const userData = data.user;
+          
+          // Check if user is a student and redirect to student portal
+          if (userData.roles?.includes('student') || userData.role === 'student') {
+            router.push('/student');
+            return;
+          }
+          
+          setUser(userData);
+        } else {
+          router.push('/auth/login');
+        }
+      } catch (error) {
+        console.error('Session fetch error:', error);
+        router.push('/auth/login');
+      } finally {
+        setSessionLoading(false);
+      }
+    };
+
+    fetchSession();
+  }, [router]);
+
+  useEffect(() => {
+    if (user) {
+      fetchSimulations();
+    }
+  }, [user]);
 
   const fetchSimulations = async () => {
     setLoading(true);
@@ -201,6 +290,15 @@ export default function SimulationsManagementPage() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      router.push('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
   const handleToggleFeatured = async (simulation: Simulation) => {
     try {
       const response = await fetch(`/api/simulations/${simulation.id}`, {
@@ -276,364 +374,643 @@ export default function SimulationsManagementPage() {
     return <Icon className="h-4 w-4" />;
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-center h-64">
-            <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
-          </div>
-        </div>
-      </div>
-    );
+  if (sessionLoading || loading) {
+    return <LoadingSpinner />;
+  }
+
+  if (!user) {
+    return null;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-6 md:mb-8">
-          <div className="flex flex-col gap-4">
-            <div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                STEM Simulations
-              </h1>
-              <p className="text-gray-600 mt-2">Manage your virtual lab simulations</p>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className={cn("flex min-h-screen", design.gradients.ocean)}>
+      {/* Sidebar - handles both desktop and mobile */}
+      <ModernSidebar 
+        user={user} 
+        onLogout={handleLogout} 
+        mobileOpen={mobileMenuOpen}
+        onMobileToggle={() => setMobileMenuOpen(!mobileMenuOpen)}
+        onCollapsedChange={setSidebarCollapsed}
+      />
+
+      {/* Main Content */}
+      <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${sidebarCollapsed ? 'md:ml-20' : 'md:ml-80'}`}>
+        {/* Top Header */}
+        <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 px-4 md:px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              {/* Mobile menu button */}
               <Button
                 variant="ghost"
-                onClick={() => router.push('/dashboard')}
+                size="icon"
+                className="md:hidden"
+                onClick={() => setMobileMenuOpen(true)}
               >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Dashboard
+                <Menu className="h-6 w-6" />
               </Button>
-              
+            </div>
+            <div className="flex items-center space-x-4">
               <div className="flex flex-wrap gap-2">
                 <Button
                   variant="outline"
                   onClick={() => router.push('/dashboard/simulations/import')}
+                  className="hover:bg-purple-50 hover:border-purple-300 transition-colors"
                 >
                   <Upload className="h-4 w-4 mr-2" />
                   Import
                 </Button>
                 <Button
                   onClick={() => router.push('/dashboard/simulations/new')}
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                  className={cn(design.buttonVariants.primary, "shadow-lg")}
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   New Simulation
+                  <Sparkles className="h-4 w-4 ml-1" />
                 </Button>
               </div>
+              <Button variant="outline" size="icon" className={cn("relative", design.cardVariants.glass)}>
+                <Bell className="h-5 w-5" />
+                <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full animate-pulse"></span>
+              </Button>
             </div>
           </div>
-        </div>
+        </header>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Total Simulations</p>
-                  <p className="text-2xl font-bold">{simulations.length}</p>
-                </div>
-                <FlaskConical className="h-8 w-8 text-purple-500" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Active</p>
-                  <p className="text-2xl font-bold">{simulations.filter(s => s.is_active).length}</p>
-                </div>
-                <CheckCircle className="h-8 w-8 text-green-500" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Featured</p>
-                  <p className="text-2xl font-bold">{simulations.filter(s => s.is_featured).length}</p>
-                </div>
-                <Star className="h-8 w-8 text-yellow-500" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Total Attempts</p>
-                  <p className="text-2xl font-bold">
-                    {simulations.reduce((sum, s) => sum + (s.total_attempts || 0), 0)}
-                  </p>
-                </div>
-                <BarChart3 className="h-8 w-8 text-blue-500" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Main Dashboard Content */}
+        <main className={cn("flex-1 overflow-y-auto", design.spacing.page)}>
+          <div className={design.spacing.section}>
+            {/* Page Header */}
+            <PageHeader
+              title="STEM Simulations Lab"
+              titleKm="មន្ទីរពិសោធន៍វិទ្យាសាស្ត្រ STEM"
+              description="Create amazing virtual experiments for your students! 🔬✨"
+              actions={
+                <Badge className={cn(
+                  "px-4 py-2 text-sm font-medium",
+                  design.animations.pulse,
+                  design.gradients.secondary
+                )}>
+                  <Microscope className="h-4 w-4 mr-2" />
+                  {simulations.length} Experiments
+                </Badge>
+              }
+            />
 
-        {/* Filters */}
-        <Card className="mb-6">
-          <CardContent className="p-4">
-            <div className="flex flex-col lg:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder="Search simulations..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
+            {/* Stats Cards with colorful design */}
+            <div className={design.grids.stats}>
+              <StatCard
+                title="Total Simulations"
+                value={simulations.length}
+                description="Virtual experiments"
+                icon={FlaskConical}
+                color="primary"
+                gradient={true}
+                trend="up"
+                trendValue="New!"
+              />
+              
+              <StatCard
+                title="Active Labs"
+                value={simulations.filter(s => s.is_active).length}
+                description="Ready to launch"
+                icon={Rocket}
+                color="success"
+                gradient={true}
+              />
+              
+              <StatCard
+                title="Featured"
+                value={simulations.filter(s => s.is_featured).length}
+                description="Star experiments"
+                icon={Star}
+                color="warning"
+                gradient={true}
+              />
+              
+              <StatCard
+                title="Total Attempts"
+                value={simulations.reduce((sum, s) => sum + (s.total_attempts || 0), 0)}
+                description="Student engagements"
+                icon={Activity}
+                color="secondary"
+                gradient={true}
+                trend="up"
+                trendValue="15%"
+              />
+            </div>
+
+            {/* Filters with colorful design */}
+            <Card className={cn(design.cardVariants.colorful, "overflow-hidden")}>
+              <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 pb-6">
+                <CardTitle className="flex items-center space-x-3">
+                  <div className={cn("p-2 rounded-xl", design.gradients.primary)}>
+                    <Filter className="h-5 w-5 text-white" />
+                  </div>
+                  <span className="text-xl">Smart Filters</span>
+                  <Sparkles className="h-5 w-5 text-yellow-500 animate-pulse" />
+                </CardTitle>
+                <CardDescription>
+                  Find the perfect simulation for your lesson
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div className="flex flex-col lg:flex-row gap-4">
+                  <div className="flex-1">
+                    <label className="flex items-center space-x-2 text-sm font-medium mb-2">
+                      <Search className="h-4 w-4 text-purple-500" />
+                      <span>Search</span>
+                    </label>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        placeholder="Find simulations by name..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-10 h-12 border-2 hover:border-purple-300 focus:border-purple-400 transition-colors"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-3">
+                    <div className="space-y-2">
+                      <label className="flex items-center space-x-2 text-sm font-medium">
+                        <BookOpen className="h-4 w-4 text-blue-500" />
+                        <span>Subject</span>
+                      </label>
+                      <Select value={subjectFilter} onValueChange={setSubjectFilter}>
+                        <SelectTrigger className="w-full sm:w-[150px] h-12 border-2 hover:border-blue-300 transition-colors">
+                          <SelectValue placeholder="All Subjects" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">
+                            <div className="flex items-center space-x-2">
+                              <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                              <span>All Subjects</span>
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="Physics">
+                            <div className="flex items-center space-x-2">
+                              <Waves className="h-4 w-4 text-blue-500" />
+                              <span>Physics</span>
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="Chemistry">
+                            <div className="flex items-center space-x-2">
+                              <Atom className="h-4 w-4 text-purple-500" />
+                              <span>Chemistry</span>
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="Biology">
+                            <div className="flex items-center space-x-2">
+                              <Brain className="h-4 w-4 text-green-500" />
+                              <span>Biology</span>
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="Mathematics">
+                            <div className="flex items-center space-x-2">
+                              <BarChart3 className="h-4 w-4 text-orange-500" />
+                              <span>Mathematics</span>
+                            </div>
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="flex items-center space-x-2 text-sm font-medium">
+                        <GraduationCap className="h-4 w-4 text-green-500" />
+                        <span>Difficulty</span>
+                      </label>
+                      <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
+                        <SelectTrigger className="w-full sm:w-[150px] h-12 border-2 hover:border-green-300 transition-colors">
+                          <SelectValue placeholder="All Levels" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Levels</SelectItem>
+                          {Object.entries(difficultyConfig).map(([level, config]) => (
+                            <SelectItem key={level} value={level}>
+                              <div className="flex items-center space-x-2">
+                                <span className="text-lg">{config.emoji}</span>
+                                <span>{level}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="flex items-center space-x-2 text-sm font-medium">
+                        <Activity className="h-4 w-4 text-orange-500" />
+                        <span>Status</span>
+                      </label>
+                      <Select value={statusFilter} onValueChange={setStatusFilter}>
+                        <SelectTrigger className="w-full sm:w-[150px] h-12 border-2 hover:border-orange-300 transition-colors">
+                          <SelectValue placeholder="All Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Status</SelectItem>
+                          <SelectItem value="active">
+                            <div className="flex items-center space-x-2">
+                              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                              <span>Active</span>
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="inactive">
+                            <div className="flex items-center space-x-2">
+                              <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                              <span>Inactive</span>
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="featured">
+                            <div className="flex items-center space-x-2">
+                              <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                              <span>Featured</span>
+                            </div>
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Active Filters Display */}
+                {(searchQuery || subjectFilter !== 'all' || difficultyFilter !== 'all' || statusFilter !== 'all') && (
+                  <div className="mt-4 p-3 bg-purple-50 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Zap className="h-4 w-4 text-purple-500" />
+                        <span className="text-sm font-medium text-purple-700">Active Filters:</span>
+                        <div className="flex flex-wrap gap-2">
+                          {searchQuery && (
+                            <Badge variant="secondary" className="bg-purple-100 text-purple-700">
+                              Search: {searchQuery}
+                            </Badge>
+                          )}
+                          {subjectFilter !== 'all' && (
+                            <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                              {subjectFilter}
+                            </Badge>
+                          )}
+                          {difficultyFilter !== 'all' && (
+                            <Badge variant="secondary" className="bg-green-100 text-green-700">
+                              {difficultyFilter}
+                            </Badge>
+                          )}
+                          {statusFilter !== 'all' && (
+                            <Badge variant="secondary" className="bg-orange-100 text-orange-700">
+                              {statusFilter}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setSearchQuery('');
+                          setSubjectFilter('all');
+                          setDifficultyFilter('all');
+                          setStatusFilter('all');
+                        }}
+                        className="text-purple-600 hover:text-purple-700"
+                      >
+                        Clear all
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Simulations List with enhanced tabs */}
+            <Card className={cn(design.cardVariants.colorful, "overflow-hidden")}>
+              <CardHeader className="pb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="flex items-center space-x-3">
+                    <div className={cn("p-2 rounded-xl", design.gradients.secondary)}>
+                      <Microscope className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold">Simulation Library</h2>
+                      <p className="text-sm text-gray-600">Your collection of virtual experiments</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <TabNav
+                    tabs={[
+                      {
+                        id: 'active',
+                        label: 'Active',
+                        icon: Rocket,
+                        badge: simulations.filter(s => s.is_active).length
+                      },
+                      {
+                        id: 'inactive',
+                        label: 'Inactive',
+                        icon: Archive,
+                        badge: simulations.filter(s => !s.is_active).length
+                      },
+                      {
+                        id: 'featured',
+                        label: 'Featured',
+                        icon: Star,
+                        badge: simulations.filter(s => s.is_featured).length
+                      },
+                      {
+                        id: 'all',
+                        label: 'All',
+                        icon: FlaskConical,
+                        badge: simulations.length
+                      }
+                    ]}
+                    activeTab={activeTab}
+                    onTabChange={setActiveTab}
                   />
                 </div>
-              </div>
-              
-              <div className="flex flex-wrap gap-2">
-                <Select value={subjectFilter} onValueChange={setSubjectFilter}>
-                  <SelectTrigger className="w-full sm:w-[150px]">
-                    <SelectValue placeholder="All Subjects" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Subjects</SelectItem>
-                    <SelectItem value="Physics">Physics</SelectItem>
-                    <SelectItem value="Chemistry">Chemistry</SelectItem>
-                    <SelectItem value="Biology">Biology</SelectItem>
-                    <SelectItem value="Mathematics">Mathematics</SelectItem>
-                  </SelectContent>
-                </Select>
-                
-                <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
-                  <SelectTrigger className="w-full sm:w-[150px]">
-                    <SelectValue placeholder="All Levels" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Levels</SelectItem>
-                    <SelectItem value="Beginner">Beginner</SelectItem>
-                    <SelectItem value="Intermediate">Intermediate</SelectItem>
-                    <SelectItem value="Advanced">Advanced</SelectItem>
-                  </SelectContent>
-                </Select>
-                
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-full sm:w-[150px]">
-                    <SelectValue placeholder="All Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
-                    <SelectItem value="featured">Featured</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Simulations List */}
-        <Card className="overflow-visible">
-          <CardHeader>
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList>
-                <TabsTrigger value="active">
-                  Active ({simulations.filter(s => s.is_active).length})
-                </TabsTrigger>
-                <TabsTrigger value="inactive">
-                  Inactive ({simulations.filter(s => !s.is_active).length})
-                </TabsTrigger>
-                <TabsTrigger value="featured">
-                  Featured ({simulations.filter(s => s.is_featured).length})
-                </TabsTrigger>
-                <TabsTrigger value="all">All</TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </CardHeader>
+              </CardHeader>
           
-          <CardContent className="overflow-visible">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Simulation</TableHead>
-                    <TableHead>Subject</TableHead>
-                    <TableHead>Difficulty</TableHead>
-                    <TableHead className="text-center">Grades</TableHead>
-                    <TableHead className="text-center">Duration</TableHead>
-                    <TableHead className="text-center">Status</TableHead>
-                    <TableHead className="text-center">Stats</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredSimulations.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={8} className="text-center py-8 text-gray-500">
-                        No simulations found
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    filteredSimulations.map((simulation) => (
-                      <TableRow key={simulation.id}>
-                        <TableCell>
-                          <div className="flex items-start gap-3">
-                            <div className={`w-10 h-10 rounded-lg bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center`}>
-                              {getSubjectIcon(simulation.subject_area)}
+              <CardContent className="p-0">
+                {filteredSimulations.length === 0 ? (
+                  <div className="p-8">
+                    <EmptyState
+                      icon={FlaskConical}
+                      title="No simulations found"
+                      description="Try adjusting your filters or create a new simulation"
+                      action={{
+                        label: "Create Simulation",
+                        onClick: () => router.push('/dashboard/simulations/new')
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div className="divide-y divide-gray-100">
+                    {filteredSimulations.map((simulation, index) => (
+                      <div 
+                        key={simulation.id} 
+                        className={cn(
+                          "p-6 hover:bg-gradient-to-r hover:from-purple-50/50 hover:to-pink-50/50 transition-all duration-300",
+                          design.animations.fadeIn
+                        )}
+                        style={{ animationDelay: `${index * 50}ms` }}
+                      >
+                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                          <div className="flex-1">
+                            {/* Simulation Header */}
+                            <div className="flex items-start space-x-4">
+                              <div className={cn(
+                                "w-14 h-14 rounded-xl flex items-center justify-center shadow-lg text-white",
+                                subjectGradients[simulation.subject_area] || design.gradients.primary
+                              )}>
+                                {getSubjectIcon(simulation.subject_area)}
+                              </div>
+                              
+                              <div className="flex-1">
+                                <div className="flex flex-wrap items-center gap-3 mb-2">
+                                  <h3 className="text-xl font-bold text-gray-900">
+                                    {simulation.display_name_en}
+                                  </h3>
+                                  {simulation.is_featured && (
+                                    <div className="flex items-center space-x-1 text-yellow-500">
+                                      <Star className="h-5 w-5 fill-current" />
+                                      <span className="text-sm font-medium">Featured</span>
+                                    </div>
+                                  )}
+                                </div>
+                                
+                                <p className="text-gray-600 font-hanuman mb-1">
+                                  {simulation.display_name_km}
+                                </p>
+                                
+                                <div className="flex flex-wrap items-center gap-3 text-sm">
+                                  <Badge className={cn(
+                                    "px-3 py-1",
+                                    design.gradients.secondary,
+                                    "text-white border-0"
+                                  )}>
+                                    <BookOpen className="h-3 w-3 mr-1" />
+                                    {simulation.subject_area}
+                                  </Badge>
+                                  
+                                  <Badge className={cn(
+                                    "px-3 py-1 border font-medium",
+                                    difficultyConfig[simulation.difficulty_level]?.color
+                                  )}>
+                                    <span className="mr-1">
+                                      {difficultyConfig[simulation.difficulty_level]?.emoji}
+                                    </span>
+                                    {simulation.difficulty_level}
+                                  </Badge>
+                                  
+                                  {simulation.grade_levels.length > 0 && (
+                                    <div className="flex items-center space-x-1 text-gray-600">
+                                      <GraduationCap className="h-4 w-4" />
+                                      <span>
+                                        Grades {Math.min(...simulation.grade_levels)}-{Math.max(...simulation.grade_levels)}
+                                      </span>
+                                    </div>
+                                  )}
+                                  
+                                  <div className="flex items-center space-x-1 text-gray-600">
+                                    <Clock className="h-4 w-4" />
+                                    <span>{simulation.estimated_duration} min</span>
+                                  </div>
+                                  
+                                  {simulation.is_active ? (
+                                    <Badge className="bg-green-100 text-green-700 border-green-200">
+                                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-1"></div>
+                                      Active
+                                    </Badge>
+                                  ) : (
+                                    <Badge className="bg-gray-100 text-gray-700 border-gray-200">
+                                      <div className="w-2 h-2 bg-gray-400 rounded-full mr-1"></div>
+                                      Inactive
+                                    </Badge>
+                                  )}
+                                </div>
+                                
+                                {/* Stats */}
+                                <div className="flex flex-wrap gap-4 mt-3">
+                                  <div className="flex items-center space-x-2 text-sm">
+                                    <div className="p-1.5 rounded-lg bg-blue-100">
+                                      <Users className="h-3 w-3 text-blue-600" />
+                                    </div>
+                                    <span className="text-gray-600">
+                                      <span className="font-semibold text-gray-900">{simulation.active_assignments || 0}</span> students assigned
+                                    </span>
+                                  </div>
+                                  
+                                  <div className="flex items-center space-x-2 text-sm">
+                                    <div className="p-1.5 rounded-lg bg-purple-100">
+                                      <Activity className="h-3 w-3 text-purple-600" />
+                                    </div>
+                                    <span className="text-gray-600">
+                                      <span className="font-semibold text-gray-900">{simulation.total_attempts || 0}</span> attempts
+                                    </span>
+                                  </div>
+                                  
+                                  <div className="flex items-center space-x-2 text-sm">
+                                    <div className="p-1.5 rounded-lg bg-green-100">
+                                      <CheckCircle className="h-3 w-3 text-green-600" />
+                                    </div>
+                                    <span className="text-gray-600">
+                                      <span className="font-semibold text-gray-900">{simulation.total_completions || 0}</span> completed
+                                    </span>
+                                  </div>
+                                </div>
+                                
+                                {/* Tags */}
+                                {simulation.tags && simulation.tags.length > 0 && (
+                                  <div className="flex flex-wrap gap-2 mt-3">
+                                    {simulation.tags.map((tag, i) => (
+                                      <span key={i} className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
+                                        #{tag}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                            <div>
-                              <p className="font-medium">{simulation.display_name_en}</p>
-                              <p className="text-sm text-gray-600 font-hanuman">{simulation.display_name_km}</p>
-                              <p className="text-xs text-gray-400">{simulation.simulation_name}</p>
-                            </div>
                           </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="secondary">{simulation.subject_area}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={difficultyColors[simulation.difficulty_level]}>
-                            {simulation.difficulty_level}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          {simulation.grade_levels.length > 0 
-                            ? `${Math.min(...simulation.grade_levels)}-${Math.max(...simulation.grade_levels)}`
-                            : '-'
-                          }
-                        </TableCell>
-                        <TableCell className="text-center">{simulation.estimated_duration} min</TableCell>
-                        <TableCell className="text-center">
-                          <div className="flex justify-center gap-2">
-                            {simulation.is_active ? (
-                              <Badge className="bg-green-100 text-green-800">Active</Badge>
-                            ) : (
-                              <Badge className="bg-gray-100 text-gray-800">Inactive</Badge>
-                            )}
-                            {simulation.is_featured && (
-                              <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <div className="text-sm">
-                            <p>{simulation.active_assignments || 0} assigned</p>
-                            <p className="text-gray-500">{simulation.total_attempts || 0} attempts</p>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent 
-                              align="end" 
-                              className="w-48 bg-white" 
-                              sideOffset={5}
-                              style={{ zIndex: 9999 }}
+                          
+                          {/* Actions */}
+                          <div className="flex flex-row lg:flex-col gap-2">
+                            <Button
+                              onClick={() => window.open(simulation.simulation_url, '_blank')}
+                              className={cn(
+                                "flex-1 lg:flex-initial",
+                                design.buttonVariants.success
+                              )}
                             >
-                              <DropdownMenuItem onClick={() => router.push(`/dashboard/simulations/${simulation.id}`)}>
-                                <Eye className="mr-2 h-4 w-4" />
-                                View Details
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => router.push(`/dashboard/simulations/${simulation.id}/edit`)}>
-                                <Edit className="mr-2 h-4 w-4" />
-                                Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => window.open(simulation.simulation_url, '_blank')}>
-                                <ExternalLink className="mr-2 h-4 w-4" />
-                                Launch Simulation
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem onClick={() => handleDuplicate(simulation)}>
-                                <Copy className="mr-2 h-4 w-4" />
-                                Duplicate
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleToggleFeatured(simulation)}>
-                                {simulation.is_featured ? (
-                                  <>
-                                    <StarOff className="mr-2 h-4 w-4" />
-                                    Remove Featured
-                                  </>
-                                ) : (
-                                  <>
-                                    <Star className="mr-2 h-4 w-4" />
-                                    Make Featured
-                                  </>
-                                )}
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleToggleActive(simulation)}>
-                                {simulation.is_active ? (
-                                  <>
-                                    <Archive className="mr-2 h-4 w-4" />
-                                    Deactivate
-                                  </>
-                                ) : (
-                                  <>
-                                    <CheckCircle className="mr-2 h-4 w-4" />
-                                    Activate
-                                  </>
-                                )}
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem 
-                                className="text-red-600"
-                                onClick={() => {
-                                  setSelectedSimulation(simulation);
-                                  setDeleteDialogOpen(true);
-                                }}
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Delete Confirmation Dialog */}
-        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete Simulation</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to delete "{selectedSimulation?.display_name_en}"? 
-                {selectedSimulation?.active_assignments && selectedSimulation.active_assignments > 0 && (
-                  <span className="block mt-2 font-medium text-red-600">
-                    Warning: This simulation has {selectedSimulation.active_assignments} active assignments.
-                  </span>
+                              <Play className="h-4 w-4 mr-2" />
+                              Launch
+                            </Button>
+                            
+                            <Button
+                              variant="outline"
+                              onClick={() => router.push(`/dashboard/simulations/${simulation.id}`)}
+                              className="flex-1 lg:flex-initial hover:bg-purple-50 hover:border-purple-300"
+                            >
+                              <Eye className="h-4 w-4 mr-2" />
+                              Details
+                            </Button>
+                            
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="outline" size="icon">
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-48">
+                                <DropdownMenuLabel className="flex items-center space-x-2">
+                                  <Sparkles className="h-4 w-4 text-yellow-500" />
+                                  <span>Quick Actions</span>
+                                </DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={() => router.push(`/dashboard/simulations/${simulation.id}/edit`)}>
+                                  <Edit className="mr-2 h-4 w-4 text-blue-600" />
+                                  Edit Simulation
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleDuplicate(simulation)}>
+                                  <Copy className="mr-2 h-4 w-4 text-purple-600" />
+                                  Duplicate
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleToggleFeatured(simulation)}>
+                                  {simulation.is_featured ? (
+                                    <>
+                                      <StarOff className="mr-2 h-4 w-4 text-yellow-600" />
+                                      Remove Featured
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Star className="mr-2 h-4 w-4 text-yellow-600" />
+                                      Make Featured
+                                    </>
+                                  )}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleToggleActive(simulation)}>
+                                  {simulation.is_active ? (
+                                    <>
+                                      <Archive className="mr-2 h-4 w-4 text-gray-600" />
+                                      Deactivate
+                                    </>
+                                  ) : (
+                                    <>
+                                      <CheckCircle className="mr-2 h-4 w-4 text-green-600" />
+                                      Activate
+                                    </>
+                                  )}
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem 
+                                  className="text-red-600"
+                                  onClick={() => {
+                                    setSelectedSimulation(simulation);
+                                    setDeleteDialogOpen(true);
+                                  }}
+                                >
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Delete Simulation
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 )}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={() => selectedSimulation && handleDelete(selectedSimulation)}
-                className="bg-red-600 hover:bg-red-700"
-              >
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+              </CardContent>
+            </Card>
+
+            {/* Delete Confirmation Dialog with enhanced design */}
+            <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className="p-3 rounded-xl bg-red-100">
+                      <AlertCircle className="h-6 w-6 text-red-600" />
+                    </div>
+                    <AlertDialogTitle className="text-xl">Delete Simulation</AlertDialogTitle>
+                  </div>
+                  <AlertDialogDescription className="space-y-3">
+                    <p>
+                      Are you sure you want to delete <span className="font-semibold">"{selectedSimulation?.display_name_en}"</span>?
+                    </p>
+                    {selectedSimulation?.active_assignments && selectedSimulation.active_assignments > 0 && (
+                      <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <p className="font-medium text-red-800 flex items-center space-x-2">
+                          <AlertCircle className="h-4 w-4" />
+                          <span>Warning: Active Assignments</span>
+                        </p>
+                        <p className="text-sm text-red-700 mt-1">
+                          This simulation has {selectedSimulation.active_assignments} students currently assigned.
+                          Deleting it will remove their access.
+                        </p>
+                      </div>
+                    )}
+                    <p className="text-sm text-gray-600">
+                      This action cannot be undone.
+                    </p>
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel className="hover:bg-gray-100">
+                    Cancel
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => selectedSimulation && handleDelete(selectedSimulation)}
+                    className={cn(design.buttonVariants.primary, "bg-red-600 hover:bg-red-700")}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete Simulation
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        </main>
       </div>
     </div>
   );

@@ -301,10 +301,21 @@ const menuGroups: MenuGroup[] = [
 
 export default function ModernSidebar({ user, onLogout, mobileOpen, onMobileToggle, onCollapsedChange }: ModernSidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
-  const [expandedGroups, setExpandedGroups] = useState<string[]>(['overview', 'stem-simulations']);
+  const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
   const [isMobile, setIsMobile] = useState(false);
   const pathname = usePathname();
   const { t, getFontClass } = useLanguage();
+
+  // Find active group based on current pathname
+  const getActiveGroup = () => {
+    for (const group of menuGroups) {
+      const hasActiveItem = group.items.some(item => pathname === item.href);
+      if (hasActiveItem) {
+        return group.id;
+      }
+    }
+    return null;
+  };
 
   useEffect(() => {
     const checkMobile = () => {
@@ -314,6 +325,14 @@ export default function ModernSidebar({ user, onLogout, mobileOpen, onMobileTogg
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // Auto-expand the active group when pathname changes
+  useEffect(() => {
+    const activeGroup = getActiveGroup();
+    if (activeGroup) {
+      setExpandedGroups([activeGroup]);
+    }
+  }, [pathname]);
 
   useEffect(() => {
     if (onCollapsedChange) {
@@ -338,27 +357,33 @@ export default function ModernSidebar({ user, onLogout, mobileOpen, onMobileTogg
   const toggleGroup = (groupId: string) => {
     if (collapsed && !isMobile) return;
     
-    setExpandedGroups(prev => 
-      prev.includes(groupId) 
-        ? prev.filter(id => id !== groupId)
-        : [...prev, groupId]
-    );
+    setExpandedGroups(prev => {
+      // If clicking on already expanded group, collapse it
+      if (prev.includes(groupId)) {
+        return [];
+      }
+      // Otherwise, expand only this group (collapse others)
+      return [groupId];
+    });
   };
 
   const filteredGroups = menuGroups.filter(group => {
+    // Safety check for user object
+    if (!user) return false;
+    
     // Check role-based access
-    if (group.roles && !group.roles.some(role => user.roles.includes(role))) {
+    if (group.roles && !group.roles.some(role => user.roles?.includes(role))) {
       return false;
     }
     
     // Check if user has permission for any item in the group
-    const hasPermission = group.items.some(item => user.permissions.includes(item.permission));
+    const hasPermission = group.items.some(item => (user?.permissions?.includes(item.permission) ?? false));
     
     // Debug logging
     if (group.id === 'stem-simulations') {
       console.log('STEM Simulations menu check:', {
         groupId: group.id,
-        userPermissions: user.permissions,
+        userPermissions: user?.permissions,
         requiredPermissions: group.items.map(item => item.permission),
         hasPermission
       });
@@ -412,7 +437,7 @@ export default function ModernSidebar({ user, onLogout, mobileOpen, onMobileTogg
             collapsed && !isMobile && "justify-center"
           )}>
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center font-bold text-white flex-shrink-0 relative">
-              {user.firstName ? user.firstName[0] : user.username[0].toUpperCase()}
+              {user.firstName ? user.firstName[0] : user.username?.[0]?.toUpperCase() || 'U'}
               <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
             </div>
             
@@ -425,11 +450,11 @@ export default function ModernSidebar({ user, onLogout, mobileOpen, onMobileTogg
                   className="flex-1 min-w-0"
                 >
                   <p className="font-semibold text-gray-900 text-sm truncate font-hanuman">
-                    {user.firstName} {user.lastName}
+                    {user.firstName || user.username} {user.lastName || ''}
                   </p>
-                  <p className="text-xs text-gray-500 truncate font-hanuman">{user.email}</p>
+                  <p className="text-xs text-gray-500 truncate font-hanuman">{user.email || ''}</p>
                   <div className="flex flex-wrap gap-1 mt-2">
-                    {user.roles.slice(0, 1).map((role) => (
+                    {(user.roles || []).slice(0, 1).map((role) => (
                       <Badge 
                         key={role} 
                         className="text-xs bg-blue-100 text-blue-700 hover:bg-blue-200 border-0 font-hanuman"
@@ -437,9 +462,9 @@ export default function ModernSidebar({ user, onLogout, mobileOpen, onMobileTogg
                         {role.replace('_', ' ')}
                       </Badge>
                     ))}
-                    {user.roles.length > 1 && (
+                    {(user.roles?.length || 0) > 1 && (
                       <Badge className="text-xs bg-gray-100 text-gray-600 border-0 font-hanuman">
-                        +{user.roles.length - 1}
+                        +{(user.roles?.length || 1) - 1}
                       </Badge>
                     )}
                   </div>
@@ -455,7 +480,8 @@ export default function ModernSidebar({ user, onLogout, mobileOpen, onMobileTogg
         <nav className="h-full p-3 space-y-1 overflow-hidden">
           {filteredGroups.map((group) => {
             const isExpanded = expandedGroups.includes(group.id);
-            const hasAccessibleItems = group.items.some(item => user.permissions.includes(item.permission));
+            const hasAccessibleItems = group.items.some(item => (user.permissions?.includes(item.permission) ?? false));
+            const hasActiveItem = group.items.some(item => pathname === item.href);
             
             if (!hasAccessibleItems) return null;
 
@@ -466,14 +492,14 @@ export default function ModernSidebar({ user, onLogout, mobileOpen, onMobileTogg
                   onClick={() => toggleGroup(group.id)}
                   className={cn(
                     "w-full flex items-center justify-between p-2.5 rounded-lg text-left transition-all duration-200 group",
-                    isExpanded ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+                    isExpanded || hasActiveItem ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
                     collapsed && !isMobile && "justify-center"
                   )}
                 >
                   <div className="flex items-center space-x-3">
                     <group.icon className={cn(
                       "h-5 w-5 flex-shrink-0",
-                      isExpanded ? "text-blue-600" : "text-gray-400 group-hover:text-gray-600"
+                      isExpanded || hasActiveItem ? "text-blue-600" : "text-gray-400 group-hover:text-gray-600"
                     )} />
                     
                     <AnimatePresence>
@@ -507,7 +533,7 @@ export default function ModernSidebar({ user, onLogout, mobileOpen, onMobileTogg
 
                 {/* Group Items */}
                 <AnimatePresence>
-                  {isExpanded && (
+                  {(isExpanded || hasActiveItem) && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
@@ -515,7 +541,7 @@ export default function ModernSidebar({ user, onLogout, mobileOpen, onMobileTogg
                       className="space-y-1"
                     >
                       {group.items
-                        .filter(item => user.permissions.includes(item.permission))
+                        .filter(item => (user.permissions?.includes(item.permission) ?? false))
                         .map((item) => {
                           const isActive = pathname === item.href;
                           

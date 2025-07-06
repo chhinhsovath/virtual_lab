@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -14,8 +14,28 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Save, Plus, X, Loader2 } from 'lucide-react';
+import { ArrowLeft, Save, Plus, X, Loader2, Menu, LogOut } from 'lucide-react';
 import { toast } from 'sonner';
+import ModernSidebar from '@/components/dashboard/ModernSidebar';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
+
+interface User {
+  id: string;
+  username: string;
+  firstName?: string;
+  lastName?: string;
+  name?: string;
+  email?: string;
+  role?: string;
+  roles?: string[];
+  permissions?: string[];
+  schoolAccess?: Array<{
+    schoolId: number;
+    accessType: string;
+    subject: string;
+  }>;
+  teacherId?: number;
+}
 
 const formSchema = z.object({
   simulation_name: z.string().min(1, 'Simulation name is required').regex(/^[a-z0-9-]+$/, 'Use lowercase letters, numbers, and hyphens only'),
@@ -41,6 +61,10 @@ type FormData = z.infer<typeof formSchema>;
 export default function NewSimulationPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [userLoading, setUserLoading] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [newObjectiveEn, setNewObjectiveEn] = useState('');
   const [newObjectiveKm, setNewObjectiveKm] = useState('');
   const [newTag, setNewTag] = useState('');
@@ -66,6 +90,48 @@ export default function NewSimulationPage() {
       is_active: true,
     },
   });
+
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const response = await fetch('/api/auth/session', {
+          credentials: 'include',
+        });
+        const data = await response.json();
+        
+        if (data.user) {
+          // Ensure user has the expected structure
+          const userData = {
+            ...data.user,
+            roles: data.user.roles || (data.user.role ? [data.user.role] : []),
+            permissions: data.user.permissions || []
+          };
+          setUser(userData);
+        } else {
+          router.push('/auth/login');
+        }
+      } catch (error) {
+        console.error('Session check error:', error);
+        router.push('/auth/login');
+      } finally {
+        setUserLoading(false);
+      }
+    };
+
+    checkSession();
+  }, [router]);
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      router.push('/auth/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   const onSubmit = async (data: FormData) => {
     setLoading(true);
@@ -137,20 +203,56 @@ export default function NewSimulationPage() {
     }
   };
 
+  if (userLoading) {
+    return <LoadingSpinner />;
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 p-4 md:p-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="flex min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+      <ModernSidebar 
+        user={user} 
+        onLogout={handleLogout}
+        mobileOpen={mobileMenuOpen}
+        onMobileToggle={() => setMobileMenuOpen(!mobileMenuOpen)}
+        onCollapsedChange={setSidebarCollapsed}
+      />
+      
+      <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${sidebarCollapsed ? 'md:ml-20' : 'md:ml-80'}`}>
         {/* Header */}
-        <div className="mb-6 md:mb-8">
-          <div className="flex flex-col gap-4">
-            <div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                Create New Simulation
-              </h1>
-              <p className="text-gray-600 mt-2 text-sm sm:text-base">Add a new STEM simulation to your virtual lab</p>
-            </div>
-            
+        <header className="bg-white/80 backdrop-blur-sm shadow-sm px-4 sm:px-6 lg:px-8 py-4 sticky top-0 z-40">
+          <div className="flex items-center justify-between">
             <div className="flex items-center">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setMobileMenuOpen(true)}
+                className="md:hidden"
+              >
+                <Menu className="h-6 w-6" />
+              </Button>
+              <h1 className="text-2xl font-bold text-gray-900 ml-2 lg:ml-0">Create New Simulation</h1>
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-gray-600 hidden sm:inline">
+                {user?.name || user?.email}
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Logout</span>
+              </Button>
+            </div>
+          </div>
+        </header>
+
+        <div className="p-4 md:p-8">
+          <div className="max-w-4xl mx-auto">
+            {/* Back Button */}
+            <div className="mb-6">
               <Button
                 variant="ghost"
                 onClick={() => router.push('/dashboard/simulations')}
@@ -159,8 +261,6 @@ export default function NewSimulationPage() {
                 Back to Simulations
               </Button>
             </div>
-          </div>
-        </div>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -561,6 +661,8 @@ export default function NewSimulationPage() {
             </div>
           </form>
         </Form>
+          </div>
+        </div>
       </div>
     </div>
   );
