@@ -1,129 +1,153 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getSession } from '@/lib/auth';
 import { pool } from '@/lib/db';
-import { getAPISession, createMockStudentSession } from '@/lib/api-auth';
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const subject = searchParams.get('subject');
-    const difficulty = searchParams.get('difficulty');
-    const grade = searchParams.get('grade');
-    const featured = searchParams.get('featured');
-    
-    let session = await getAPISession(request);
-    
-    // Allow unauthenticated access for featured simulations only
-    if (!session && featured !== 'true') {
-      // In development, use mock session if no real session exists
-      if (process.env.NODE_ENV === 'development') {
-        session = createMockStudentSession();
-      } else {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-      }
+    const sessionToken = request.cookies.get('session')?.value;
+    if (!sessionToken) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const session = await getSession(sessionToken);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Get query parameters for filtering
+    const { searchParams } = new URL(request.url);
+    const subject = searchParams.get('subject');
+    const status = searchParams.get('status');
+    const search = searchParams.get('search');
+    const includeInactive = searchParams.get('includeInactive') === 'true';
+
     const client = await pool.connect();
-    
     try {
-      let query: string;
-      let queryParams: any[] = [];
-      let paramIndex = 1;
+      let query = `
+        SELECT 
+          s.id,
+          s.simulation_name,
+          s.display_name_en AS title,
+          s.display_name_km AS title_km,
+          s.description_en AS description,
+          s.description_km AS description_km,
+          s.subject_area AS subject,
+          s.difficulty_level AS difficulty,
+          s.grade_levels,
+          s.estimated_duration,
+          s.is_active AS active,
+          s.is_featured,
+          s.simulation_url,
+          s.preview_image,
+          s.tags,
+          s.created_at,
+          s.updated_at,
+          -- Get assignment count for this teacher
+          COUNT(DISTINCT ta.id) AS assignment_count,
+          -- Get student count from assignments
+          COUNT(DISTINCT sp.student_id) AS students_assigned,
+          -- Calculate average completion rate based on completed simulations
+          COALESCE(AVG(CASE WHEN sp.completed_at IS NOT NULL THEN 100 ELSE 0 END), 0) AS completion_rate
+        FROM stem_simulations_catalog s
+        LEFT JOIN teacher_simulation_assignments ta 
+          ON s.id = ta.simulation_id 
+          ${session.user.teacherId ? 'AND ta.teacher_id = $1' : ''}
+          AND ta.is_active = true
+        LEFT JOIN student_simulation_progress sp 
+          ON ta.id = sp.assignment_id
+        WHERE 1=1
+          ${!includeInactive ? 'AND s.is_active = true' : ''}
+      `;
 
-      if (session) {
-        query = `
-          SELECT 
-            s.*,
-            COALESCE(
-              (SELECT AVG(ssp.best_score) 
-               FROM student_simulation_progress ssp 
-               WHERE ssp.simulation_id = s.id AND ssp.student_id = $1
-              ), 0
-            ) as user_average_score,
-            COALESCE(
-              (SELECT COUNT(*) 
-               FROM student_simulation_progress ssp 
-               WHERE ssp.simulation_id = s.id AND ssp.student_id = $1
-              ), 0
-            ) as user_attempts,
-            COALESCE(
-              (SELECT MAX(ssp.total_time_spent) 
-               FROM student_simulation_progress ssp 
-               WHERE ssp.simulation_id = s.id AND ssp.student_id = $1
-              ), 0
-            ) as user_total_time,
-            (SELECT COUNT(*) 
-             FROM student_simulation_progress ssp 
-             WHERE ssp.simulation_id = s.id AND ssp.completed_at IS NOT NULL
-            ) as total_completions
-          FROM stem_simulations_catalog s
-          WHERE s.is_active = true
-        `;
-        queryParams = [session.user_id];
-        paramIndex = 2;
-      } else {
-        // For unauthenticated requests (featured simulations on home page)
-        query = `
-          SELECT 
-            s.*,
-            0 as user_average_score,
-            0 as user_attempts,
-            0 as user_total_time,
-            (SELECT COUNT(*) 
-             FROM student_simulation_progress ssp 
-             WHERE ssp.simulation_id = s.id AND ssp.completed_at IS NOT NULL
-            ) as total_completions
-          FROM stem_simulations_catalog s
-          WHERE s.is_active = true
-        `;
-      }
-
-      if (subject) {
-        query += ` AND s.subject_area = $${paramIndex}`;
-        queryParams.push(subject);
-        paramIndex++;
-      }
-
-      if (difficulty) {
-        query += ` AND s.difficulty_level = $${paramIndex}`;
-        queryParams.push(difficulty);
-        paramIndex++;
-      }
-
-      if (grade) {
-        query += ` AND $${paramIndex} = ANY(s.grade_levels)`;
-        queryParams.push(parseInt(grade));
-        paramIndex++;
-      }
-
-      if (featured === 'true') {
-        query += ` AND s.is_featured = true`;
-      }
-
-      query += ` ORDER BY s.is_featured DESC, s.created_at DESC`;
-
-      const result = await client.query(query, queryParams);
+      const params: any[] = [];
+      let paramCount = 0;
       
+      // Only filter by teacher if teacherId exists
+      if (session.user.teacherId) {
+        params.push(session.user.teacherId);
+        paramCount = 1;
+      }
+
+      // Add filters
+      if (subject && subject !== 'all') {
+        paramCount++;
+        query += ` AND s.subject_area = $${paramCount}`;
+        params.push(subject);
+      }
+
+      if (status && status !== 'all') {
+        paramCount++;
+        if (status === 'active') {
+          query += ` AND s.is_active = true`;
+        } else if (status === 'draft') {
+          query += ` AND s.is_active = false`;
+        } else if (status === 'archived') {
+          query += ` AND s.is_active = false`; // You might want to add an archived column
+        }
+      }
+
+      if (search) {
+        paramCount++;
+        query += ` AND (LOWER(s.display_name_en) LIKE LOWER($${paramCount}) OR LOWER(s.display_name_km) LIKE LOWER($${paramCount}))`;
+        params.push(`%${search}%`);
+      }
+
+      query += `
+        GROUP BY s.id
+        ORDER BY s.updated_at DESC
+      `;
+
+      const result = await client.query(query, params);
+
+      // Transform the data to match the frontend expectations
+      const modules = result.rows.map(row => ({
+        id: row.id,
+        title: row.title,
+        titleKm: row.title_km,
+        description: row.description,
+        descriptionKm: row.description_km,
+        subject: row.subject,
+        type: 'simulation', // All entries from this table are simulations
+        status: row.active ? 'active' : 'draft',
+        studentsAssigned: parseInt(row.students_assigned) || 0,
+        completionRate: parseFloat(row.completion_rate) || 0,
+        lastModified: new Date(row.updated_at).toLocaleString(),
+        difficulty: row.difficulty,
+        estimatedDuration: row.estimated_duration,
+        simulationUrl: row.simulation_url,
+        previewImage: row.preview_image,
+        tags: row.tags || [],
+        isFeatured: row.is_featured,
+        gradeLevels: row.grade_levels
+      }));
+
       return NextResponse.json({
         success: true,
-        simulations: result.rows
+        modules
       });
-      
+
     } finally {
       client.release();
     }
   } catch (error) {
     console.error('Error fetching simulations:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch simulations' },
-      { status: 500 }
-    );
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Failed to fetch simulations' 
+    }, { status: 500 });
   }
 }
 
+// Create new simulation
 export async function POST(request: NextRequest) {
   try {
-    const session = await getAPISession(request);
-    if (!session || session.user.role_name !== 'teacher') {
+    const sessionToken = request.cookies.get('session')?.value;
+    if (!sessionToken) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const session = await getSession(sessionToken);
+    if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -138,43 +162,70 @@ export async function POST(request: NextRequest) {
       difficulty_level,
       grade_levels,
       estimated_duration,
+      simulation_url,
+      tags,
+      is_active,
+      is_featured,
       learning_objectives_en,
       learning_objectives_km,
-      simulation_url,
-      preview_image,
-      tags,
-      is_featured
+      preview_image
     } = body;
 
     const client = await pool.connect();
-    
     try {
-      const result = await client.query(`
-        INSERT INTO stem_simulations_catalog (
-          simulation_name, display_name_en, display_name_km, description_en, description_km,
-          subject_area, difficulty_level, grade_levels, estimated_duration,
-          learning_objectives_en, learning_objectives_km, simulation_url, preview_image, tags, is_featured
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-        RETURNING *
-      `, [
-        simulation_name, display_name_en, display_name_km, description_en, description_km,
-        subject_area, difficulty_level, grade_levels, estimated_duration,
-        learning_objectives_en, learning_objectives_km, simulation_url, preview_image, tags, is_featured
-      ]);
+      const result = await client.query(
+        `INSERT INTO stem_simulations_catalog (
+          simulation_name,
+          display_name_en,
+          display_name_km,
+          description_en,
+          description_km,
+          subject_area,
+          difficulty_level,
+          grade_levels,
+          estimated_duration,
+          simulation_url,
+          tags,
+          is_active,
+          is_featured,
+          learning_objectives_en,
+          learning_objectives_km,
+          preview_image
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+        RETURNING *`,
+        [
+          simulation_name,
+          display_name_en,
+          display_name_km,
+          description_en,
+          description_km,
+          subject_area,
+          difficulty_level,
+          grade_levels || [],
+          estimated_duration,
+          simulation_url,
+          tags || [],
+          is_active !== undefined ? is_active : true,
+          is_featured || false,
+          learning_objectives_en || [],
+          learning_objectives_km || [],
+          preview_image
+        ]
+      );
 
       return NextResponse.json({
         success: true,
         simulation: result.rows[0]
       });
-      
+
     } finally {
       client.release();
     }
   } catch (error) {
     console.error('Error creating simulation:', error);
-    return NextResponse.json(
-      { error: 'Failed to create simulation' },
-      { status: 500 }
-    );
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Failed to create simulation' 
+    }, { status: 500 });
   }
 }

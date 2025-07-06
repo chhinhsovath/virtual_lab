@@ -18,6 +18,8 @@ import {
   Award, Sparkles, ArrowLeft, FlaskConical, Trophy, Target
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { useGuestSession } from '@/hooks/useGuestSession';
+import { EnrollmentPrompt } from '@/components/EnrollmentPrompt';
 
 interface SimulationData {
   id: string;
@@ -85,6 +87,9 @@ export default function SimulationPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showHint, setShowHint] = useState<Record<string, boolean>>({});
   const [submission, setSubmission] = useState<any>(null);
+  const [showEnrollmentPrompt, setShowEnrollmentPrompt] = useState(false);
+  
+  const { user, shouldShowEnrollmentPrompt, trackSimulationAccess, getGuestSessionInfo } = useGuestSession();
   
   const startTimeRef = useRef<Date | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -123,24 +128,47 @@ export default function SimulationPage() {
       if (simData.success) {
         setSimulation(simData.simulation);
         
-        const startRes = await fetch(`/api/simulations/${params.id}/start`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ assignment_id: assignmentId })
-        });
-        
-        const startData = await startRes.json();
-        if (startData.success) {
-          setSession(startData.session);
-          // Delay initial activity log to ensure session is set
+        // For guest users, create a mock session
+        if (user?.isGuest) {
+          setSession({
+            id: `guest_${user.id}`,
+            started_at: new Date().toISOString(),
+            current_progress: { percentage: 0 },
+            total_time_spent: 0
+          });
+          
+          // Track simulation access for guest
+          trackSimulationAccess();
+          
+          // Log guest activity locally
           setTimeout(() => {
             logActivity(
-              'Started simulation',
-              'បានចាប់ផ្តើមការសាកល្បង',
+              'Started simulation as guest',
+              'បានចាប់ផ្តើមការសាកល្បងជាភ្ញៀវ',
               `Opened ${simData.simulation.display_name_en}`,
               `បានបើក ${simData.simulation.display_name_km}`
             );
           }, 100);
+        } else {
+          // Regular authenticated user flow
+          const startRes = await fetch(`/api/simulations/${params.id}/start`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ assignment_id: assignmentId })
+          });
+          
+          const startData = await startRes.json();
+          if (startData.success) {
+            setSession(startData.session);
+            setTimeout(() => {
+              logActivity(
+                'Started simulation',
+                'បានចាប់ផ្តើមការសាកល្បង',
+                `Opened ${simData.simulation.display_name_en}`,
+                `បានបើក ${simData.simulation.display_name_km}`
+              );
+            }, 100);
+          }
         }
         
         loadExercises();
@@ -235,44 +263,69 @@ export default function SimulationPage() {
     );
     
     try {
-      const res = await fetch('/api/exercises/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          simulation_id: params.id,
-          session_id: session?.id,
-          assignment_id: assignmentId,
-          answers,
-          time_spent: elapsedTime
-        })
-      });
-      
-      const data = await res.json();
-      
-      if (res.ok && data.success) {
-        setSubmission(data.submission);
+      // For guest users, simulate submission
+      if (user?.isGuest) {
+        // Create mock submission for guest
+        const correctAnswers = exercises.length * 0.7; // Assume 70% correct for demo
+        const mockSubmission = {
+          total_score: Math.round(correctAnswers),
+          max_score: exercises.length,
+          percentage: Math.round((correctAnswers / exercises.length) * 100),
+          details: {}
+        };
+
+        setSubmission(mockSubmission);
         
-        await fetch(`/api/simulations/${params.id}/start`, {
-          method: 'PUT',
+        // Show success message
+        setTimeout(() => {
+          alert(`បានបញ្ចប់ការសាកល្បង! ពិន្ទុ: ${mockSubmission.total_score}/${mockSubmission.max_score}`);
+          
+          // Show enrollment prompt after completion
+          if (shouldShowEnrollmentPrompt()) {
+            setShowEnrollmentPrompt(true);
+          }
+        }, 1000);
+      } else {
+        // Regular authenticated user submission
+        const res = await fetch('/api/exercises/submit', {
+          method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            current_progress: { percentage: 100 },
-            time_spent: elapsedTime,
-            current_score: data.submission.total_score,
-            is_completed: true,
-            simulation_data: { 
-              activityLogs, 
-              answers, 
-              completedAt: new Date().toISOString(),
-              submission: data.submission
-            }
+            simulation_id: params.id,
+            session_id: session?.id,
+            assignment_id: assignmentId,
+            answers,
+            time_spent: elapsedTime
           })
         });
         
-        alert(`បានបញ្ចប់ការសាកល្បង! ពិន្ទុ: ${data.submission.total_score}/${data.submission.max_score}`);
-      } else {
-        console.error('Submission failed:', data);
-        alert(data.error || 'មានបញ្ហាក្នុងការដាក់ស្នើលំហាត់។ សូមព្យាយាមម្តងទៀត។');
+        const data = await res.json();
+        
+        if (res.ok && data.success) {
+          setSubmission(data.submission);
+          
+          await fetch(`/api/simulations/${params.id}/start`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              current_progress: { percentage: 100 },
+              time_spent: elapsedTime,
+              current_score: data.submission.total_score,
+              is_completed: true,
+              simulation_data: { 
+                activityLogs, 
+                answers, 
+                completedAt: new Date().toISOString(),
+                submission: data.submission
+              }
+            })
+          });
+          
+          alert(`បានបញ្ចប់ការសាកល្បង! ពិន្ទុ: ${data.submission.total_score}/${data.submission.max_score}`);
+        } else {
+          console.error('Submission failed:', data);
+          alert(data.error || 'មានបញ្ហាក្នុងការដាក់ស្នើលំហាត់។ សូមព្យាយាមម្តងទៀត។');
+        }
       }
     } catch (error) {
       console.error('Error submitting exercises:', error);
@@ -933,6 +986,16 @@ export default function SimulationPage() {
           background: #a855f7;
         }
       `}</style>
+
+      {/* Enrollment Prompt for Guest Users */}
+      {showEnrollmentPrompt && (
+        <EnrollmentPrompt
+          simulationTitle={simulation?.display_name_km || 'ការពិសោធន៍'}
+          onClose={() => setShowEnrollmentPrompt(false)}
+          onRegister={() => router.push('/auth/register')}
+          onLogin={() => router.push('/auth/login')}
+        />
+      )}
     </div>
   );
 }

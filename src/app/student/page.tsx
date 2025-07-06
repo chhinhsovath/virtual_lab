@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { User } from '@/lib/auth';
 import { EnhancedStudentDashboard } from '../../components/student/enhanced-student-dashboard';
+import { LoadingSpinner } from '../../components/ui/loading-spinner';
 
 export default function StudentPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -45,14 +46,7 @@ export default function StudentPage() {
   }, [router]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-blue-700 font-medium">Loading student portal...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (!user) {

@@ -254,7 +254,7 @@ export function EnhancedStudentDashboard({ user }: EnhancedStudentDashboardProps
                   <span className="hidden sm:inline">Virtual Lab Cambodia</span>
                   <span className="sm:hidden">Lab</span>
                 </h1>
-                <p className="text-xs sm:text-sm text-purple-600 font-bold font-hanuman truncate">🚀 វិទ្យាល័យសិស្សល្អ</p>
+                <p className="text-xs sm:text-sm text-purple-600 font-bold font-hanuman truncate">🚀វិទ្យាល័យសិស្សល្អ</p>
               </div>
             </div>
             <div className="flex items-center gap-1 sm:gap-2 lg:gap-4">

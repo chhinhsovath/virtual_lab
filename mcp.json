@@ -1,0 +1,87 @@
+{
+  "name": "virtual-lab-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for Virtual Lab with context management",
+  "prompts": [
+    {
+      "name": "virtual-lab-context",
+      "description": "Provides context about the Virtual Lab system",
+      "prompt": "You are working with a Virtual Lab LMS system that integrates with TaRL (Teaching at the Right Level) assessment database. The system includes student assessments, teacher dashboards, parent portals, and simulation features."
+    }
+  ],
+  "resources": [
+    {
+      "uri": "file:///Users/user/Desktop/apps/virtual_lab/CLAUDE.md",
+      "name": "Project Guidelines",
+      "description": "Claude.md file with project-specific guidelines and architecture"
+    },
+    {
+      "uri": "file:///Users/user/Desktop/apps/virtual_lab/src/lib/db.ts",
+      "name": "Database Configuration",
+      "description": "Database connection and configuration"
+    },
+    {
+      "uri": "file:///Users/user/Desktop/apps/virtual_lab/src/lib/auth.ts",
+      "name": "Authentication System",
+      "description": "Authentication and authorization logic"
+    }
+  ],
+  "tools": [
+    {
+      "name": "query_database",
+      "description": "Query the Virtual Lab PostgreSQL database",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "SQL query to execute"
+          },
+          "params": {
+            "type": "array",
+            "description": "Query parameters for prepared statements"
+          }
+        },
+        "required": ["query"]
+      }
+    },
+    {
+      "name": "get_student_assessment",
+      "description": "Get assessment data for a specific student",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "string",
+            "description": "Student ID"
+          },
+          "cycle": {
+            "type": "string",
+            "enum": ["baseline", "midline", "endline"],
+            "description": "Assessment cycle"
+          }
+        },
+        "required": ["studentId"]
+      }
+    },
+    {
+      "name": "get_simulation_data",
+      "description": "Get simulation data and resources",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "subject": {
+            "type": "string",
+            "enum": ["physics", "chemistry", "biology", "stem"],
+            "description": "Subject area for simulation"
+          },
+          "topic": {
+            "type": "string",
+            "description": "Specific topic within the subject"
+          }
+        },
+        "required": ["subject"]
+      }
+    }
+  ]
+}

@@ -14,7 +14,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Save, Plus, X, Globe, BookOpen, Clock, GraduationCap } from 'lucide-react';
+import { ArrowLeft, Save, Plus, X, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 const formSchema = z.object({
@@ -29,7 +29,7 @@ const formSchema = z.object({
   estimated_duration: z.number().min(5).max(120),
   learning_objectives_en: z.array(z.string()).min(1, 'Add at least one learning objective'),
   learning_objectives_km: z.array(z.string()).optional(),
-  simulation_url: z.string().url('Must be a valid URL').or(z.literal('')),
+  simulation_url: z.string().optional(),
   preview_image: z.string().optional(),
   tags: z.array(z.string()).optional(),
   is_featured: z.boolean().default(false),
@@ -38,7 +38,7 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-export default function CreateSimulationPage() {
+export default function NewSimulationPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [newObjectiveEn, setNewObjectiveEn] = useState('');
@@ -70,9 +70,10 @@ export default function CreateSimulationPage() {
   const onSubmit = async (data: FormData) => {
     setLoading(true);
     try {
-      const response = await fetch('/api/teacher/simulations', {
+      const response = await fetch('/api/simulations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(data),
       });
 
@@ -141,19 +142,24 @@ export default function CreateSimulationPage() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-6 md:mb-8">
-          <Button
-            variant="ghost"
-            onClick={() => router.push('/dashboard/simulations')}
-            className="mb-4"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Simulations
-          </Button>
-          
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            Create New Simulation
-          </h1>
-          <p className="text-gray-600 mt-2 text-sm sm:text-base">Add a new STEM simulation to the virtual lab</p>
+          <div className="flex flex-col gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Create New Simulation
+              </h1>
+              <p className="text-gray-600 mt-2 text-sm sm:text-base">Add a new STEM simulation to your virtual lab</p>
+            </div>
+            
+            <div className="flex items-center">
+              <Button
+                variant="ghost"
+                onClick={() => router.push('/dashboard/simulations')}
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Simulations
+              </Button>
+            </div>
+          </div>
         </div>
 
         <Form {...form}>
@@ -211,7 +217,7 @@ export default function CreateSimulationPage() {
                           <FormItem>
                             <FormLabel>Display Name (Khmer)</FormLabel>
                             <FormControl>
-                              <Input {...field} placeholder="ភេនឌុលម៉ាម" />
+                              <Input {...field} placeholder="ភេនឌុលម៉ាម" className="font-hanuman" />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -226,7 +232,7 @@ export default function CreateSimulationPage() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Subject Area</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select onValueChange={field.onChange} value={field.value}>
                               <FormControl>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select subject" />
@@ -250,7 +256,7 @@ export default function CreateSimulationPage() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Difficulty Level</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select onValueChange={field.onChange} value={field.value}>
                               <FormControl>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select difficulty" />
@@ -349,6 +355,7 @@ export default function CreateSimulationPage() {
                               {...field} 
                               rows={4}
                               placeholder="ពិពណ៌នាអ្វីដែលសិស្សនឹងរៀន..."
+                              className="font-hanuman"
                             />
                           </FormControl>
                           <FormMessage />
@@ -377,6 +384,7 @@ export default function CreateSimulationPage() {
                           value={newObjectiveKm}
                           onChange={(e) => setNewObjectiveKm(e.target.value)}
                           onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addObjective())}
+                          className="font-hanuman"
                         />
                         <Button type="button" onClick={addObjective}>
                           <Plus className="h-4 w-4" />
@@ -390,7 +398,7 @@ export default function CreateSimulationPage() {
                           <div className="flex-1">
                             <p className="text-sm">{objective}</p>
                             {form.watch('learning_objectives_km')?.[index] && (
-                              <p className="text-sm text-gray-600">{form.watch('learning_objectives_km')[index]}</p>
+                              <p className="text-sm text-gray-600 font-hanuman">{form.watch('learning_objectives_km')[index]}</p>
                             )}
                           </div>
                           <Button
@@ -424,7 +432,7 @@ export default function CreateSimulationPage() {
                             <Input {...field} placeholder="https://..." />
                           </FormControl>
                           <FormDescription>
-                            URL to the simulation (can be added later)
+                            URL to the simulation
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -540,7 +548,7 @@ export default function CreateSimulationPage() {
               >
                 {loading ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Creating...
                   </>
                 ) : (

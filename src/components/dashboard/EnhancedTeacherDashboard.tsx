@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { LoadingSpinnerCompact } from '@/components/ui/loading-spinner';
 import { 
   Users, 
   BookOpen, 
@@ -248,14 +249,7 @@ export function EnhancedTeacherDashboard({ user }: EnhancedTeacherDashboardProps
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-blue-700 font-medium">Loading teacher dashboard...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinnerCompact />;
   }
 
   return (

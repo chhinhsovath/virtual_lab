@@ -349,7 +349,7 @@ INSERT INTO simulations_catalog (
     'Pendulum Lab',
     'មន្ទីរពិសោធន៍ប៉ងដូល',
     'Explore the physics of pendulums with this interactive simulation',
-    'ស្វែងយល់ពីរូបវិទ្យានៃប៉ងដូលជាមួយការក្លែងធ្វើអន្តរកម្មនេះ',
+    'ស្វែងយល់ពីរូបវិទ្យានៃប៉ងដូលជាមួយពិសោធន៍អន្តរកម្មនេះ',
     'Physics',
     ARRAY[7, 8, 9],
     'Intermediate',

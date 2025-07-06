@@ -82,7 +82,7 @@ export const translations: Record<string, Translation> = {
 
   // Lab related
   'lab.title': { en: 'Lab Title', km: 'ចំណងជើងមន្ទីរពិសោធន៍' },
-  'lab.simulation': { en: 'Simulation', km: 'ការក្លែងធ្វើ' },
+  'lab.simulation': { en: 'Simulation', km: 'ពិសោធន៍' },
   'lab.worksheet': { en: 'Worksheet', km: 'សន្លឹកការងារ' },
   'lab.manual': { en: 'Manual', km: 'សៀវភៅណែនាំ' },
   'lab.resources': { en: 'Resources', km: 'ធនធាន' },
@@ -178,7 +178,7 @@ export const translations: Record<string, Translation> = {
   'student.avg_score': { en: 'Avg Score', km: 'ពិន្ទុមធ្យម' },
   'student.learned': { en: 'min learned', km: 'នាទីបានសិក្សា' },
   'student.points': { en: 'points', km: 'ពិន្ទុ' },
-  'student.simulations': { en: 'Simulations', km: 'ការក្លែងធ្វើ' },
+  'student.simulations': { en: 'Simulations', km: 'ពិសោធន៍' },
   'student.average_score': { en: 'Average Score', km: 'ពិន្ទុមធ្យម' },
   'student.learning_time': { en: 'Learning Time', km: 'ពេលវេលាសិក្សា' },
   'student.achievements': { en: 'Achievements', km: 'សមិទ្ធផល' },
@@ -186,14 +186,14 @@ export const translations: Record<string, Translation> = {
   
   // Student Portal Tabs
   'tab.dashboard': { en: 'Dashboard', km: 'ទំព័រដើម' },
-  'tab.my_simulations': { en: 'My Simulations', km: 'ការក្លែងធ្វើរបស់ខ្ញុំ' },
+  'tab.my_simulations': { en: 'My Simulations', km: 'ពិសោធន៍របស់ខ្ញុំ' },
   'tab.assignments': { en: 'Assignments', km: 'កិច្ចការ' },
   'tab.achievements': { en: 'Achievements', km: 'សមិទ្ធផល' },
   'tab.subjects': { en: 'Subjects', km: 'មុខវិជ្ជា' },
   
   // Assignments
   'assignment.current': { en: 'Current Assignments', km: 'កិច្ចការបច្ចុប្បន្ន' },
-  'assignment.simulation_assignments': { en: 'Simulation Assignments', km: 'កិច្ចការក្លែងធ្វើ' },
+  'assignment.simulation_assignments': { en: 'Simulation Assignments', km: 'កិច្ចពិសោធន៍' },
   'assignment.complete_master': { en: 'Complete these assignments to master STEM concepts', km: 'បំពេញកិច្ចការទាំងនេះដើម្បីធ្វើអ្នកជំនាញ STEM' },
   'assignment.due': { en: 'Due', km: 'កំណត់ពេល' },
   'assignment.not_submitted': { en: 'Not submitted', km: 'មិនទាន់ប្រគល់' },
@@ -211,7 +211,7 @@ export const translations: Record<string, Translation> = {
   'subject.chemistry': { en: 'Chemistry', km: 'គីមីវិទ្យា' },
   'subject.biology': { en: 'Biology', km: 'ជីវវិទ្យា' },
   'subject.mathematics': { en: 'Mathematics', km: 'គណិតវិទ្យា' },
-  'subject.completed': { en: 'Simulations Completed', km: 'ការក្លែងធ្វើបានបញ្ចប់' },
+  'subject.completed': { en: 'Simulations Completed', km: 'ពិសោធន៍បានបញ្ចប់' },
   'subject.explore': { en: 'Explore', km: 'រុករក' },
   
   // Simulation States
@@ -229,18 +229,18 @@ export const translations: Record<string, Translation> = {
   'ui.loading_student_portal': { en: 'Loading student portal...', km: 'កំពុងផ្ទុកវិបផតសិស្ស...' },
   'ui.login': { en: 'Login', km: 'ចូលប្រើ' },
   'ui.language': { en: 'Language', km: 'ភាសា' },
-  'ui.loading_simulations': { en: 'Loading simulations...', km: 'កំពុងផ្ទុកការក្លែងធ្វើ...' },
+  'ui.loading_simulations': { en: 'Loading simulations...', km: 'កំពុងផ្ទុកពិសោធន៍...' },
   
   // Homepage
   'home.title': { en: 'Virtual Lab Cambodia', km: 'មន្ទីរពិសោធន៍និម្មិតកម្ពុជា' },
-  'home.subtitle': { en: 'Interactive STEM Simulations', km: 'ការក្លែងធ្វើ STEM អន្តរកម្ម' },
+  'home.subtitle': { en: 'Interactive STEM Simulations', km: 'ស្វែងរកវិទ្យាសាស្ត្រតាមរយៈការលេង' },
   'home.inspired_by': { en: 'Inspired by PhET Interactive Simulations', km: 'ជំរុញដោយ PhET Interactive Simulations' },
-  'home.hero_title': { en: 'Discover Science Through Play', km: 'ស្វែងរកវិទ្យាសាស្ត្រតាមរយៈការលេង' },
-  'home.hero_description': { en: 'Interactive simulations that make complex concepts simple, engaging, and accessible to every Cambodian student.', km: 'ការក្លែងធ្វើអន្តរកម្មដែលធ្វើឱ្យគោលគំនិតស្មុគស្មាញមានភាពសាមញ្ញ ទាក់ទាញ និងអាចចូលប្រើបានសម្រាប់សិស្សកម្ពុជាគ្រប់គ្នា។' },
+  'home.hero_title': { en: 'Discover Science', km: 'ស្វែងរកវិទ្យាសាស្ត្រ' },
+  'home.hero_description': { en: 'Interactive simulations that make complex concepts simple, engaging, and accessible to every Cambodian student.', km: 'មន្ទីរពិសោធន៍និម្មិតធ្វើឱ្យបញ្ញត្តិវិទ្យាសាស្ត្រនឹងធ្វើបរិវត្តកម្មក្នុងការបង្រៀននិងរៀនវិទ្យាសាស្ត្រជំរុញសិស្សឱ្យចូលចិត្ត និងអភិវឌ្ឍបំណិនវិទ្យាសាស្ត្រតាមរបៀបដែលមិនធ្លាប់មានពីមុនមក។' },
   'home.start_exploring': { en: 'Start Exploring', km: 'ចាប់ផ្តើមស្វែងរក' },
-  'home.view_simulations': { en: 'View Simulations', km: 'មើលការក្លែងធ្វើ' },
+  'home.view_simulations': { en: 'View Simulations', km: 'មើលពិសោធន៍' },
   'home.explore_subjects': { en: 'Explore STEM Subjects', km: 'ស្វែងរកមុខវិជ្ជា STEM' },
-  'home.subjects_description': { en: 'Interactive simulations across physics, chemistry, biology, and mathematics—all designed for curious minds', km: 'ការក្លែងធ្វើអន្តរកម្មនៅក្នុងរូបវិទ្យា គីមីវិទ្យា ជីវវិទ្យា និងគណិតវិទ្យា—ត្រូវបានរចនាឡើងសម្រាប់ចិត្តដែលចង់ដឹង' },
+  'home.subjects_description': { en: 'Interactive simulations across physics, chemistry, biology, and mathematics—all designed for curious minds', km: 'ពិសោធន៍អន្តរកម្មនៅក្នុងរូបវិទ្យា គីមីវិទ្យា ជីវវិទ្យា និងគណិតវិទ្យា—ត្រូវបានរចនាឡើងសម្រាប់ចិត្តដែលចង់ដឹង' },
   'home.learning_philosophy': { en: 'Learning Through Discovery', km: 'រៀនតាមរយៈការរកឃើញ' },
   'home.philosophy_description': { en: 'Our approach mirrors how real scientists work—by asking questions, forming hypotheses, and testing ideas', km: 'វិធីសាស្ត្ររបស់យើងស្រដៀងនឹងរបៀបដែលអ្នកវិទ្យាសាស្ត្រពិតប្រាកដធ្វើការ—ដោយការសួរសំណួរ បង្កើតសម្មតិកម្ម និងសាកល្បងគំនិត' },
   'home.explore': { en: 'Explore', km: 'ស្វែងរក' },
@@ -250,18 +250,18 @@ export const translations: Record<string, Translation> = {
   'home.investigate_description': { en: 'Guided activities with specific learning goals and structured discovery paths', km: 'សកម្មភាពដឹកនាំជាមួយនឹងគោលដៅសិក្សាជាក់លាក់ និងផ្លូវការរកឃើញដែលមានរចនាសម្ព័ន្ធ' },
   'home.apply_description': { en: 'Real-world problem solving that connects science to everyday Cambodian life', km: 'ការដោះស្រាយបញ្ហាពិតប្រាកដដែលភ្ជាប់វិទ្យាសាស្ត្រទៅនឹងជីវិតប្រចាំថ្ងៃរបស់កម្ពុជា' },
   'home.for_educators': { en: 'Designed for Cambodian Educators', km: 'រចនាសម្រាប់គ្រូបង្រៀនកម្ពុជា' },
-  'home.educators_description': { en: 'Every simulation includes comprehensive teaching materials, assessment tools, and professional development resources—all culturally relevant and aligned with national curriculum standards.', km: 'ការក្លែងធ្វើនីមួយៗរួមបញ្ចូលឧបករណ៍បង្រៀនទូលំទូលាយ ឧបករណ៍វាយតម្លៃ និងធនធានអភិវឌ្ឍន៍វិជ្ជាជីវៈ—ទាំងអស់សមស្របនឹងវប្បធម៌ និងតម្រឹមទៅនឹងស្តង់ដារកម្មវិធីសិក្សាជាតិ។' },
+  'home.educators_description': { en: 'Every simulation includes comprehensive teaching materials, assessment tools, and professional development resources—all culturally relevant and aligned with national curriculum standards.', km: 'ពិសោធន៍នីមួយៗរួមបញ្ចូលឧបករណ៍បង្រៀនទូលំទូលាយ ឧបករណ៍វាយតម្លៃ និងធនធានអភិវឌ្ឍន៍វិជ្ជាជីវៈ—ទាំងអស់សមស្របនឹងវប្បធម៌ និងតម្រឹមទៅនឹងស្តង់ដារកម្មវិធីសិក្សាជាតិ។' },
   'home.ready_transform': { en: 'Ready to Transform STEM Education?', km: 'ត្រៀមខ្លួនបំប្លែងការអប់រំ STEM?' },
-  'home.transform_description': { en: 'Join thousands of students and teachers already discovering science through interactive simulations', km: 'ចូលរួមជាមួយសិស្ស និងគ្រូបង្រៀនរាប់ពាន់នាក់ដែលកំពុងស្វែងរកវិទ្យាសាស្ត្រតាមរយៈការក្លែងធ្វើអន្តរកម្ម' },
+  'home.transform_description': { en: 'Join thousands of students and teachers already discovering science through interactive simulations', km: 'ចូលរួមជាមួយសិស្ស និងគ្រូបង្រៀនរាប់ពាន់នាក់ដែលកំពុងស្វែងរកវិទ្យាសាស្ត្រតាមរយៈពិសោធន៍អន្តរកម្ម' },
   'home.start_learning': { en: 'Start Learning Today', km: 'ចាប់ផ្តើមរៀនថ្ងៃនេះ' },
   'home.request_demo': { en: 'Request School Demo', km: 'ស្នើសុំការបង្ហាញសាលារៀន' },
   'home.try_now': { en: 'Try Now', km: 'សាកល្បងឥឡូវ' },
-  'home.simulations_count': { en: 'Simulations', km: 'ការក្លែងធ្វើ' },
+  'home.simulations_count': { en: 'Simulations', km: 'ពិសោធន៍' },
   'home.loading': { en: 'Loading...', km: 'កំពុងផ្ទុក...' },
   'home.explore_button': { en: 'Explore', km: 'ស្វែងរក' },
-  'home.simulation_preview': { en: 'Interactive Simulation Preview', km: 'បង្ហាញការក្លែងធ្វើអន្តរកម្ម' },
+  'home.simulation_preview': { en: 'Interactive Simulation Preview', km: 'បង្ហាញពិសោធន៍អន្តរកម្ម' },
   'home.cta_title': { en: 'Ready to Transform STEM Education?', km: 'ត្រៀមខ្លួនបំប្លែងការអប់រំ STEM?' },
-  'home.cta_description': { en: 'Join thousands of students and teachers already discovering science through interactive simulations', km: 'ចូលរួមជាមួយសិស្ស និងគ្រូបង្រៀនរាប់ពាន់នាក់ដែលកំពុងស្វែងរកវិទ្យាសាស្ត្រតាមរយៈការក្លែងធ្វើអន្តរកម្ម' },
+  'home.cta_description': { en: 'Join thousands of students and teachers already discovering science through interactive simulations', km: 'ចូលរួមជាមួយសិស្ស និងគ្រូបង្រៀនរាប់ពាន់នាក់ដែលកំពុងស្វែងរកវិទ្យាសាស្ត្រតាមរយៈពិសោធន៍អន្តរកម្ម' },
   'home.hero_subtitle': { en: 'Through Play', km: 'តាមរយៈការលេង' },
   'home.feature_lesson_plans': { en: 'Lesson plans with learning objectives', km: 'ផែនការបង្រៀនជាមួយគោលដៅសិក្សា' },
   'home.feature_progress_tracking': { en: 'Real-time student progress tracking', km: 'តាមដានវឌ្ឍនភាពសិស្សក្នុងពេលវេលាជាក់ស្តែង' },
@@ -270,12 +270,12 @@ export const translations: Record<string, Translation> = {
   'home.ready_to_start': { en: 'Ready to Get Started?', km: 'ត្រៀមចាប់ផ្តើម?' },
   'home.join_community': { en: 'Join our community of innovative educators transforming STEM education in Cambodia', km: 'ចូលរួមជាមួយសហគមន៍អ្នកអប់រំប្រកបដោយភាពច្នៃប្រឌិតរបស់យើងដែលកំពុងបំប្លែងការអប់រំ STEM នៅកម្ពុជា' },
   'home.teacher_resources': { en: 'Teacher Resources', km: 'ធនធានគ្រូបង្រៀន' },
-  'home.footer_description': { en: 'Inspiring the next generation of Cambodian scientists, engineers, and innovators through world-class interactive simulations.', km: 'បំផុសទឹកចិត្តជំនាន់ក្រោយនៃអ្នកវិទ្យាសាស្ត្រ វិស្វករ និងអ្នកច្នៃប្រឌិតកម្ពុជាតាមរយៈការក្លែងធ្វើអន្តរកម្មកម្រិតពិភពលោក។' },
+  'home.footer_description': { en: 'Inspiring the next generation of Cambodian scientists, engineers, and innovators through world-class interactive simulations.', km: 'បំផុសទឹកចិត្តជំនាន់ក្រោយនៃអ្នកវិទ្យាសាស្ត្រ វិស្វករ និងអ្នកច្នៃប្រឌិតកម្ពុជាតាមរយៈពិសោធន៍អន្តរកម្មកម្រិតពិភពលោក។' },
   'home.proudly_serving': { en: '🇰🇭 Proudly serving Cambodia\'s future', km: '🇰🇭 បំរើអនាគតកម្ពុជាដោយមោទនភាព' },
 
   // Footer
   'footer.quick_links': { en: 'Quick Links', km: 'តំណរហ័ស' },
-  'footer.physics_sims': { en: 'Physics Simulations', km: 'ការក្លែងធ្វើរូបវិទ្យា' },
+  'footer.physics_sims': { en: 'Physics Simulations', km: 'ពិសោធន៍រូបវិទ្យា' },
   'footer.chemistry_labs': { en: 'Chemistry Labs', km: 'មន្ទីរពិសោធន៍គីមីវិទ្យា' },
   'footer.biology_experiments': { en: 'Biology Experiments', km: 'ការពិសោធន៍ជីវវិទ្យា' },
   'footer.math_visualizations': { en: 'Math Visualizations', km: 'ការបង្ហាញគណិតវិទ្យា' },
@@ -284,13 +284,21 @@ export const translations: Record<string, Translation> = {
   'footer.professional_development': { en: 'Professional Development', km: 'ការអភិវឌ្ឍន៍វិជ្ជាជីវៈ' },
   'footer.curriculum_alignment': { en: 'Curriculum Alignment', km: 'ការតម្រឹមកម្មវិធីសិក្សា' },
   'footer.assessment_tools': { en: 'Assessment Tools', km: 'ឧបករណ៍វាយតម្លៃ' },
-  'footer.copyright': { en: '© 2024 Virtual Lab Cambodia. Empowering STEM education with interactive simulations.', km: '© 2024 មន្ទីរពិសោធន៍និម្មិតកម្ពុជា។ ពង្រឹងការអប់រំ STEM ជាមួយការក្លែងធ្វើអន្តរកម្ម។' },
+  'footer.copyright': { en: '© 2024 Virtual Lab Cambodia. Empowering STEM education with interactive simulations.', km: '© 2024 មន្ទីរពិសោធន៍និម្មិតកម្ពុជា។ ពង្រឹងការអប់រំ STEM ជាមួយពិសោធន៍អន្តរកម្ម។' },
   'footer.built_with_love': { en: 'Built with ❤️ for Cambodia\'s future scientists', km: 'បង្កើតដោយ ❤️ សម្រាប់អ្នកវិទ្យាសាស្ត្រអនាគតកម្ពុជា' },
 
   // UI Common
   'ui.loading': { en: 'Loading...', km: 'កំពុងផ្ទុក...' },
   'ui.explore': { en: 'Explore', km: 'ស្វែងរក' },
-  'ui.simulations': { en: 'Simulations', km: 'ការក្លែងធ្វើ' },
+  'ui.simulations': { en: 'Simulations', km: 'ពិសោធន៍' },
+
+  // Homepage additions
+  'home.featured_simulations': { en: 'Featured Simulations', km: 'ពិសោធន៍ពិសេស' },
+  'home.popular_simulations': { en: 'Popular STEM Simulations', km: 'ពិសោធន៍ STEM ពេញនិយម' },
+  'home.popular_simulations_description': { en: 'Explore our most popular interactive simulations designed for Cambodian students', km: 'ស្វែងរកពិសោធន៍អន្តរកម្មពេញនិយមបំផុតរបស់យើងដែលរចនាសម្រាប់សិស្សកម្ពុជា' },
+  'home.start_simulation': { en: 'Start Simulation', km: 'ចាប់ផ្តើមពិសោធន៍' },
+  'home.view_all_simulations': { en: 'View All Simulations', km: 'មើលពិសោធន៍ទាំងអស់' },
+  'home.learning_objectives': { en: 'Learning Objectives', km: 'គោលដៅសិក្សា' },
 
   // Login page
   'login.title': { en: 'Welcome Back', km: 'សូមស្វាគមន៍' },
@@ -302,7 +310,7 @@ export const translations: Record<string, Translation> = {
   'login.all_provinces': { en: 'All provinces across Cambodia', km: 'គ្រប់ខេត្តទូទាំងកម្ពុជា' },
   'login.students_count': { en: '1,500+ Students', km: 'សិស្សចំនួន ១៥០០+ នាក់' },
   'login.discovering_daily': { en: 'Discovering science daily', km: 'រកឃើញវិទ្យាសាស្ត្រប្រចាំថ្ងៃ' },
-  'login.description': { en: 'Interactive STEM Simulations - Empowering Cambodian students to discover science through hands-on virtual experiments and exploration.', km: 'ការក្លែងធ្វើ STEM អន្តរកម្ម - បំផុសទឹកចិត្តសិស្សកម្ពុជាឱ្យរកឃើញវិទ្យាសាស្ត្រតាមរយៈការពិសោធន៍និម្មិត និងការស្វែងរកដោយដៃ។' },
+  'login.description': { en: 'Interactive STEM Simulations - Empowering Cambodian students to discover science through hands-on virtual experiments and exploration.', km: 'ស្វែងរកវិទ្យាសាស្ត្រតាមរយៈការលេង - បំផុសទឹកចិត្តសិស្សកម្ពុជាឱ្យរកឃើញវិទ្យាសាស្ត្រតាមរយៈការពិសោធន៍និម្មិត និងការស្វែងរកដោយដៃ។' },
 
   // Subjects
   'subjects.physics': { en: 'Physics', km: 'រូបវិទ្យា' },
@@ -315,7 +323,7 @@ export const translations: Record<string, Translation> = {
   'file.image': { en: 'Image', km: 'រូបភាព' },
   'file.video': { en: 'Video', km: 'វីដេអូ' },
   'file.audio': { en: 'Audio', km: 'សំឡេង' },
-  'file.simulation': { en: 'Simulation', km: 'ការក្លែងធ្វើ' },
+  'file.simulation': { en: 'Simulation', km: 'ពិសោធន៍' },
   'file.worksheet': { en: 'Worksheet', km: 'សន្លឹកការងារ' },
   'file.rubric': { en: 'Rubric', km: 'លក្ខណៈវិនិច្ឆ័យ' },
   'file.manual': { en: 'Manual', km: 'សៀវភៅណែនាំ' }

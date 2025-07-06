@@ -31,8 +31,12 @@ import {
   Zap,
   Brain,
   Atom,
-  BarChart3
+  BarChart3,
+  LogOut
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { LoadingSpinnerCompact } from '../ui/loading-spinner';
 
 interface ParentPortalProps {
   user: User;
@@ -121,6 +125,7 @@ interface SimulationStats {
 
 export function ParentPortal({ user }: ParentPortalProps) {
   const permissions = usePermissions(user);
+  const router = useRouter();
   const [children, setChildren] = useState<Child[]>([]);
   const [selectedChildId, setSelectedChildId] = useState<string>('');
   const [childGrades, setChildGrades] = useState<ChildGrade[]>([]);
@@ -213,12 +218,26 @@ export function ParentPortal({ user }: ParentPortalProps) {
     };
   };
 
+  const handleSignOut = async () => {
+    try {
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+      });
+
+      if (response.ok) {
+        toast.success('ចាកចេញដោយជោគជ័យ');
+        router.push('/auth/login');
+      } else {
+        toast.error('មិនអាចចាកចេញបាន');
+      }
+    } catch (error) {
+      console.error('Sign out error:', error);
+      toast.error('មានបញ្ហាក្នុងការចាកចេញ');
+    }
+  };
+
   if (loading) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
+    return <LoadingSpinnerCompact />;
   }
 
   // Check if user has parent or guardian role
@@ -236,26 +255,41 @@ export function ParentPortal({ user }: ParentPortalProps) {
     <div className="space-y-6 bg-gray-50 min-h-screen p-4 sm:p-6">
         {/* Parent Header - Simplified and Larger */}
         <div className="bg-gradient-to-r from-blue-700 to-blue-900 rounded-2xl p-6 sm:p-8 text-white shadow-xl">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
-              <Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-4 border-white shadow-lg">
-                <AvatarImage src={user.avatarUrl} />
-                <AvatarFallback className="bg-white text-blue-700 text-2xl sm:text-3xl font-bold">
-                  {user.name?.split(' ').map(n => n[0]).join('')}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <h1 className="text-3xl sm:text-4xl font-bold font-hanuman">
-                  សូមស្វាគមន៍ {user.name?.split(' ')[0]}!
-                </h1>
-                <p className="text-xl sm:text-2xl text-blue-100 mt-2 font-hanuman">
-                  ទំព័រមាតាបិតា • កូន {children.length} នាក់
-                </p>
+          <div className="flex flex-col gap-4">
+            {/* Top row with sign out button */}
+            <div className="flex justify-between items-start">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                <Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-4 border-white shadow-lg">
+                  <AvatarImage src={user.avatarUrl} />
+                  <AvatarFallback className="bg-white text-blue-700 text-2xl sm:text-3xl font-bold">
+                    {user.name?.split(' ').map(n => n[0]).join('')}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h1 className="text-3xl sm:text-4xl font-bold font-hanuman">
+                    សូមស្វាគមន៍ {user.name?.split(' ')[0]}!
+                  </h1>
+                  <p className="text-xl sm:text-2xl text-blue-100 mt-2 font-hanuman">
+                    ទំព័រមាតាបិតា • កូន {children.length} នាក់
+                  </p>
+                </div>
               </div>
+              
+              {/* Sign out button */}
+              <Button
+                onClick={handleSignOut}
+                variant="ghost"
+                size="lg"
+                className="text-white hover:bg-white/20 border-2 border-white/50 hover:border-white transition-all"
+              >
+                <LogOut className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
+                <span className="font-hanuman text-lg sm:text-xl">ចាកចេញ</span>
+              </Button>
             </div>
 
+            {/* Child selector if multiple children */}
             {children.length > 1 && (
-              <div className="w-full sm:w-80">
+              <div className="w-full sm:w-96">
                 <Select value={selectedChildId} onValueChange={setSelectedChildId}>
                   <SelectTrigger className="bg-white text-gray-900 h-14 text-lg font-hanuman border-2 border-blue-300">
                     <SelectValue placeholder="ជ្រើសរើសកូន" />

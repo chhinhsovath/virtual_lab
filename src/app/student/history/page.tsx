@@ -415,7 +415,7 @@ export default function StudentHistoryPage() {
                     {!sim.completed && (
                       <Button
                         size="sm"
-                        onClick={() => router.push(`/student/simulation/${sim.simulation_id}`)}
+                        onClick={() => router.push(`/simulation/${sim.simulation_id}`)}
                         className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 font-bold transform hover:scale-105 transition-all shadow-lg"
                       >
                         Continue Adventure! 🚀

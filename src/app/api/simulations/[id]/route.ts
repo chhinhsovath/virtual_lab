@@ -88,7 +88,7 @@ export async function GET(
              WHERE ssp.simulation_id = s.id
             ) as total_attempts
           FROM stem_simulations_catalog s
-          WHERE s.id = $2 AND s.is_active = true
+          WHERE s.id = $2
         `;
       } else {
         // No compatible column - return simulation without user stats
@@ -102,7 +102,7 @@ export async function GET(
             0 as total_completions,
             0 as total_attempts
           FROM stem_simulations_catalog s
-          WHERE s.id = $1 AND s.is_active = true
+          WHERE s.id = $1
         `;
       }
 
@@ -146,12 +146,13 @@ export async function PUT(
   try {
     let session = await getAPISession(request);
     
-    if (!session || session.user.role_name !== 'teacher') {
+    if (!session || (session.user.role_name !== 'teacher' && session.user.role_name !== 'admin')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
     const {
+      simulation_name,
       display_name_en,
       display_name_km,
       description_en,
@@ -175,26 +176,27 @@ export async function PUT(
       const result = await client.query(`
         UPDATE stem_simulations_catalog 
         SET 
-          display_name_en = $1,
-          display_name_km = $2,
-          description_en = $3,
-          description_km = $4,
-          subject_area = $5,
-          difficulty_level = $6,
-          grade_levels = $7,
-          estimated_duration = $8,
-          learning_objectives_en = $9,
-          learning_objectives_km = $10,
-          simulation_url = $11,
-          preview_image = $12,
-          tags = $13,
-          is_featured = $14,
-          is_active = $15,
+          simulation_name = $1,
+          display_name_en = $2,
+          display_name_km = $3,
+          description_en = $4,
+          description_km = $5,
+          subject_area = $6,
+          difficulty_level = $7,
+          grade_levels = $8,
+          estimated_duration = $9,
+          learning_objectives_en = $10,
+          learning_objectives_km = $11,
+          simulation_url = $12,
+          preview_image = $13,
+          tags = $14,
+          is_featured = $15,
+          is_active = $16,
           updated_at = CURRENT_TIMESTAMP
-        WHERE id = $16
+        WHERE id = $17
         RETURNING *
       `, [
-        display_name_en, display_name_km, description_en, description_km,
+        simulation_name, display_name_en, display_name_km, description_en, description_km,
         subject_area, difficulty_level, grade_levels, estimated_duration,
         learning_objectives_en, learning_objectives_km, simulation_url, preview_image, tags,
         is_featured, is_active, params.id
@@ -228,7 +230,7 @@ export async function DELETE(
   try {
     let session = await getAPISession(request);
     
-    if (!session || session.user.role_name !== 'teacher') {
+    if (!session || (session.user.role_name !== 'teacher' && session.user.role_name !== 'admin')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

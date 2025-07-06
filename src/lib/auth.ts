@@ -123,6 +123,52 @@ export async function createSession(user: User, ipAddress?: string, userAgent?: 
 }
 
 /**
+ * Create guest session for demo simulations
+ */
+export async function createGuestSession(ipAddress?: string, userAgent?: string): Promise<{ sessionToken: string; guestUser: User }> {
+  const sessionToken = crypto.randomBytes(32).toString('hex');
+  const guestId = crypto.randomUUID();
+  const client = await pool.connect();
+  
+  try {
+    // Create temporary guest session (shorter duration)
+    const insertQuery = `
+      INSERT INTO user_sessions (user_uuid, session_token, user_role, ip_address, user_agent, expires_at, is_guest)
+      VALUES ($1, $2, $3, $4, $5, NOW() + INTERVAL '4 hours', true)
+    `;
+    
+    await client.query(insertQuery, [guestId, sessionToken, 'guest', ipAddress, userAgent]);
+
+    const guestUser: User = {
+      id: guestId,
+      username: `guest_${guestId.substring(0, 8)}`,
+      email: `guest_${guestId.substring(0, 8)}@guest.local`,
+      name: 'Guest User',
+      role: 'guest',
+      firstName: 'Guest',
+      lastName: 'User',
+      phoneNumber: null,
+      isActive: true,
+      teacherId: null,
+      roles: ['guest'],
+      createdAt: new Date(),
+      schoolAccess: [],
+      permissions: [
+        { name: 'simulation.read', resource: 'simulation', action: 'read' },
+        { name: 'simulation.demo', resource: 'simulation', action: 'demo' }
+      ]
+    };
+
+    return { sessionToken, guestUser };
+  } catch (error) {
+    console.error('Create guest session error:', error);
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+/**
  * Get session with user data (simplified to use user_uuid)
  */
 export async function getSession(sessionToken: string): Promise<Session | null> {
@@ -132,14 +178,57 @@ export async function getSession(sessionToken: string): Promise<Session | null> 
 
   const client = await pool.connect();
   try {
-    // Simplified query using user_uuid
+    // First check if it's a guest session
+    const guestSessionQuery = `
+      SELECT 
+        s.id, s.user_uuid, s.session_token, s.expires_at, s.is_guest, s.user_role
+      FROM user_sessions s
+      WHERE s.session_token = $1 AND s.expires_at > NOW() AND s.is_guest = true
+    `;
+
+    const guestResult = await client.query(guestSessionQuery, [sessionToken]);
+    
+    if (guestResult.rows.length > 0) {
+      const row = guestResult.rows[0];
+      
+      // Create guest user object
+      const guestUser: User = {
+        id: row.user_uuid,
+        username: `guest_${row.user_uuid.substring(0, 8)}`,
+        email: `guest_${row.user_uuid.substring(0, 8)}@guest.local`,
+        name: 'Guest User',
+        role: 'guest',
+        firstName: 'Guest',
+        lastName: 'User',
+        phoneNumber: null,
+        isActive: true,
+        teacherId: null,
+        roles: ['guest'],
+        createdAt: new Date(),
+        schoolAccess: [],
+        permissions: [
+          { name: 'simulation.read', resource: 'simulation', action: 'read' },
+          { name: 'simulation.demo', resource: 'simulation', action: 'demo' }
+        ]
+      };
+
+      return {
+        id: row.id,
+        userId: row.user_uuid,
+        sessionToken: row.session_token,
+        expiresAt: new Date(row.expires_at),
+        user: guestUser
+      };
+    }
+
+    // Regular user session query
     const sessionQuery = `
       SELECT 
         s.id, s.user_uuid, s.session_token, s.expires_at,
         u.id as u_id, u.email, u.name, u.role
       FROM user_sessions s
       JOIN users u ON s.user_uuid = u.id
-      WHERE s.session_token = $1 AND s.expires_at > NOW()
+      WHERE s.session_token = $1 AND s.expires_at > NOW() AND (s.is_guest IS NULL OR s.is_guest = false)
     `;
 
     const result = await client.query(sessionQuery, [sessionToken]);
@@ -152,6 +241,65 @@ export async function getSession(sessionToken: string): Promise<Session | null> 
     const nameParts = (row.name || '').split(' ');
     const firstName = nameParts[0] || '';
     const lastName = nameParts.slice(1).join(' ') || '';
+
+    // Define permissions based on role
+    let permissions: Permission[] = [];
+    console.log('Setting permissions for role:', row.role);
+    switch (row.role) {
+      case 'super_admin':
+        permissions = [
+          { name: 'dashboard.read', resource: 'dashboard', action: 'read' },
+          { name: 'reports.read', resource: 'reports', action: 'read' },
+          { name: 'assessments.create', resource: 'assessments', action: 'create' },
+          { name: 'assessments.read', resource: 'assessments', action: 'read' },
+          { name: 'students.read', resource: 'students', action: 'read' },
+          { name: 'teachers.read', resource: 'teachers', action: 'read' },
+          { name: 'schools.read', resource: 'schools', action: 'read' },
+          { name: 'users.read', resource: 'users', action: 'read' },
+          { name: 'admin.read', resource: 'admin', action: 'read' },
+          { name: 'settings.read', resource: 'settings', action: 'read' }
+        ];
+        break;
+      case 'admin':
+        permissions = [
+          { name: 'dashboard.read', resource: 'dashboard', action: 'read' },
+          { name: 'reports.read', resource: 'reports', action: 'read' },
+          { name: 'assessments.create', resource: 'assessments', action: 'create' },
+          { name: 'assessments.read', resource: 'assessments', action: 'read' },
+          { name: 'students.read', resource: 'students', action: 'read' },
+          { name: 'teachers.read', resource: 'teachers', action: 'read' },
+          { name: 'schools.read', resource: 'schools', action: 'read' },
+          { name: 'users.read', resource: 'users', action: 'read' },
+          { name: 'admin.read', resource: 'admin', action: 'read' },
+          { name: 'settings.read', resource: 'settings', action: 'read' }
+        ];
+        break;
+      case 'teacher':
+        permissions = [
+          { name: 'dashboard.read', resource: 'dashboard', action: 'read' },
+          { name: 'reports.read', resource: 'reports', action: 'read' },
+          { name: 'assessments.create', resource: 'assessments', action: 'create' },
+          { name: 'assessments.read', resource: 'assessments', action: 'read' },
+          { name: 'students.read', resource: 'students', action: 'read' }
+        ];
+        break;
+      case 'student':
+        permissions = [
+          { name: 'dashboard.read', resource: 'dashboard', action: 'read' },
+          { name: 'assessments.read', resource: 'assessments', action: 'read' }
+        ];
+        break;
+      case 'guest':
+        permissions = [
+          { name: 'simulation.read', resource: 'simulation', action: 'read' },
+          { name: 'simulation.demo', resource: 'simulation', action: 'demo' }
+        ];
+        break;
+      default:
+        console.log('Warning: Unknown role, no permissions assigned:', row.role);
+        permissions = [];
+    }
+    console.log('Permissions assigned:', permissions.length, 'permissions');
 
     return {
       id: row.id,
@@ -172,7 +320,7 @@ export async function getSession(sessionToken: string): Promise<Session | null> 
         roles: [row.role], // Ensure roles is an array
         createdAt: new Date(),
         schoolAccess: [],
-        permissions: []
+        permissions: permissions
       }
     };
   } catch (error) {
@@ -210,6 +358,7 @@ export function hasPermission(user: User, resource: string, action: string): boo
   if (user.role === 'admin') return true;
   if (user.role === 'teacher' && ['read', 'write'].includes(action)) return true;
   if (user.role === 'student' && action === 'read') return true;
+  if (user.role === 'guest' && resource === 'simulation' && ['read', 'demo'].includes(action)) return true;
   return false;
 }
 

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { User } from '@/lib/auth';
 import { ParentPortal } from '../../components/parent/parent-portal';
+import { LoadingSpinner } from '../../components/ui/loading-spinner';
 
 export default function ParentPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -45,14 +46,7 @@ export default function ParentPage() {
   }, [router]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-100">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
-          <p className="mt-4 text-green-700 font-medium">Loading parent portal...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (!user) {

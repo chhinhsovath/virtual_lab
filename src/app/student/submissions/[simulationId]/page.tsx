@@ -248,7 +248,7 @@ export default function StudentSubmissionDetailPage() {
             <h2 className="text-xl font-semibold">Question Responses</h2>
             <Button 
               variant="outline"
-              onClick={() => router.push(`/student/simulation/${simulationId}`)}
+              onClick={() => router.push(`/simulation/${simulationId}`)}
             >
               <Target className="h-4 w-4 mr-2" />
               Retry Simulation
@@ -366,7 +366,7 @@ export default function StudentSubmissionDetailPage() {
                 <p className="text-gray-500 mb-4">
                   You haven't submitted any exercises for this simulation yet.
                 </p>
-                <Button onClick={() => router.push(`/student/simulation/${simulationId}`)}>
+                <Button onClick={() => router.push(`/simulation/${simulationId}`)}>
                   Start Simulation
                 </Button>
               </CardContent>
@@ -383,7 +383,7 @@ export default function StudentSubmissionDetailPage() {
             >
               Back to History
             </Button>
-            <Button onClick={() => router.push(`/student/simulation/${simulationId}`)}>
+            <Button onClick={() => router.push(`/simulation/${simulationId}`)}>
               <RotateCcw className="h-4 w-4 mr-2" />
               Retry Simulation
             </Button>

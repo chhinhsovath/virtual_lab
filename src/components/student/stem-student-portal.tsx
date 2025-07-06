@@ -9,6 +9,7 @@ import { Button } from '../ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Progress } from '../ui/progress';
 import { useLanguage } from '../LanguageProvider';
+import { LoadingSpinner } from '../ui/loading-spinner';
 import { LanguageSwitcher } from '../LanguageSwitcher';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { 
@@ -363,14 +364,7 @@ export function STEMStudentPortal({ user }: STEMStudentPortalProps) {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
-        <div className="text-center">
-          <FlaskConical className="h-16 w-16 text-blue-600 mx-auto mb-4 animate-pulse" />
-          <p className={`text-blue-700 font-medium ${getFontClass()}`}>{t('student.loading_journey')}</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   return (

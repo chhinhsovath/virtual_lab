@@ -14,7 +14,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Save, Plus, X, Loader2 } from 'lucide-react';
+import { ArrowLeft, Save, Plus, X, Loader2, Upload, Link, Image } from 'lucide-react';
 import { toast } from 'sonner';
 
 const formSchema = z.object({
@@ -48,6 +48,9 @@ export default function EditSimulationPage() {
   const [newObjectiveEn, setNewObjectiveEn] = useState('');
   const [newObjectiveKm, setNewObjectiveKm] = useState('');
   const [newTag, setNewTag] = useState('');
+  const [uploadingSimulation, setUploadingSimulation] = useState(false);
+  const [uploadingPreview, setUploadingPreview] = useState(false);
+  const [previewImageUrl, setPreviewImageUrl] = useState('');
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -77,7 +80,9 @@ export default function EditSimulationPage() {
 
   const fetchSimulation = async () => {
     try {
-      const response = await fetch(`/api/teacher/simulations/${simulationId}`);
+      const response = await fetch(`/api/simulations/${simulationId}`, {
+        credentials: 'include'
+      });
       const data = await response.json();
 
       if (data.success) {
@@ -100,6 +105,10 @@ export default function EditSimulationPage() {
           is_featured: simulation.is_featured,
           is_active: simulation.is_active,
         });
+        // Set preview image URL for display
+        if (simulation.preview_image) {
+          setPreviewImageUrl(simulation.preview_image);
+        }
       } else {
         toast.error('Failed to load simulation');
         router.push('/dashboard/simulations');
@@ -116,9 +125,10 @@ export default function EditSimulationPage() {
   const onSubmit = async (data: FormData) => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/teacher/simulations/${simulationId}`, {
+      const response = await fetch(`/api/simulations/${simulationId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(data),
       });
 
@@ -173,6 +183,83 @@ export default function EditSimulationPage() {
     form.setValue('tags', currentTags.filter((_, i) => i !== index));
   };
 
+  const handleSimulationFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.name.endsWith('.html') && !file.name.endsWith('.htm')) {
+      toast.error('Please upload an HTML file');
+      return;
+    }
+
+    setUploadingSimulation(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', 'simulation');
+      formData.append('course_id', simulationId);
+
+      const response = await fetch('/api/simulations/upload', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (result.file?.url) {
+        form.setValue('simulation_url', result.file.url);
+        toast.success('Simulation file uploaded successfully!');
+      } else {
+        toast.error(result.error || 'Failed to upload file');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Failed to upload simulation file');
+    } finally {
+      setUploadingSimulation(false);
+    }
+  };
+
+  const handlePreviewImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
+      return;
+    }
+
+    setUploadingPreview(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', 'image');
+      formData.append('course_id', simulationId);
+
+      const response = await fetch('/api/simulations/upload', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (result.file?.url) {
+        form.setValue('preview_image', result.file.url);
+        setPreviewImageUrl(result.file.url);
+        toast.success('Preview image uploaded successfully!');
+      } else {
+        toast.error(result.error || 'Failed to upload image');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Failed to upload preview image');
+    } finally {
+      setUploadingPreview(false);
+    }
+  };
+
   const toggleGrade = (grade: number) => {
     const currentGrades = form.getValues('grade_levels');
     if (currentGrades.includes(grade)) {
@@ -199,19 +286,24 @@ export default function EditSimulationPage() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-6 md:mb-8">
-          <Button
-            variant="ghost"
-            onClick={() => router.push('/dashboard/simulations')}
-            className="mb-4"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Simulations
-          </Button>
-          
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            Edit Simulation
-          </h1>
-          <p className="text-gray-600 mt-2 text-sm sm:text-base">Update the STEM simulation details</p>
+          <div className="flex flex-col gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Edit Simulation
+              </h1>
+              <p className="text-gray-600 mt-2 text-sm sm:text-base">Update the STEM simulation details</p>
+            </div>
+            
+            <div className="flex items-center">
+              <Button
+                variant="ghost"
+                onClick={() => router.push('/dashboard/simulations')}
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Simulations
+              </Button>
+            </div>
+          </div>
         </div>
 
         <Form {...form}>
@@ -471,33 +563,118 @@ export default function EditSimulationPage() {
                   <CardHeader>
                     <CardTitle>URLs & Media</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-6">
+                    {/* Simulation URL Section */}
                     <FormField
                       control={form.control}
                       name="simulation_url"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Simulation URL</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="https://..." />
-                          </FormControl>
-                          <FormDescription>
-                            URL to the simulation
-                          </FormDescription>
+                          <div className="space-y-2">
+                            <div className="flex gap-2">
+                              <FormControl>
+                                <Input 
+                                  {...field} 
+                                  placeholder="/labs/geometric-optics-basics_en.html"
+                                  className="flex-1"
+                                />
+                              </FormControl>
+                              <div className="relative">
+                                <input
+                                  type="file"
+                                  accept=".html,.htm"
+                                  onChange={handleSimulationFileUpload}
+                                  className="hidden"
+                                  id="simulation-file-upload"
+                                  disabled={uploadingSimulation}
+                                />
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  onClick={() => document.getElementById('simulation-file-upload')?.click()}
+                                  disabled={uploadingSimulation}
+                                >
+                                  {uploadingSimulation ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <Upload className="h-4 w-4" />
+                                  )}
+                                  <span className="ml-2">Upload HTML</span>
+                                </Button>
+                              </div>
+                            </div>
+                            <FormDescription>
+                              Enter a URL or upload an HTML simulation file
+                            </FormDescription>
+                          </div>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
 
+                    {/* Preview Image Section */}
                     <FormField
                       control={form.control}
                       name="preview_image"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Preview Image URL</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="/images/preview.png" />
-                          </FormControl>
+                          <div className="space-y-2">
+                            <div className="flex gap-2">
+                              <FormControl>
+                                <Input 
+                                  {...field} 
+                                  placeholder="/images/geometric-optics-preview.png"
+                                  className="flex-1"
+                                />
+                              </FormControl>
+                              <div className="relative">
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={handlePreviewImageUpload}
+                                  className="hidden"
+                                  id="preview-image-upload"
+                                  disabled={uploadingPreview}
+                                />
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  onClick={() => document.getElementById('preview-image-upload')?.click()}
+                                  disabled={uploadingPreview}
+                                >
+                                  {uploadingPreview ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <Image className="h-4 w-4" />
+                                  )}
+                                  <span className="ml-2">Upload Image</span>
+                                </Button>
+                              </div>
+                            </div>
+                            <FormDescription>
+                              Enter a URL or upload an image file
+                            </FormDescription>
+                            
+                            {/* Preview Image Display */}
+                            {previewImageUrl && (
+                              <div className="mt-4">
+                                <p className="text-sm font-medium mb-2">Preview:</p>
+                                <div className="relative w-full max-w-md border rounded-lg overflow-hidden">
+                                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                                  <img 
+                                    src={previewImageUrl} 
+                                    alt="Simulation preview"
+                                    className="w-full h-auto"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).style.display = 'none';
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            )}
+                          </div>
                           <FormMessage />
                         </FormItem>
                       )}

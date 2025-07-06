@@ -217,7 +217,7 @@ export default function SimulationsPage() {
                   <h1 className="text-2xl font-black bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 bg-clip-text text-transparent animate-gradient-x">
                     Virtual Lab
                   </h1>
-                  <p className="text-sm text-purple-600 font-bold font-hanuman">🚀 ការពិសោធន៍វិទ្យាសាស្ត្រ</p>
+                  <p className="text-sm text-purple-600 font-bold font-hanuman">🚀វិទ្យាសាស្ត្រ</p>
                 </div>
               </Link>
             </div>

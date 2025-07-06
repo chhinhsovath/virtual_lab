@@ -37,7 +37,11 @@ import {
   Globe,
   Database,
   UserCheck,
-  BookOpenCheck
+  BookOpenCheck,
+  FlaskConical,
+  Plus,
+  ListFilter,
+  Play
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -185,6 +189,44 @@ const menuGroups: MenuGroup[] = [
     ]
   },
   {
+    id: 'stem-simulations',
+    title: 'STEM Simulations',
+    titleKH: 'ការពិសោធន៍ STEM',
+    icon: FlaskConical,
+    badge: 'Lab',
+    items: [
+      {
+        id: 'manage-simulations',
+        name: 'Manage Simulations',
+        nameKH: 'គ្រប់គ្រងការពិសោធន៍',
+        href: '/dashboard/simulations',
+        icon: ListFilter,
+        permission: 'assessments.create',
+        description: 'View and manage all simulations',
+        isPopular: true
+      },
+      {
+        id: 'create-simulation',
+        name: 'Create Simulation',
+        nameKH: 'បង្កើតការពិសោធន៍',
+        href: '/dashboard/simulations/new',
+        icon: Plus,
+        permission: 'assessments.create',
+        description: 'Add new STEM simulation',
+        isNew: true
+      },
+      {
+        id: 'launch-simulations',
+        name: 'Launch Simulations',
+        nameKH: 'ចាប់ផ្តើមការពិសោធន៍',
+        href: '/dashboard/simulations/launch',
+        icon: Play,
+        permission: 'assessments.create',
+        description: 'Quick launch simulations'
+      }
+    ]
+  },
+  {
     id: 'reports',
     title: 'Reports & Data',
     titleKH: 'របាយការណ៍ និងទិន្នន័យ',
@@ -259,7 +301,7 @@ const menuGroups: MenuGroup[] = [
 
 export default function ModernSidebar({ user, onLogout, mobileOpen, onMobileToggle, onCollapsedChange }: ModernSidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
-  const [expandedGroups, setExpandedGroups] = useState<string[]>(['overview']);
+  const [expandedGroups, setExpandedGroups] = useState<string[]>(['overview', 'stem-simulations']);
   const [isMobile, setIsMobile] = useState(false);
   const pathname = usePathname();
   const { t, getFontClass } = useLanguage();
@@ -310,7 +352,19 @@ export default function ModernSidebar({ user, onLogout, mobileOpen, onMobileTogg
     }
     
     // Check if user has permission for any item in the group
-    return group.items.some(item => user.permissions.includes(item.permission));
+    const hasPermission = group.items.some(item => user.permissions.includes(item.permission));
+    
+    // Debug logging
+    if (group.id === 'stem-simulations') {
+      console.log('STEM Simulations menu check:', {
+        groupId: group.id,
+        userPermissions: user.permissions,
+        requiredPermissions: group.items.map(item => item.permission),
+        hasPermission
+      });
+    }
+    
+    return hasPermission;
   });
 
   const sidebarContent = (
