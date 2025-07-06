@@ -159,3 +159,45 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    let session = await getAPISession(request);
+    
+    if (!session || session.user.role_name !== 'teacher') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const simulation_id = searchParams.get('simulation_id');
+
+    if (!simulation_id) {
+      return NextResponse.json({ error: 'Simulation ID required' }, { status: 400 });
+    }
+
+    const client = await pool.connect();
+    
+    try {
+      // Delete all exercises for the simulation
+      const result = await client.query(`
+        DELETE FROM simulation_exercises
+        WHERE simulation_id = $1
+        RETURNING id
+      `, [simulation_id]);
+
+      return NextResponse.json({
+        success: true,
+        deleted_count: result.rows.length
+      });
+      
+    } finally {
+      client.release();
+    }
+  } catch (error: any) {
+    console.error('Error deleting exercises:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete exercises', details: error.message },
+      { status: 500 }
+    );
+  }
+}

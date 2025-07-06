@@ -38,8 +38,14 @@ export async function GET(request: NextRequest) {
           s.is_active AS active,
           s.is_featured,
           s.simulation_url,
+          s.simulation_file_path,
           s.preview_image,
           s.tags,
+          s.status,
+          s.exercise_content_en,
+          s.exercise_content_km,
+          s.instruction_content_en,
+          s.instruction_content_km,
           s.created_at,
           s.updated_at,
           -- Get assignment count for this teacher
@@ -78,11 +84,13 @@ export async function GET(request: NextRequest) {
       if (status && status !== 'all') {
         paramCount++;
         if (status === 'active') {
-          query += ` AND s.is_active = true`;
+          query += ` AND s.is_active = true AND s.status = 'published'`;
         } else if (status === 'draft') {
-          query += ` AND s.is_active = false`;
-        } else if (status === 'archived') {
-          query += ` AND s.is_active = false`; // You might want to add an archived column
+          query += ` AND s.status = 'draft'`;
+        } else if (status === 'review') {
+          query += ` AND s.status = 'review'`;
+        } else if (status === 'published') {
+          query += ` AND s.status = 'published'`;
         }
       }
 
@@ -108,17 +116,22 @@ export async function GET(request: NextRequest) {
         descriptionKm: row.description_km,
         subject: row.subject,
         type: 'simulation', // All entries from this table are simulations
-        status: row.active ? 'active' : 'draft',
+        status: row.status || (row.active ? 'published' : 'draft'),
         studentsAssigned: parseInt(row.students_assigned) || 0,
         completionRate: parseFloat(row.completion_rate) || 0,
         lastModified: new Date(row.updated_at).toLocaleString(),
         difficulty: row.difficulty,
         estimatedDuration: row.estimated_duration,
         simulationUrl: row.simulation_url,
+        simulationFilePath: row.simulation_file_path,
         previewImage: row.preview_image,
         tags: row.tags || [],
         isFeatured: row.is_featured,
-        gradeLevels: row.grade_levels
+        gradeLevels: row.grade_levels,
+        exerciseContentEn: row.exercise_content_en,
+        exerciseContentKm: row.exercise_content_km,
+        instructionContentEn: row.instruction_content_en,
+        instructionContentKm: row.instruction_content_km
       }));
 
       return NextResponse.json({
@@ -163,12 +176,18 @@ export async function POST(request: NextRequest) {
       grade_levels,
       estimated_duration,
       simulation_url,
+      simulation_file_path,
       tags,
       is_active,
       is_featured,
       learning_objectives_en,
       learning_objectives_km,
-      preview_image
+      preview_image,
+      status,
+      exercise_content_en,
+      exercise_content_km,
+      instruction_content_en,
+      instruction_content_km
     } = body;
 
     const client = await pool.connect();
@@ -185,13 +204,20 @@ export async function POST(request: NextRequest) {
           grade_levels,
           estimated_duration,
           simulation_url,
+          simulation_file_path,
           tags,
           is_active,
           is_featured,
           learning_objectives_en,
           learning_objectives_km,
-          preview_image
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+          preview_image,
+          status,
+          exercise_content_en,
+          exercise_content_km,
+          instruction_content_en,
+          instruction_content_km,
+          created_by
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
         RETURNING *`,
         [
           simulation_name,
@@ -204,12 +230,19 @@ export async function POST(request: NextRequest) {
           grade_levels || [],
           estimated_duration,
           simulation_url,
+          simulation_file_path || simulation_url,
           tags || [],
           is_active !== undefined ? is_active : true,
           is_featured || false,
           learning_objectives_en || [],
           learning_objectives_km || [],
-          preview_image
+          preview_image,
+          status || 'draft',
+          exercise_content_en,
+          exercise_content_km,
+          instruction_content_en,
+          instruction_content_km,
+          session.user.id
         ]
       );
 

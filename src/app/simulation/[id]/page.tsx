@@ -27,11 +27,18 @@ interface SimulationData {
   display_name_en: string;
   display_name_km: string;
   simulation_url: string;
+  simulation_file_path: string;
   description_en: string;
   description_km: string;
   subject_area: string;
   difficulty_level: string;
   estimated_duration: number;
+  exercise_content_en: string;
+  exercise_content_km: string;
+  instruction_content_en: string;
+  instruction_content_km: string;
+  learning_objectives_en: string[];
+  learning_objectives_km: string[];
 }
 
 interface SimulationSession {
@@ -892,34 +899,78 @@ export default function SimulationPage() {
                     <BookOpen className="h-8 w-8 text-purple-600" />
                     ការណែនាំ 📖
                   </h3>
-                  <p className="text-lg text-purple-700 font-semibold mb-6 font-hanuman bg-white/70 rounded-xl p-4 border border-purple-200">
-                    {simulation.description_km}
-                  </p>
                   
-                  <div className="mb-8">
-                    <h4 className="text-xl font-black text-purple-800 mb-4 font-hanuman flex items-center gap-2">
-                      <Target className="h-6 w-6 text-purple-600" />
-                      របៀបបញ្ចប់ការសាកល្បងនេះ 🎯
-                    </h4>
-                    <ol className="space-y-3">
-                      <li className="bg-white/70 rounded-xl p-4 border border-purple-200 font-hanuman font-semibold text-purple-700 flex items-start gap-3">
-                        <span className="text-2xl">1️⃣</span>
-                        <span>ធ្វើអន្តរកម្មជាមួយការសាកល្បងដើម្បីស្វែងយល់គោលគំនិត 🧪</span>
-                      </li>
-                      <li className="bg-white/70 rounded-xl p-4 border border-purple-200 font-hanuman font-semibold text-purple-700 flex items-start gap-3">
-                        <span className="text-2xl">2️⃣</span>
-                        <span>សង្កេតមើលរបៀបដែលប៉ារ៉ាម៉ែត្រផ្សេងៗប៉ះពាល់ដល់លទ្ធផល 🔍</span>
-                      </li>
-                      <li className="bg-white/70 rounded-xl p-4 border border-purple-200 font-hanuman font-semibold text-purple-700 flex items-start gap-3">
-                        <span className="text-2xl">3️⃣</span>
-                        <span>ឆ្លើយសំណួរលំហាត់ទាំងអស់ដោយផ្អែកលើការសង្កេតរបស់អ្នក ✍️</span>
-                      </li>
-                      <li className="bg-white/70 rounded-xl p-4 border border-purple-200 font-hanuman font-semibold text-purple-700 flex items-start gap-3">
-                        <span className="text-2xl">4️⃣</span>
-                        <span>ដាក់ស្នើចម្លើយរបស់អ្នកនៅពេលបញ្ចប់ 🚀</span>
-                      </li>
-                    </ol>
-                  </div>
+                  {/* Teacher-created instruction content */}
+                  {simulation.instruction_content_km && (
+                    <div className="mb-8">
+                      <h4 className="text-xl font-black text-purple-800 mb-4 font-hanuman flex items-center gap-2">
+                        <Target className="h-6 w-6 text-purple-600" />
+                        ការណែនាំពីគ្រូ 👨‍🏫
+                      </h4>
+                      <div className="bg-white/80 rounded-xl p-6 border border-purple-200 shadow-md">
+                        <div className="text-lg text-purple-700 font-semibold font-hanuman mb-4 whitespace-pre-wrap">
+                          {simulation.instruction_content_km}
+                        </div>
+                        {simulation.instruction_content_en && (
+                          <div className="text-base text-purple-600 border-t border-purple-200 pt-4 whitespace-pre-wrap">
+                            {simulation.instruction_content_en}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Learning objectives from teacher */}
+                  {simulation.learning_objectives_km && simulation.learning_objectives_km.length > 0 && (
+                    <div className="mb-8">
+                      <h4 className="text-xl font-black text-purple-800 mb-4 font-hanuman flex items-center gap-2">
+                        <Target className="h-6 w-6 text-purple-600" />
+                        គោលបំណងការរៀន 🎯
+                      </h4>
+                      <ul className="space-y-3">
+                        {simulation.learning_objectives_km.map((objective, index) => (
+                          <li key={index} className="bg-white/70 rounded-xl p-4 border border-purple-200 font-hanuman font-semibold text-purple-700 flex items-start gap-3">
+                            <span className="text-2xl">{index + 1}️⃣</span>
+                            <span>{objective}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {/* Default instructions if no teacher content */}
+                  {!simulation.instruction_content_km && (
+                    <>
+                      <p className="text-lg text-purple-700 font-semibold mb-6 font-hanuman bg-white/70 rounded-xl p-4 border border-purple-200">
+                        {simulation.description_km}
+                      </p>
+                      
+                      <div className="mb-8">
+                        <h4 className="text-xl font-black text-purple-800 mb-4 font-hanuman flex items-center gap-2">
+                          <Target className="h-6 w-6 text-purple-600" />
+                          របៀបបញ្ចប់ការសាកល្បងនេះ 🎯
+                        </h4>
+                        <ol className="space-y-3">
+                          <li className="bg-white/70 rounded-xl p-4 border border-purple-200 font-hanuman font-semibold text-purple-700 flex items-start gap-3">
+                            <span className="text-2xl">1️⃣</span>
+                            <span>ធ្វើអន្តរកម្មជាមួយការសាកល្បងដើម្បីស្វែងយល់គោលគំនិត 🧪</span>
+                          </li>
+                          <li className="bg-white/70 rounded-xl p-4 border border-purple-200 font-hanuman font-semibold text-purple-700 flex items-start gap-3">
+                            <span className="text-2xl">2️⃣</span>
+                            <span>សង្កេតមើលរបៀបដែលប៉ារ៉ាម៉ែត្រផ្សេងៗប៉ះពាល់ដល់លទ្ធផល 🔍</span>
+                          </li>
+                          <li className="bg-white/70 rounded-xl p-4 border border-purple-200 font-hanuman font-semibold text-purple-700 flex items-start gap-3">
+                            <span className="text-2xl">3️⃣</span>
+                            <span>ឆ្លើយសំណួរលំហាត់ទាំងអស់ដោយផ្អែកលើការសង្កេតរបស់អ្នក ✍️</span>
+                          </li>
+                          <li className="bg-white/70 rounded-xl p-4 border border-purple-200 font-hanuman font-semibold text-purple-700 flex items-start gap-3">
+                            <span className="text-2xl">4️⃣</span>
+                            <span>ដាក់ស្នើចម្លើយរបស់អ្នកនៅពេលបញ្ចប់ 🚀</span>
+                          </li>
+                        </ol>
+                      </div>
+                    </>
+                  )}
                   
                   <div>
                     <h4 className="text-xl font-black text-purple-800 mb-4 font-hanuman flex items-center gap-2">

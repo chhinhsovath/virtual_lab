@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
           duration_seconds
         ) VALUES ($1, $2, $3, $4, $5, $6::uuid, $7)
       `, [
-        session.user_uuid,
+        (session as any).user_uuid || session.user_id,
         'simulation_activity',
         action,
         JSON.stringify({
@@ -108,7 +108,7 @@ export async function GET(request: NextRequest) {
       const mockActivities = [
         {
           id: '1',
-          user_id: session.user_uuid || session.user_id,
+          user_id: (session as any).user_uuid || session.user_id,
           action: 'login',
           resource_type: 'system',
           resource_name: 'Student Portal',
@@ -117,7 +117,7 @@ export async function GET(request: NextRequest) {
         },
         {
           id: '2',
-          user_id: session.user_uuid || session.user_id,
+          user_id: (session as any).user_uuid || session.user_id,
           action: 'simulation_start',
           resource_type: 'simulation',
           resource_name: 'Physics Pendulum Lab',
@@ -127,7 +127,7 @@ export async function GET(request: NextRequest) {
         },
         {
           id: '3',
-          user_id: session.user_uuid || session.user_id,
+          user_id: (session as any).user_uuid || session.user_id,
           action: 'exercise_submit',
           resource_type: 'exercise',
           resource_name: 'Pendulum Questions',
@@ -137,7 +137,7 @@ export async function GET(request: NextRequest) {
         },
         {
           id: '4',
-          user_id: session.user_uuid || session.user_id,
+          user_id: (session as any).user_uuid || session.user_id,
           action: 'simulation_complete',
           resource_type: 'simulation',
           resource_name: 'Physics Pendulum Lab',

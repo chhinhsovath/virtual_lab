@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const student_id = searchParams.get('student_id') || session.student_id;
+    const student_id = searchParams.get('student_id') || session.user_id;
     const simulation_id = searchParams.get('simulation_id');
 
     const client = await pool.connect();
@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getLMSSession();
+    const session = await getAPISession(request);
     if (!session || session.user.role_name !== 'teacher') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

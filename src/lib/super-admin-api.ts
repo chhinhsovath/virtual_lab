@@ -31,7 +31,8 @@ export function withSuperAdmin(handler: ApiHandler) {
 
     try {
       // Get session
-      const session = await getSession(request);
+      const sessionToken = request.cookies.get('session')?.value || request.cookies.get('virtual_lab_session')?.value;
+      const session = await getSession(sessionToken || '');
       if (!session) {
         const response = NextResponse.json(
           { error: 'Unauthorized' },
@@ -59,7 +60,7 @@ export function withSuperAdmin(handler: ApiHandler) {
           request,
           { status: 403 },
           session.user.id,
-          session.sessionId
+          session.id
         );
 
         await activityLogger.logSecurityEvent(
@@ -84,7 +85,7 @@ export function withSuperAdmin(handler: ApiHandler) {
           role: session.user.role,
           permissions: session.user.permissions
         },
-        sessionId: session.sessionId,
+        sessionId: session.id,
         requestId
       };
 
@@ -99,7 +100,7 @@ export function withSuperAdmin(handler: ApiHandler) {
           body: response.status < 400 ? await response.clone().json().catch(() => null) : null
         },
         session.user.id,
-        session.sessionId
+        session.id
       );
 
       return response;

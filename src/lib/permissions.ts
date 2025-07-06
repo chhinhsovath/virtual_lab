@@ -174,7 +174,7 @@ export const SUBJECTS = {
   ALL: 'all'
 } as const;
 
-export type Permission = typeof PERMISSIONS[keyof typeof PERMISSIONS][keyof typeof PERMISSIONS[keyof typeof PERMISSIONS]];
+export type Permission = string;
 export type Role = typeof ROLES[keyof typeof ROLES];
 export type CrudAction = typeof CRUD_ACTIONS[keyof typeof CRUD_ACTIONS];
 export type AccessType = typeof ACCESS_TYPES[keyof typeof ACCESS_TYPES];

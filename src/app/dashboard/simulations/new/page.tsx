@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,14 +10,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Save, Plus, X, Loader2, Menu, LogOut } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { 
+  ArrowLeft, Save, Plus, X, Loader2, Menu, LogOut, Upload, 
+  FileText, BookOpen, Send, Eye, Edit3, AlertCircle, CheckCircle,
+  FileCode, Clock, ChevronDown, Download, FileSpreadsheet
+} from 'lucide-react';
 import { toast } from 'sonner';
 import ModernSidebar from '@/components/dashboard/ModernSidebar';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { cn } from '@/lib/utils';
 
 interface User {
   id: string;
@@ -54,13 +61,50 @@ const formSchema = z.object({
   tags: z.array(z.string()).optional(),
   is_featured: z.boolean().default(false),
   is_active: z.boolean().default(true),
+  // New fields
+  status: z.enum(['draft', 'review', 'published']).default('draft'),
+  exercise_content_en: z.string().optional(),
+  exercise_content_km: z.string().optional(),
+  instruction_content_en: z.string().optional(),
+  instruction_content_km: z.string().optional(),
+  simulation_file: z.any().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
+const statusConfig = {
+  draft: {
+    label: 'Draft',
+    icon: Edit3,
+    color: 'bg-gray-100 text-gray-800',
+    borderColor: 'border-gray-300',
+    description: 'Work in progress, not visible to students'
+  },
+  review: {
+    label: 'Under Review',
+    icon: Clock,
+    color: 'bg-yellow-100 text-yellow-800',
+    borderColor: 'border-yellow-300',
+    description: 'Submitted for review by administrators'
+  },
+  published: {
+    label: 'Published',
+    icon: CheckCircle,
+    color: 'bg-green-100 text-green-800',
+    borderColor: 'border-green-300',
+    description: 'Live and available to students'
+  }
+};
+
 export default function NewSimulationPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
+  const [bulkFile, setBulkFile] = useState<File | null>(null);
+  const [bulkPreview, setBulkPreview] = useState<any[]>([]);
+  const [bulkUploading, setBulkUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const bulkFileInputRef = useRef<HTMLInputElement>(null);
   const [user, setUser] = useState<User | null>(null);
   const [userLoading, setUserLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -68,6 +112,46 @@ export default function NewSimulationPage() {
   const [newObjectiveEn, setNewObjectiveEn] = useState('');
   const [newObjectiveKm, setNewObjectiveKm] = useState('');
   const [newTag, setNewTag] = useState('');
+  const [exercises, setExercises] = useState<Array<{
+    id: string;
+    question_number: number;
+    question_type: 'multiple_choice' | 'short_answer' | 'calculation' | 'true_false';
+    question_en: string;
+    question_km: string;
+    instructions_en?: string;
+    instructions_km?: string;
+    options?: {
+      options_en: string[];
+      options_km: string[];
+    };
+    correct_answer?: string;
+    points: number;
+    difficulty_level?: 'easy' | 'medium' | 'hard';
+    hints_en?: string;
+    hints_km?: string;
+    explanation_en?: string;
+    explanation_km?: string;
+  }>>([]);
+  const [currentExercise, setCurrentExercise] = useState({
+    question_type: 'multiple_choice' as const,
+    question_en: '',
+    question_km: '',
+    instructions_en: '',
+    instructions_km: '',
+    options_en: ['', '', '', ''],
+    options_km: ['', '', '', ''],
+    correct_answer: '',
+    points: 10,
+    difficulty_level: 'medium' as const,
+    hints_en: '',
+    hints_km: '',
+    explanation_en: '',
+    explanation_km: ''
+  });
+  const [showExerciseForm, setShowExerciseForm] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [fileUploading, setFileUploading] = useState(false);
+  const [previewMode, setPreviewMode] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -88,6 +172,11 @@ export default function NewSimulationPage() {
       tags: [],
       is_featured: false,
       is_active: true,
+      status: 'draft',
+      exercise_content_en: '',
+      exercise_content_km: '',
+      instruction_content_en: '',
+      instruction_content_km: '',
     },
   });
 
@@ -100,7 +189,6 @@ export default function NewSimulationPage() {
         const data = await response.json();
         
         if (data.user) {
-          // Ensure user has the expected structure
           const userData = {
             ...data.user,
             roles: data.user.roles || (data.user.role ? [data.user.role] : []),
@@ -133,19 +221,69 @@ export default function NewSimulationPage() {
     }
   };
 
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.type !== 'text/html' && !file.name.endsWith('.html')) {
+        toast.error('Please select an HTML file');
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit
+        toast.error('File size must be less than 10MB');
+        return;
+      }
+      setSelectedFile(file);
+      form.setValue('simulation_file', file);
+    }
+  };
+
   const onSubmit = async (data: FormData) => {
     setLoading(true);
     try {
+      // If there's a file to upload, handle it first
+      let simulationFilePath = '';
+      if (selectedFile) {
+        setFileUploading(true);
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        formData.append('type', 'simulation');
+        
+        const uploadResponse = await fetch('/api/upload', {
+          method: 'POST',
+          credentials: 'include',
+          body: formData,
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error('Failed to upload file');
+        }
+
+        const uploadResult = await uploadResponse.json();
+        simulationFilePath = uploadResult.filePath;
+        setFileUploading(false);
+      }
+
+      // Create the simulation with all data
+      const simulationData = {
+        ...data,
+        simulation_file_path: simulationFilePath || data.simulation_url,
+      };
+
       const response = await fetch('/api/simulations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(data),
+        body: JSON.stringify(simulationData),
       });
 
       const result = await response.json();
       if (result.success) {
-        toast.success('Simulation created successfully!');
+        // If we have exercises, create them
+        if (exercises.length > 0) {
+          await createExercises(result.simulation.id);
+        }
+        
+        toast.success(`Simulation ${data.status === 'published' ? 'published' : 'saved'} successfully!`);
         router.push('/dashboard/simulations');
       } else {
         toast.error(result.error || 'Failed to create simulation');
@@ -155,6 +293,7 @@ export default function NewSimulationPage() {
       toast.error('Failed to create simulation');
     } finally {
       setLoading(false);
+      setFileUploading(false);
     }
   };
 
@@ -203,12 +342,304 @@ export default function NewSimulationPage() {
     }
   };
 
+  const handleStatusChange = (newStatus: 'draft' | 'review' | 'published') => {
+    form.setValue('status', newStatus);
+    
+    if (newStatus === 'published') {
+      toast.info('Publishing will make this simulation immediately available to students');
+    } else if (newStatus === 'review') {
+      toast.info('Submitting for review will notify administrators');
+    }
+  };
+
+  const addExercise = () => {
+    if (!currentExercise.question_en.trim()) {
+      toast.error('Please enter a question in English');
+      return;
+    }
+
+    const newExercise = {
+      id: `exercise_${Date.now()}`,
+      question_number: exercises.length + 1,
+      question_type: currentExercise.question_type,
+      question_en: currentExercise.question_en,
+      question_km: currentExercise.question_km,
+      instructions_en: currentExercise.instructions_en,
+      instructions_km: currentExercise.instructions_km,
+      options: currentExercise.question_type === 'multiple_choice' ? {
+        options_en: currentExercise.options_en.filter(opt => opt.trim()),
+        options_km: currentExercise.options_km.filter(opt => opt.trim())
+      } : undefined,
+      correct_answer: currentExercise.correct_answer,
+      points: currentExercise.points,
+      difficulty_level: currentExercise.difficulty_level,
+      hints_en: currentExercise.hints_en,
+      hints_km: currentExercise.hints_km,
+      explanation_en: currentExercise.explanation_en,
+      explanation_km: currentExercise.explanation_km
+    };
+
+    setExercises([...exercises, newExercise]);
+    
+    // Reset form
+    setCurrentExercise({
+      question_type: 'multiple_choice',
+      question_en: '',
+      question_km: '',
+      instructions_en: '',
+      instructions_km: '',
+      options_en: ['', '', '', ''],
+      options_km: ['', '', '', ''],
+      correct_answer: '',
+      points: 10,
+      difficulty_level: 'medium',
+      hints_en: '',
+      hints_km: '',
+      explanation_en: '',
+      explanation_km: ''
+    });
+    
+    setShowExerciseForm(false);
+    toast.success('Exercise added successfully!');
+  };
+
+  const removeExercise = (id: string) => {
+    setExercises(exercises.filter(ex => ex.id !== id));
+    // Renumber exercises
+    const updatedExercises = exercises
+      .filter(ex => ex.id !== id)
+      .map((ex, index) => ({ ...ex, question_number: index + 1 }));
+    setExercises(updatedExercises);
+  };
+
+  const updateCurrentExerciseOption = (index: number, value: string, language: 'en' | 'km') => {
+    const key = language === 'en' ? 'options_en' : 'options_km';
+    const newOptions = [...currentExercise[key]];
+    newOptions[index] = value;
+    setCurrentExercise({
+      ...currentExercise,
+      [key]: newOptions
+    });
+  };
+
+  const createExercises = async (simulationId: string) => {
+    try {
+      for (const exercise of exercises) {
+        const exerciseData = {
+          simulation_id: simulationId,
+          question_number: exercise.question_number,
+          question_type: exercise.question_type,
+          question_en: exercise.question_en,
+          question_km: exercise.question_km,
+          instructions_en: exercise.instructions_en,
+          instructions_km: exercise.instructions_km,
+          options: exercise.options,
+          correct_answer: exercise.correct_answer,
+          points: exercise.points,
+          difficulty_level: exercise.difficulty_level,
+          hints_en: exercise.hints_en,
+          hints_km: exercise.hints_km,
+          explanation_en: exercise.explanation_en,
+          explanation_km: exercise.explanation_km,
+          is_required: true
+        };
+
+        const response = await fetch('/api/exercises', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(exerciseData),
+        });
+
+        if (!response.ok) {
+          console.error('Failed to create exercise:', exercise.question_number);
+        }
+      }
+    } catch (error) {
+      console.error('Error creating exercises:', error);
+      toast.error('Some exercises failed to save');
+    }
+  };
+
+  // Bulk upload functions
+  const downloadTemplate = (format: 'json' | 'csv') => {
+    const sampleExercise = {
+      question_number: 1,
+      question_type: "multiple_choice",
+      question_en: "What is the capital of France?",
+      question_km: "តើរដ្ឋធានីនៃប្រទេសបារាំងគឺជាអ្វី?",
+      instructions_en: "Select the correct answer",
+      instructions_km: "ជ្រើសរើសចម្លើយត្រឹមត្រូវ",
+      options_en: ["Paris", "London", "Berlin", "Madrid"],
+      options_km: ["ប៉ារីស", "ឡុងដ៍", "បែរលីន", "ម៉ាឌ្រីដ"],
+      correct_answer: "Paris",
+      points: 10,
+      difficulty_level: "easy",
+      hints_en: "It's known as the City of Light",
+      hints_km: "វាត្រូវបានគេស្គាល់ថាជាទីក្រុងនៃពន្លឺ",
+      explanation_en: "Paris is the capital and largest city of France",
+      explanation_km: "ប៉ារីសគឺជារដ្ឋធានី និងជាទីក្រុងធំបំផុតនៃប្រទេសបារាំង",
+      is_required: true
+    };
+
+    if (format === 'json') {
+      const template = { exercises: [sampleExercise] };
+      const blob = new Blob([JSON.stringify(template, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'exercise-template.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    } else {
+      const headers = [
+        'question_number', 'question_type', 'question_en', 'question_km',
+        'instructions_en', 'instructions_km', 'options_en', 'options_km',
+        'correct_answer', 'points', 'difficulty_level', 'hints_en', 'hints_km',
+        'explanation_en', 'explanation_km', 'is_required'
+      ];
+      const row = [
+        sampleExercise.question_number,
+        sampleExercise.question_type,
+        `"${sampleExercise.question_en}"`,
+        `"${sampleExercise.question_km}"`,
+        `"${sampleExercise.instructions_en}"`,
+        `"${sampleExercise.instructions_km}"`,
+        `"${sampleExercise.options_en.join('|')}"`,
+        `"${sampleExercise.options_km.join('|')}"`,
+        sampleExercise.correct_answer,
+        sampleExercise.points,
+        sampleExercise.difficulty_level,
+        `"${sampleExercise.hints_en}"`,
+        `"${sampleExercise.hints_km}"`,
+        `"${sampleExercise.explanation_en}"`,
+        `"${sampleExercise.explanation_km}"`,
+        sampleExercise.is_required
+      ];
+      const csv = [headers.join(','), row.join(',')].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'exercise-template.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    toast.success(`${format.toUpperCase()} template downloaded`);
+  };
+
+  const handleBulkFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setBulkFile(file);
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string;
+        let parsedData: any[] = [];
+
+        if (file.name.endsWith('.json')) {
+          const jsonData = JSON.parse(content);
+          parsedData = jsonData.exercises || [];
+        } else if (file.name.endsWith('.csv')) {
+          const lines = content.split('\n').filter(line => line.trim());
+          const headers = lines[0].split(',').map(h => h.trim());
+          
+          parsedData = lines.slice(1).map((line, index) => {
+            const values = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+              const char = line[i];
+              if (char === '"') {
+                inQuotes = !inQuotes;
+              } else if (char === ',' && !inQuotes) {
+                values.push(current.trim());
+                current = '';
+              } else {
+                current += char;
+              }
+            }
+            values.push(current.trim());
+
+            const exercise: any = {};
+            headers.forEach((header, i) => {
+              const value = values[i]?.replace(/^"(.*)"$/, '$1');
+              if (header === 'question_number' || header === 'points') {
+                exercise[header] = parseInt(value) || (index + 1);
+              } else if (header === 'options_en' || header === 'options_km') {
+                exercise[header] = value?.split('|') || [];
+              } else if (header === 'is_required') {
+                exercise[header] = value === 'true';
+              } else {
+                exercise[header] = value || '';
+              }
+            });
+            return exercise;
+          });
+        }
+
+        setBulkPreview(parsedData);
+        setShowBulkUpload(true);
+      } catch (error) {
+        toast.error('Failed to parse file. Please check the format.');
+        console.error('Parse error:', error);
+      }
+    };
+
+    reader.readAsText(file);
+  };
+
+  const processBulkUpload = () => {
+    setBulkUploading(true);
+    
+    try {
+      const processedExercises = bulkPreview.map((exercise, index) => ({
+        id: Math.random().toString(36).substr(2, 9),
+        question_number: exercise.question_number || (exercises.length + index + 1),
+        question_type: exercise.question_type || 'multiple_choice',
+        question_en: exercise.question_en || '',
+        question_km: exercise.question_km || '',
+        instructions_en: exercise.instructions_en || '',
+        instructions_km: exercise.instructions_km || '',
+        options_en: exercise.options_en || [],
+        options_km: exercise.options_km || [],
+        correct_answer: exercise.correct_answer || '',
+        points: exercise.points || 10,
+        difficulty_level: exercise.difficulty_level || 'medium',
+        hints_en: exercise.hints_en || '',
+        hints_km: exercise.hints_km || '',
+        explanation_en: exercise.explanation_en || '',
+        explanation_km: exercise.explanation_km || '',
+        is_required: exercise.is_required !== false
+      }));
+
+      setExercises(prev => [...prev, ...processedExercises]);
+      setShowBulkUpload(false);
+      setBulkFile(null);
+      setBulkPreview([]);
+      
+      toast.success(`Successfully imported ${processedExercises.length} exercises`);
+    } catch (error) {
+      toast.error('Failed to import exercises');
+      console.error('Import error:', error);
+    } finally {
+      setBulkUploading(false);
+    }
+  };
+
   if (userLoading) {
     return <LoadingSpinner />;
   }
 
+  const currentStatus = form.watch('status');
+  const StatusIcon = statusConfig[currentStatus].icon;
+
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+    <div className="flex min-h-screen bg-gray-50">
       <ModernSidebar 
         user={user} 
         onLogout={handleLogout}
@@ -219,7 +650,7 @@ export default function NewSimulationPage() {
       
       <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${sidebarCollapsed ? 'md:ml-20' : 'md:ml-80'}`}>
         {/* Header */}
-        <header className="bg-white/80 backdrop-blur-sm shadow-sm px-4 sm:px-6 lg:px-8 py-4 sticky top-0 z-40">
+        <header className="bg-white shadow-sm px-4 sm:px-6 lg:px-8 py-4 sticky top-0 z-40 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <Button
@@ -233,6 +664,16 @@ export default function NewSimulationPage() {
               <h1 className="text-2xl font-bold text-gray-900 ml-2 lg:ml-0">Create New Simulation</h1>
             </div>
             <div className="flex items-center gap-4">
+              {/* Status Badge */}
+              <div className={cn(
+                "flex items-center gap-2 px-3 py-1 rounded-full border",
+                statusConfig[currentStatus].color,
+                statusConfig[currentStatus].borderColor
+              )}>
+                <StatusIcon className="h-4 w-4" />
+                <span className="text-sm font-medium">{statusConfig[currentStatus].label}</span>
+              </div>
+              
               <span className="text-sm text-gray-600 hidden sm:inline">
                 {user?.name || user?.email}
               </span>
@@ -249,33 +690,45 @@ export default function NewSimulationPage() {
           </div>
         </header>
 
-        <div className="p-4 md:p-8">
-          <div className="max-w-4xl mx-auto">
-            {/* Back Button */}
-            <div className="mb-6">
-              <Button
-                variant="ghost"
-                onClick={() => router.push('/dashboard/simulations')}
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Simulations
-              </Button>
+        <div className="p-4 md:p-8 bg-white min-h-full">
+          <div className="max-w-6xl mx-auto">
+            {/* Actions */}
+            <div className="mb-6 flex justify-end items-center">
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setPreviewMode(!previewMode)}
+                >
+                  <Eye className="mr-2 h-4 w-4" />
+                  {previewMode ? 'Edit' : 'Preview'}
+                </Button>
+              </div>
             </div>
+
+            {/* Status Alert */}
+            <Alert className="mb-6 bg-blue-50 border-blue-200">
+              <AlertCircle className="h-4 w-4 text-blue-600" />
+              <AlertDescription className="text-blue-800">
+                {statusConfig[currentStatus].description}
+              </AlertDescription>
+            </Alert>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <Tabs defaultValue="basic" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="basic" className="text-xs sm:text-sm">Basic Info</TabsTrigger>
                 <TabsTrigger value="content" className="text-xs sm:text-sm">Content</TabsTrigger>
+                <TabsTrigger value="exercises" className="text-xs sm:text-sm">Exercises</TabsTrigger>
+                <TabsTrigger value="instructions" className="text-xs sm:text-sm">Instructions</TabsTrigger>
                 <TabsTrigger value="settings" className="text-xs sm:text-sm">Settings</TabsTrigger>
               </TabsList>
 
               <TabsContent value="basic" className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Basic Information</CardTitle>
-                    <CardDescription>Enter the basic details of your simulation</CardDescription>
+                <Card className="bg-white border border-gray-200 shadow-sm">
+                  <CardHeader className="bg-gray-50 border-b border-gray-200">
+                    <CardTitle className="text-gray-900">Basic Information</CardTitle>
+                    <CardDescription className="text-gray-600">Enter the basic details of your simulation</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <FormField
@@ -326,13 +779,14 @@ export default function NewSimulationPage() {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="subject_area"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Subject Area</FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value}>
+                      <div className="dropdown-container">
+                        <FormField
+                          control={form.control}
+                          name="subject_area"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Subject Area</FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value}>
                               <FormControl>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select subject" />
@@ -345,18 +799,20 @@ export default function NewSimulationPage() {
                                 <SelectItem value="Mathematics">Mathematics</SelectItem>
                               </SelectContent>
                             </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
 
-                      <FormField
-                        control={form.control}
-                        name="difficulty_level"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Difficulty Level</FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value}>
+                      <div className="dropdown-container">
+                        <FormField
+                          control={form.control}
+                          name="difficulty_level"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Difficulty Level</FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value}>
                               <FormControl>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select difficulty" />
@@ -371,7 +827,8 @@ export default function NewSimulationPage() {
                             <FormMessage />
                           </FormItem>
                         )}
-                      />
+                        />
+                      </div>
                     </div>
 
                     <FormField
@@ -418,12 +875,91 @@ export default function NewSimulationPage() {
                     />
                   </CardContent>
                 </Card>
+
+                {/* Simulation Upload Card */}
+                <Card className="bg-white border border-gray-200 shadow-sm">
+                  <CardHeader className="bg-gray-50 border-b border-gray-200">
+                    <CardTitle className="flex items-center gap-2 text-gray-900">
+                      <FileCode className="h-5 w-5 text-blue-600" />
+                      Simulation File
+                    </CardTitle>
+                    <CardDescription className="text-gray-600">Upload your HTML simulation file or provide a URL</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <FormLabel>Upload HTML File</FormLabel>
+                      <div className="mt-2">
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept=".html,text/html"
+                          onChange={handleFileSelect}
+                          className="hidden"
+                        />
+                        <div className="flex items-center gap-4">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={fileUploading}
+                          >
+                            <Upload className="mr-2 h-4 w-4" />
+                            Choose File
+                          </Button>
+                          {selectedFile && (
+                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                              <FileText className="h-4 w-4" />
+                              <span>{selectedFile.name}</span>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setSelectedFile(null)}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2">
+                          Accepts HTML files up to 10MB
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t" />
+                      </div>
+                      <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-white px-2 text-gray-500">Or</span>
+                      </div>
+                    </div>
+
+                    <FormField
+                      control={form.control}
+                      name="simulation_url"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Simulation URL</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="https://..." />
+                          </FormControl>
+                          <FormDescription>
+                            External URL to the simulation
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </CardContent>
+                </Card>
               </TabsContent>
 
               <TabsContent value="content" className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Description</CardTitle>
+                <Card className="bg-white border border-gray-200 shadow-sm">
+                  <CardHeader className="bg-gray-50 border-b border-gray-200">
+                    <CardTitle className="text-gray-900">Description</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <FormField
@@ -465,10 +1001,10 @@ export default function NewSimulationPage() {
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Learning Objectives</CardTitle>
-                    <CardDescription>What will students learn from this simulation?</CardDescription>
+                <Card className="bg-white border border-gray-200 shadow-sm">
+                  <CardHeader className="bg-gray-50 border-b border-gray-200">
+                    <CardTitle className="text-gray-900">Learning Objectives</CardTitle>
+                    <CardDescription className="text-gray-600">What will students learn from this simulation?</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
@@ -516,29 +1052,440 @@ export default function NewSimulationPage() {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="settings" className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>URLs & Media</CardTitle>
+              <TabsContent value="exercises" className="space-y-6">
+                <Card className="bg-white border border-gray-200 shadow-sm">
+                  <CardHeader className="bg-gray-50 border-b border-gray-200">
+                    <CardTitle className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-gray-900">
+                        <FileText className="h-5 w-5 text-green-600" />
+                        Exercise Builder ({exercises.length} exercises)
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          onClick={() => setShowExerciseForm(true)}
+                          className="bg-green-600 hover:bg-green-700"
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Add Exercise
+                        </Button>
+                        
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="px-3 border-green-200 hover:bg-green-50"
+                            >
+                              <ChevronDown className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-56">
+                            <DropdownMenuItem onClick={() => downloadTemplate('json')}>
+                              <FileCode className="h-4 w-4 mr-2" />
+                              Download JSON Template
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => downloadTemplate('csv')}>
+                              <FileSpreadsheet className="h-4 w-4 mr-2" />
+                              Download CSV Template
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => bulkFileInputRef.current?.click()}>
+                              <Upload className="h-4 w-4 mr-2" />
+                              Bulk Upload Exercises
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </CardTitle>
+                    <CardDescription className="text-gray-600">
+                      Create individual exercises that students will complete after interacting with the simulation
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {/* Exercise List */}
+                    {exercises.length > 0 && (
+                      <div className="space-y-3">
+                        {exercises.map((exercise, index) => (
+                          <div key={exercise.id} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Badge className="bg-blue-100 text-blue-800">
+                                    Question {exercise.question_number}
+                                  </Badge>
+                                  <Badge variant="outline">
+                                    {exercise.question_type.replace('_', ' ')}
+                                  </Badge>
+                                  <Badge className="bg-yellow-100 text-yellow-800">
+                                    {exercise.points} pts
+                                  </Badge>
+                                  {exercise.difficulty_level && (
+                                    <Badge variant="secondary">
+                                      {exercise.difficulty_level}
+                                    </Badge>
+                                  )}
+                                </div>
+                                <p className="font-medium text-gray-900 mb-1">
+                                  {exercise.question_en}
+                                </p>
+                                {exercise.question_km && (
+                                  <p className="text-gray-600 font-hanuman mb-2">
+                                    {exercise.question_km}
+                                  </p>
+                                )}
+                                {exercise.options && (
+                                  <div className="flex flex-wrap gap-2 mt-2">
+                                    {exercise.options.options_en.map((option, idx) => (
+                                      <span
+                                        key={idx}
+                                        className={`text-xs px-2 py-1 rounded ${
+                                          option === exercise.correct_answer
+                                            ? 'bg-green-100 text-green-800 font-semibold'
+                                            : 'bg-gray-100 text-gray-600'
+                                        }`}
+                                      >
+                                        {String.fromCharCode(65 + idx)}. {option}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                                {exercise.correct_answer && exercise.question_type !== 'multiple_choice' && (
+                                  <p className="text-sm text-green-700 mt-2">
+                                    <strong>Answer:</strong> {exercise.correct_answer}
+                                  </p>
+                                )}
+                              </div>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeExercise(exercise.id)}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {exercises.length === 0 && (
+                      <div className="text-center py-8 text-gray-500">
+                        <FileText className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                        <p>No exercises added yet</p>
+                        <p className="text-sm">Click "Add Exercise" to create your first question</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Exercise Form Modal */}
+                {showExerciseForm && (
+                  <Card className="bg-white border border-gray-200 shadow-lg exercise-form-modal">
+                    <CardHeader className="bg-blue-50 border-b border-blue-200">
+                      <CardTitle className="flex items-center justify-between">
+                        <span className="text-blue-900">Create New Exercise</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowExerciseForm(false)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4 pt-4">
+                      {/* Question Type */}
+                      <div className="dropdown-container">
+                        <label className="block text-sm font-medium mb-2">Question Type</label>
+                        <Select
+                          value={currentExercise.question_type}
+                          onValueChange={(value: any) => setCurrentExercise({
+                            ...currentExercise,
+                            question_type: value
+                          })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="multiple_choice">Multiple Choice</SelectItem>
+                            <SelectItem value="true_false">True/False</SelectItem>
+                            <SelectItem value="calculation">Calculation</SelectItem>
+                            <SelectItem value="short_answer">Short Answer</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Questions */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Question (English) *</label>
+                          <Textarea
+                            value={currentExercise.question_en}
+                            onChange={(e) => setCurrentExercise({
+                              ...currentExercise,
+                              question_en: e.target.value
+                            })}
+                            placeholder="Enter your question..."
+                            rows={3}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Question (Khmer)</label>
+                          <Textarea
+                            value={currentExercise.question_km}
+                            onChange={(e) => setCurrentExercise({
+                              ...currentExercise,
+                              question_km: e.target.value
+                            })}
+                            placeholder="បញ្ចូលសំណួររបស់អ្នក..."
+                            className="font-hanuman"
+                            rows={3}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Multiple Choice Options */}
+                      {currentExercise.question_type === 'multiple_choice' && (
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Answer Options</label>
+                          <div className="space-y-3">
+                            {currentExercise.options_en.map((option, index) => (
+                              <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                <div className="flex gap-2">
+                                  <span className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-sm font-medium">
+                                    {String.fromCharCode(65 + index)}
+                                  </span>
+                                  <Input
+                                    value={option}
+                                    onChange={(e) => updateCurrentExerciseOption(index, e.target.value, 'en')}
+                                    placeholder={`Option ${String.fromCharCode(65 + index)} (English)`}
+                                  />
+                                </div>
+                                <Input
+                                  value={currentExercise.options_km[index]}
+                                  onChange={(e) => updateCurrentExerciseOption(index, e.target.value, 'km')}
+                                  placeholder={`Option ${String.fromCharCode(65 + index)} (Khmer)`}
+                                  className="font-hanuman"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                          <div className="mt-3 dropdown-container">
+                            <label className="block text-sm font-medium mb-2">Correct Answer</label>
+                            <Select
+                              value={currentExercise.correct_answer}
+                              onValueChange={(value) => setCurrentExercise({
+                                ...currentExercise,
+                                correct_answer: value
+                              })}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select correct answer" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {currentExercise.options_en.map((option, index) => (
+                                  option.trim() && (
+                                    <SelectItem key={index} value={option}>
+                                      {String.fromCharCode(65 + index)}. {option}
+                                    </SelectItem>
+                                  )
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* True/False Answer */}
+                      {currentExercise.question_type === 'true_false' && (
+                        <div className="dropdown-container">
+                          <label className="block text-sm font-medium mb-2">Correct Answer</label>
+                          <Select
+                            value={currentExercise.correct_answer}
+                            onValueChange={(value) => setCurrentExercise({
+                              ...currentExercise,
+                              correct_answer: value
+                            })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select correct answer" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="true">True</SelectItem>
+                              <SelectItem value="false">False</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+
+                      {/* Other Answer Types */}
+                      {(currentExercise.question_type === 'calculation' || currentExercise.question_type === 'short_answer') && (
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Correct Answer</label>
+                          <Input
+                            value={currentExercise.correct_answer}
+                            onChange={(e) => setCurrentExercise({
+                              ...currentExercise,
+                              correct_answer: e.target.value
+                            })}
+                            placeholder="Enter the correct answer..."
+                          />
+                        </div>
+                      )}
+
+                      {/* Points and Difficulty */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Points</label>
+                          <Input
+                            type="number"
+                            value={currentExercise.points}
+                            onChange={(e) => setCurrentExercise({
+                              ...currentExercise,
+                              points: parseInt(e.target.value) || 10
+                            })}
+                            min={1}
+                            max={100}
+                          />
+                        </div>
+                        <div className="dropdown-container">
+                          <label className="block text-sm font-medium mb-2">Difficulty</label>
+                          <Select
+                            value={currentExercise.difficulty_level}
+                            onValueChange={(value: any) => setCurrentExercise({
+                              ...currentExercise,
+                              difficulty_level: value
+                            })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="easy">Easy</SelectItem>
+                              <SelectItem value="medium">Medium</SelectItem>
+                              <SelectItem value="hard">Hard</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      {/* Hints */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Hint (English)</label>
+                          <Textarea
+                            value={currentExercise.hints_en}
+                            onChange={(e) => setCurrentExercise({
+                              ...currentExercise,
+                              hints_en: e.target.value
+                            })}
+                            placeholder="Helpful hint for students..."
+                            rows={2}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Hint (Khmer)</label>
+                          <Textarea
+                            value={currentExercise.hints_km}
+                            onChange={(e) => setCurrentExercise({
+                              ...currentExercise,
+                              hints_km: e.target.value
+                            })}
+                            placeholder="ជំនួយសម្រាប់សិស្ស..."
+                            className="font-hanuman"
+                            rows={2}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end gap-3 pt-4">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setShowExerciseForm(false)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={addExercise}
+                          className="bg-green-600 hover:bg-green-700"
+                        >
+                          Add Exercise
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </TabsContent>
+
+              <TabsContent value="instructions" className="space-y-6">
+                <Card className="bg-white border border-gray-200 shadow-sm">
+                  <CardHeader className="bg-gray-50 border-b border-gray-200">
+                    <CardTitle className="flex items-center gap-2 text-gray-900">
+                      <BookOpen className="h-5 w-5 text-purple-600" />
+                      Student Instructions
+                    </CardTitle>
+                    <CardDescription className="text-gray-600">
+                      Provide clear instructions for students on how to use the simulation
+                    </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <FormField
                       control={form.control}
-                      name="simulation_url"
+                      name="instruction_content_en"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Simulation URL</FormLabel>
+                          <FormLabel>Instructions (English)</FormLabel>
                           <FormControl>
-                            <Input {...field} placeholder="https://..." />
+                            <Textarea 
+                              {...field} 
+                              rows={8}
+                              placeholder="Step-by-step instructions for students..."
+                              className="min-h-[200px]"
+                            />
                           </FormControl>
                           <FormDescription>
-                            URL to the simulation
+                            Include step-by-step guidance and tips
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
 
+                    <FormField
+                      control={form.control}
+                      name="instruction_content_km"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Instructions (Khmer)</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              {...field} 
+                              rows={8}
+                              placeholder="ការណែនាំជាជំហាន់សម្រាប់សិស្ស..."
+                              className="font-hanuman min-h-[200px]"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="settings" className="space-y-6">
+                <Card className="bg-white border border-gray-200 shadow-sm">
+                  <CardHeader className="bg-gray-50 border-b border-gray-200">
+                    <CardTitle className="text-gray-900">URLs & Media</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
                     <FormField
                       control={form.control}
                       name="preview_image"
@@ -555,9 +1502,9 @@ export default function NewSimulationPage() {
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Tags & Settings</CardTitle>
+                <Card className="bg-white border border-gray-200 shadow-sm">
+                  <CardHeader className="bg-gray-50 border-b border-gray-200">
+                    <CardTitle className="text-gray-900">Tags & Settings</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
@@ -632,38 +1579,201 @@ export default function NewSimulationPage() {
               </TabsContent>
             </Tabs>
 
-            <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => router.push('/dashboard/simulations')}
-                className="w-full sm:w-auto"
-              >
-                Cancel
-              </Button>
-              <Button 
-                type="submit" 
-                disabled={loading}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 w-full sm:w-auto"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Creating...
-                  </>
-                ) : (
-                  <>
-                    <Save className="mr-2 h-4 w-4" />
-                    Create Simulation
-                  </>
-                )}
-              </Button>
-            </div>
+            {/* Action Buttons */}
+            <Card className="bg-white border border-gray-200 shadow-sm">
+              <CardContent className="p-6">
+                <div className="flex flex-col sm:flex-row justify-between gap-4">
+                  {/* Status Selection */}
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant={currentStatus === 'draft' ? 'default' : 'outline'}
+                      onClick={() => handleStatusChange('draft')}
+                      className="flex-1 sm:flex-initial"
+                    >
+                      <Edit3 className="mr-2 h-4 w-4" />
+                      Save as Draft
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={currentStatus === 'review' ? 'default' : 'outline'}
+                      onClick={() => handleStatusChange('review')}
+                      className="flex-1 sm:flex-initial"
+                    >
+                      <Send className="mr-2 h-4 w-4" />
+                      Submit for Review
+                    </Button>
+                    {user?.roles?.includes('admin') && (
+                      <Button
+                        type="button"
+                        variant={currentStatus === 'published' ? 'default' : 'outline'}
+                        onClick={() => handleStatusChange('published')}
+                        className="flex-1 sm:flex-initial"
+                      >
+                        <CheckCircle className="mr-2 h-4 w-4" />
+                        Publish
+                      </Button>
+                    )}
+                  </div>
+
+                  {/* Submit/Cancel */}
+                  <div className="flex gap-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => router.push('/dashboard/simulations')}
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      type="submit" 
+                      disabled={loading || fileUploading}
+                      className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                    >
+                      {loading || fileUploading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          {fileUploading ? 'Uploading...' : 'Creating...'}
+                        </>
+                      ) : (
+                        <>
+                          <Save className="mr-2 h-4 w-4" />
+                          Create Simulation
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </form>
         </Form>
           </div>
         </div>
       </div>
+
+      {/* Hidden file input for bulk upload */}
+      <input
+        ref={bulkFileInputRef}
+        type="file"
+        accept=".json,.csv"
+        onChange={handleBulkFileSelect}
+        className="hidden"
+      />
+
+      {/* Bulk Upload Preview Modal */}
+      {showBulkUpload && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-4xl max-h-[90vh] overflow-hidden">
+            <CardHeader className="bg-blue-50 border-b border-blue-200">
+              <CardTitle className="flex items-center justify-between">
+                <span className="text-blue-900">Bulk Upload Preview</span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowBulkUpload(false)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </CardTitle>
+              <CardDescription>
+                Review the exercises before importing. Found {bulkPreview.length} exercises.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="overflow-y-auto max-h-[60vh] p-6">
+              <div className="space-y-4">
+                {bulkPreview.map((exercise, index) => (
+                  <div key={index} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium text-gray-900">
+                        Question {exercise.question_number || index + 1} - {exercise.question_type || 'multiple_choice'}
+                      </h4>
+                      <Badge variant="outline" className="text-xs">
+                        {exercise.points || 10} points
+                      </Badge>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <p className="font-medium text-gray-700">English:</p>
+                        <p className="text-gray-600">{exercise.question_en || 'No question provided'}</p>
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-700">Khmer:</p>
+                        <p className="text-gray-600">{exercise.question_km || 'No question provided'}</p>
+                      </div>
+                      {exercise.options_en && exercise.options_en.length > 0 && (
+                        <div className="md:col-span-2">
+                          <p className="font-medium text-gray-700 mb-1">Options:</p>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <div>
+                              {exercise.options_en.map((option: string, i: number) => (
+                                <p key={i} className={`text-sm px-2 py-1 rounded ${
+                                  option === exercise.correct_answer ? 'bg-green-100 text-green-800' : 'bg-white text-gray-600'
+                                }`}>
+                                  {String.fromCharCode(65 + i)}. {option}
+                                </p>
+                              ))}
+                            </div>
+                            <div>
+                              {exercise.options_km && exercise.options_km.map((option: string, i: number) => (
+                                <p key={i} className={`text-sm px-2 py-1 rounded ${
+                                  exercise.options_en[i] === exercise.correct_answer ? 'bg-green-100 text-green-800' : 'bg-white text-gray-600'
+                                }`}>
+                                  {String.fromCharCode(65 + i)}. {option}
+                                </p>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      {exercise.correct_answer && (
+                        <div className="md:col-span-2">
+                          <p className="font-medium text-gray-700">Correct Answer: 
+                            <span className="font-normal text-green-600 ml-1">{exercise.correct_answer}</span>
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+            <div className="border-t border-gray-200 p-4 bg-gray-50 flex items-center justify-between">
+              <div className="text-sm text-gray-600">
+                {bulkPreview.length} exercises ready to import
+              </div>
+              <div className="flex items-center gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowBulkUpload(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  onClick={processBulkUpload}
+                  disabled={bulkUploading}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  {bulkUploading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Importing...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-4 w-4 mr-2" />
+                      Import {bulkPreview.length} Exercises
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

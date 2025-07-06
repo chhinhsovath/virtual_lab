@@ -164,10 +164,16 @@ export async function PUT(
       learning_objectives_en,
       learning_objectives_km,
       simulation_url,
+      simulation_file_path,
       preview_image,
       tags,
       is_featured,
-      is_active
+      is_active,
+      status,
+      exercise_content_en,
+      exercise_content_km,
+      instruction_content_en,
+      instruction_content_km
     } = body;
 
     const client = await pool.connect();
@@ -188,18 +194,28 @@ export async function PUT(
           learning_objectives_en = $10,
           learning_objectives_km = $11,
           simulation_url = $12,
-          preview_image = $13,
-          tags = $14,
-          is_featured = $15,
-          is_active = $16,
+          simulation_file_path = $13,
+          preview_image = $14,
+          tags = $15,
+          is_featured = $16,
+          is_active = $17,
+          status = $18,
+          exercise_content_en = $19,
+          exercise_content_km = $20,
+          instruction_content_en = $21,
+          instruction_content_km = $22,
           updated_at = CURRENT_TIMESTAMP
-        WHERE id = $17
+        WHERE id = $23
         RETURNING *
       `, [
         simulation_name, display_name_en, display_name_km, description_en, description_km,
         subject_area, difficulty_level, grade_levels, estimated_duration,
-        learning_objectives_en, learning_objectives_km, simulation_url, preview_image, tags,
-        is_featured, is_active, params.id
+        learning_objectives_en, learning_objectives_km, 
+        simulation_url, simulation_file_path || simulation_url, preview_image, tags,
+        is_featured, is_active, status || 'draft',
+        exercise_content_en, exercise_content_km,
+        instruction_content_en, instruction_content_km,
+        params.id
       ]);
 
       if (result.rows.length === 0) {

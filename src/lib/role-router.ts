@@ -94,11 +94,11 @@ export function getDefaultRouteForUser(user: User): string {
   let highestRole = null;
   let highestPriority = -1;
   
-  for (const role of userRoles) {
-    const priority = rolePriority.indexOf(role);
+  for (const role of userRoles || []) {
+    const priority = rolePriority.indexOf(role as any);
     if (priority > highestPriority) {
       highestPriority = priority;
-      highestRole = role;
+      highestRole = role as any;
     }
   }
   
@@ -109,43 +109,43 @@ export function getDefaultRouteForUser(user: User): string {
 }
 
 export function getDashboardNameForUser(user: User): string {
-  const userRoles = user.roles;
+  const userRoles = user.roles || [];
   
   // Check for specific roles in priority order
-  if (userRoles.includes(ROLES.SUPER_ADMIN)) {
+  if (userRoles?.includes(ROLES.SUPER_ADMIN)) {
     return 'Super Administrator Dashboard';
   }
-  if (userRoles.includes(ROLES.ADMIN)) {
+  if (userRoles?.includes(ROLES.ADMIN)) {
     return 'Administrator Dashboard';
   }
-  if (userRoles.includes(ROLES.PRINCIPAL)) {
+  if (userRoles?.includes(ROLES.PRINCIPAL)) {
     return 'Principal Dashboard';
   }
-  if (userRoles.includes(ROLES.CLUSTER_MENTOR)) {
+  if (userRoles?.includes(ROLES.CLUSTER_MENTOR)) {
     return 'Cluster Mentor Dashboard';
   }
-  if (userRoles.includes(ROLES.TEACHER)) {
+  if (userRoles?.includes(ROLES.TEACHER)) {
     return 'Teacher Dashboard';
   }
-  if (userRoles.includes(ROLES.ASSISTANT_TEACHER)) {
+  if (userRoles?.includes(ROLES.ASSISTANT_TEACHER)) {
     return 'Assistant Teacher Dashboard';
   }
-  if (userRoles.includes(ROLES.LIBRARIAN)) {
+  if (userRoles?.includes(ROLES.LIBRARIAN)) {
     return 'Librarian Dashboard';
   }
-  if (userRoles.includes(ROLES.COUNSELOR)) {
+  if (userRoles?.includes(ROLES.COUNSELOR)) {
     return 'Counselor Dashboard';
   }
-  if (userRoles.includes(ROLES.STUDENT)) {
+  if (userRoles?.includes(ROLES.STUDENT)) {
     return 'Student Portal';
   }
-  if (userRoles.includes(ROLES.PARENT)) {
+  if (userRoles?.includes(ROLES.PARENT)) {
     return 'Parent Portal';
   }
-  if (userRoles.includes(ROLES.GUARDIAN)) {
+  if (userRoles?.includes(ROLES.GUARDIAN)) {
     return 'Guardian Portal';
   }
-  if (userRoles.includes(ROLES.VIEWER)) {
+  if (userRoles?.includes(ROLES.VIEWER)) {
     return 'Viewer Dashboard';
   }
   
@@ -156,18 +156,18 @@ export function getUserRoleDisplay(user: User): string {
   const userRoles = user.roles;
   
   // Show the highest priority role
-  if (userRoles.includes(ROLES.SUPER_ADMIN)) return 'Super Administrator';
-  if (userRoles.includes(ROLES.ADMIN)) return 'Administrator';
-  if (userRoles.includes(ROLES.PRINCIPAL)) return 'Principal';
-  if (userRoles.includes(ROLES.CLUSTER_MENTOR)) return 'Cluster Mentor';
-  if (userRoles.includes(ROLES.TEACHER)) return 'Teacher';
-  if (userRoles.includes(ROLES.ASSISTANT_TEACHER)) return 'Assistant Teacher';
-  if (userRoles.includes(ROLES.LIBRARIAN)) return 'Librarian';
-  if (userRoles.includes(ROLES.COUNSELOR)) return 'Counselor';
-  if (userRoles.includes(ROLES.STUDENT)) return 'Student';
-  if (userRoles.includes(ROLES.PARENT)) return 'Parent';
-  if (userRoles.includes(ROLES.GUARDIAN)) return 'Guardian';
-  if (userRoles.includes(ROLES.VIEWER)) return 'Viewer';
+  if (userRoles?.includes(ROLES.SUPER_ADMIN)) return 'Super Administrator';
+  if (userRoles?.includes(ROLES.ADMIN)) return 'Administrator';
+  if (userRoles?.includes(ROLES.PRINCIPAL)) return 'Principal';
+  if (userRoles?.includes(ROLES.CLUSTER_MENTOR)) return 'Cluster Mentor';
+  if (userRoles?.includes(ROLES.TEACHER)) return 'Teacher';
+  if (userRoles?.includes(ROLES.ASSISTANT_TEACHER)) return 'Assistant Teacher';
+  if (userRoles?.includes(ROLES.LIBRARIAN)) return 'Librarian';
+  if (userRoles?.includes(ROLES.COUNSELOR)) return 'Counselor';
+  if (userRoles?.includes(ROLES.STUDENT)) return 'Student';
+  if (userRoles?.includes(ROLES.PARENT)) return 'Parent';
+  if (userRoles?.includes(ROLES.GUARDIAN)) return 'Guardian';
+  if (userRoles?.includes(ROLES.VIEWER)) return 'Viewer';
   
   return 'User';
 }
