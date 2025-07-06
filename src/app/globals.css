@@ -145,4 +145,11 @@
   .exercise-form-modal [data-slot="select-content"] {
     z-index: 10000 !important;
   }
+
+  /* Custom modal size for exercise forms */
+  @media (min-width: 640px) {
+    .sm\:max-w-\[50vw\] {
+      max-width: 50vw !important;
+    }
+  }
 }

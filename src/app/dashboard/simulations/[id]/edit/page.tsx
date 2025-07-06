@@ -18,11 +18,12 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   ArrowLeft, Save, Plus, X, Loader2, Menu, LogOut, Upload, 
   FileText, BookOpen, Send, Eye, Edit3, AlertCircle, CheckCircle,
-  FileCode, Clock
+  FileCode, Clock, Download
 } from 'lucide-react';
 import { toast } from 'sonner';
 import ModernSidebar from '@/components/dashboard/ModernSidebar';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 
 interface User {
@@ -551,6 +552,66 @@ export default function EditSimulationPage() {
     }
   };
 
+  const exportExercises = (format: 'json' | 'csv') => {
+    if (exercises.length === 0) {
+      toast.error('No exercises to export');
+      return;
+    }
+
+    const simulationName = form.getValues('simulation_name') || 'simulation';
+    const timestamp = new Date().toISOString().split('T')[0];
+    const filename = `${simulationName}_exercises_${timestamp}`;
+
+    if (format === 'json') {
+      const dataStr = JSON.stringify(exercises, null, 2);
+      const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+      
+      const exportFileDefaultName = `${filename}.json`;
+      const linkElement = document.createElement('a');
+      linkElement.setAttribute('href', dataUri);
+      linkElement.setAttribute('download', exportFileDefaultName);
+      linkElement.click();
+      
+      toast.success('Exercises exported as JSON');
+    } else if (format === 'csv') {
+      const headers = [
+        'Question Number',
+        'Question Type',
+        'Question (English)',
+        'Question (Khmer)',
+        'Options (English)',
+        'Options (Khmer)',
+        'Correct Answer',
+        'Points',
+        'Difficulty'
+      ];
+
+      const csvContent = [
+        headers.join(','),
+        ...exercises.map(exercise => [
+          exercise.question_number,
+          exercise.question_type,
+          `"${exercise.question_en.replace(/"/g, '""')}"`,
+          `"${exercise.question_km?.replace(/"/g, '""') || ''}"`,
+          `"${exercise.options?.options_en?.join('; ') || ''}"`,
+          `"${exercise.options?.options_km?.join('; ') || ''}"`,
+          `"${exercise.correct_answer?.replace(/"/g, '""') || ''}"`,
+          exercise.points,
+          exercise.difficulty_level || 'medium'
+        ].join(','))
+      ].join('\n');
+
+      const dataUri = 'data:text/csv;charset=utf-8,'+ encodeURIComponent(csvContent);
+      const exportFileDefaultName = `${filename}.csv`;
+      const linkElement = document.createElement('a');
+      linkElement.setAttribute('href', dataUri);
+      linkElement.setAttribute('download', exportFileDefaultName);
+      linkElement.click();
+      
+      toast.success('Exercises exported as CSV');
+    }
+  };
+
   if (userLoading || pageLoading) {
     return <LoadingSpinner />;
   }
@@ -636,12 +697,12 @@ export default function EditSimulationPage() {
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <Tabs defaultValue="basic" className="w-full">
-                  <TabsList className="grid w-full grid-cols-5">
-                    <TabsTrigger value="basic" className="text-xs sm:text-sm">Basic Info</TabsTrigger>
-                    <TabsTrigger value="content" className="text-xs sm:text-sm">Content</TabsTrigger>
-                    <TabsTrigger value="exercises" className="text-xs sm:text-sm">Exercises</TabsTrigger>
-                    <TabsTrigger value="instructions" className="text-xs sm:text-sm">Instructions</TabsTrigger>
-                    <TabsTrigger value="settings" className="text-xs sm:text-sm">Settings</TabsTrigger>
+                  <TabsList className="grid w-full grid-cols-5 bg-gray-100 p-1.5 rounded-lg">
+                    <TabsTrigger value="basic" className="text-xs sm:text-sm data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-gray-200 text-gray-600 font-medium transition-all">Basic Info</TabsTrigger>
+                    <TabsTrigger value="content" className="text-xs sm:text-sm data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-gray-200 text-gray-600 font-medium transition-all">Content</TabsTrigger>
+                    <TabsTrigger value="exercises" className="text-xs sm:text-sm data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-gray-200 text-gray-600 font-medium transition-all">Exercises</TabsTrigger>
+                    <TabsTrigger value="instructions" className="text-xs sm:text-sm data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-gray-200 text-gray-600 font-medium transition-all">Instructions</TabsTrigger>
+                    <TabsTrigger value="settings" className="text-xs sm:text-sm data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-gray-200 text-gray-600 font-medium transition-all">Settings</TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="basic" className="space-y-6">
@@ -708,15 +769,15 @@ export default function EditSimulationPage() {
                                   <FormLabel>Subject Area</FormLabel>
                                   <Select onValueChange={field.onChange} value={field.value}>
                                     <FormControl>
-                                      <SelectTrigger>
+                                      <SelectTrigger className="w-full h-10 border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white">
                                         <SelectValue placeholder="Select subject" />
                                       </SelectTrigger>
                                     </FormControl>
-                                    <SelectContent>
-                                      <SelectItem value="Physics">Physics</SelectItem>
-                                      <SelectItem value="Chemistry">Chemistry</SelectItem>
-                                      <SelectItem value="Biology">Biology</SelectItem>
-                                      <SelectItem value="Mathematics">Mathematics</SelectItem>
+                                    <SelectContent className="bg-white border-2 border-gray-200 shadow-lg">
+                                      <SelectItem value="Physics" className="hover:bg-blue-50 focus:bg-blue-50 text-gray-900">Physics</SelectItem>
+                                      <SelectItem value="Chemistry" className="hover:bg-blue-50 focus:bg-blue-50 text-gray-900">Chemistry</SelectItem>
+                                      <SelectItem value="Biology" className="hover:bg-blue-50 focus:bg-blue-50 text-gray-900">Biology</SelectItem>
+                                      <SelectItem value="Mathematics" className="hover:bg-blue-50 focus:bg-blue-50 text-gray-900">Mathematics</SelectItem>
                                     </SelectContent>
                                   </Select>
                                   <FormMessage />
@@ -734,14 +795,14 @@ export default function EditSimulationPage() {
                                   <FormLabel>Difficulty Level</FormLabel>
                                   <Select onValueChange={field.onChange} value={field.value}>
                                     <FormControl>
-                                      <SelectTrigger>
+                                      <SelectTrigger className="w-full h-10 border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white">
                                         <SelectValue placeholder="Select difficulty" />
                                       </SelectTrigger>
                                     </FormControl>
-                                    <SelectContent>
-                                      <SelectItem value="Beginner">Beginner</SelectItem>
-                                      <SelectItem value="Intermediate">Intermediate</SelectItem>
-                                      <SelectItem value="Advanced">Advanced</SelectItem>
+                                    <SelectContent className="bg-white border-2 border-gray-200 shadow-lg">
+                                      <SelectItem value="Beginner" className="hover:bg-blue-50 focus:bg-blue-50 text-gray-900">Beginner</SelectItem>
+                                      <SelectItem value="Intermediate" className="hover:bg-blue-50 focus:bg-blue-50 text-gray-900">Intermediate</SelectItem>
+                                      <SelectItem value="Advanced" className="hover:bg-blue-50 focus:bg-blue-50 text-gray-900">Advanced</SelectItem>
                                     </SelectContent>
                                   </Select>
                                   <FormMessage />
@@ -763,7 +824,12 @@ export default function EditSimulationPage() {
                                     <Badge
                                       key={grade}
                                       variant={field.value.includes(grade) ? "default" : "outline"}
-                                      className="cursor-pointer"
+                                      className={cn(
+                                        "cursor-pointer transition-all border-2 px-3 py-1 font-medium",
+                                        field.value.includes(grade) 
+                                          ? "bg-blue-600 text-white border-blue-600 hover:bg-blue-700 shadow-md" 
+                                          : "bg-white text-gray-700 border-gray-300 hover:border-blue-400 hover:bg-blue-50"
+                                      )}
                                       onClick={() => toggleGrade(grade)}
                                     >
                                       Grade {grade}
@@ -980,14 +1046,34 @@ export default function EditSimulationPage() {
                             <FileText className="h-5 w-5 text-green-600" />
                             Exercise Builder ({exercises.length} exercises)
                           </div>
-                          <Button
-                            type="button"
-                            onClick={() => setShowExerciseForm(true)}
-                            className="bg-green-600 hover:bg-green-700"
-                          >
-                            <Plus className="h-4 w-4 mr-2" />
-                            Add Exercise
-                          </Button>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              type="button"
+                              onClick={() => exportExercises('json')}
+                              variant="outline"
+                              className="border-gray-300 hover:border-gray-400"
+                            >
+                              <Download className="h-4 w-4 mr-2" />
+                              Export JSON
+                            </Button>
+                            <Button
+                              type="button"
+                              onClick={() => exportExercises('csv')}
+                              variant="outline"
+                              className="border-gray-300 hover:border-gray-400"
+                            >
+                              <Download className="h-4 w-4 mr-2" />
+                              Export CSV
+                            </Button>
+                            <Button
+                              type="button"
+                              onClick={() => setShowExerciseForm(true)}
+                              className="bg-green-600 hover:bg-green-700"
+                            >
+                              <Plus className="h-4 w-4 mr-2" />
+                              Add Exercise
+                            </Button>
+                          </div>
                         </CardTitle>
                         <CardDescription className="text-gray-600">
                           Create individual exercises that students will complete after interacting with the simulation
@@ -1073,218 +1159,264 @@ export default function EditSimulationPage() {
                     </Card>
 
                     {/* Exercise Form Modal */}
-                    {showExerciseForm && (
-                      <Card className="bg-white border border-gray-200 shadow-lg exercise-form-modal">
-                        <CardHeader className="bg-blue-50 border-b border-blue-200">
-                          <CardTitle className="flex items-center justify-between">
-                            <span className="text-blue-900">Create New Exercise</span>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setShowExerciseForm(false)}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4 pt-4">
-                          {/* Question Type */}
-                          <div className="dropdown-container">
-                            <label className="block text-sm font-medium mb-2">Question Type</label>
-                            <Select
-                              value={currentExercise.question_type}
-                              onValueChange={(value: any) => setCurrentExercise({
-                                ...currentExercise,
-                                question_type: value
-                              })}
-                            >
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="multiple_choice">Multiple Choice</SelectItem>
-                                <SelectItem value="true_false">True/False</SelectItem>
-                                <SelectItem value="calculation">Calculation</SelectItem>
-                                <SelectItem value="short_answer">Short Answer</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          {/* Questions */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium mb-2">Question (English) *</label>
-                              <Textarea
-                                value={currentExercise.question_en}
-                                onChange={(e) => setCurrentExercise({
-                                  ...currentExercise,
-                                  question_en: e.target.value
-                                })}
-                                placeholder="Enter your question..."
-                                rows={3}
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium mb-2">Question (Khmer)</label>
-                              <Textarea
-                                value={currentExercise.question_km}
-                                onChange={(e) => setCurrentExercise({
-                                  ...currentExercise,
-                                  question_km: e.target.value
-                                })}
-                                placeholder="បញ្ចូលសំណួររបស់អ្នក..."
-                                className="font-hanuman"
-                                rows={3}
-                              />
-                            </div>
-                          </div>
-
-                          {/* Multiple Choice Options */}
-                          {currentExercise.question_type === 'multiple_choice' && (
-                            <div>
-                              <label className="block text-sm font-medium mb-2">Answer Options</label>
-                              <div className="space-y-3">
-                                {currentExercise.options_en.map((option, index) => (
-                                  <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                    <div className="flex gap-2">
-                                      <span className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-sm font-medium">
-                                        {String.fromCharCode(65 + index)}
-                                      </span>
-                                      <Input
-                                        value={option}
-                                        onChange={(e) => updateCurrentExerciseOption(index, e.target.value, 'en')}
-                                        placeholder={`Option ${String.fromCharCode(65 + index)} (English)`}
-                                      />
-                                    </div>
-                                    <Input
-                                      value={currentExercise.options_km[index]}
-                                      onChange={(e) => updateCurrentExerciseOption(index, e.target.value, 'km')}
-                                      placeholder={`Option ${String.fromCharCode(65 + index)} (Khmer)`}
-                                      className="font-hanuman"
-                                    />
-                                  </div>
-                                ))}
-                              </div>
-                              <div className="mt-3 dropdown-container">
-                                <label className="block text-sm font-medium mb-2">Correct Answer</label>
+                    <Dialog open={showExerciseForm} onOpenChange={setShowExerciseForm}>
+                      <DialogContent className="w-[95vw] max-w-none p-0 bg-white animate-in fade-in-0 zoom-in-95 duration-300 rounded-xl sm:w-[50vw] sm:max-w-[50vw] max-h-[90vh] flex flex-col">
+                        <DialogHeader className="px-6 py-3 border-b bg-white flex-shrink-0">
+                          <DialogTitle className="text-blue-900 text-lg font-bold">Create New Exercise</DialogTitle>
+                          <DialogDescription className="text-gray-600 text-sm">
+                            Fill in the details below to create a new exercise for your simulation.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="flex-1 overflow-y-auto px-6 py-4">
+                          <div className="space-y-4">
+                            {/* Question Type */}
+                            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-lg border border-blue-200">
+                              <h3 className="text-sm font-semibold mb-2 text-blue-900">Question Type</h3>
+                              <div className="dropdown-container">
                                 <Select
-                                  value={currentExercise.correct_answer}
-                                  onValueChange={(value) => setCurrentExercise({
+                                  value={currentExercise.question_type}
+                                  onValueChange={(value: any) => setCurrentExercise({
                                     ...currentExercise,
-                                    correct_answer: value
+                                    question_type: value
                                   })}
                                 >
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select correct answer" />
+                                  <SelectTrigger className="w-full h-9 border-2 border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white text-sm">
+                                    <SelectValue placeholder="Select Question Type" />
                                   </SelectTrigger>
-                                  <SelectContent>
-                                    {currentExercise.options_en.map((option, index) => (
-                                      option.trim() && (
-                                        <SelectItem key={index} value={option}>
-                                          {String.fromCharCode(65 + index)}. {option}
-                                        </SelectItem>
-                                      )
-                                    ))}
+                                  <SelectContent className="bg-white border-2 border-gray-200 shadow-xl">
+                                    <SelectItem value="multiple_choice" className="hover:bg-blue-50 focus:bg-blue-50 text-gray-900 text-sm py-2">Multiple Choice</SelectItem>
+                                    <SelectItem value="true_false" className="hover:bg-blue-50 focus:bg-blue-50 text-gray-900 text-sm py-2">True/False</SelectItem>
+                                    <SelectItem value="calculation" className="hover:bg-blue-50 focus:bg-blue-50 text-gray-900 text-sm py-2">Calculation</SelectItem>
+                                    <SelectItem value="short_answer" className="hover:bg-blue-50 focus:bg-blue-50 text-gray-900 text-sm py-2">Short Answer</SelectItem>
                                   </SelectContent>
                                 </Select>
                               </div>
                             </div>
-                          )}
 
-                          {/* True/False Answer */}
-                          {currentExercise.question_type === 'true_false' && (
-                            <div className="dropdown-container">
-                              <label className="block text-sm font-medium mb-2">Correct Answer</label>
-                              <Select
-                                value={currentExercise.correct_answer}
-                                onValueChange={(value) => setCurrentExercise({
-                                  ...currentExercise,
-                                  correct_answer: value
-                                })}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select correct answer" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="true">True</SelectItem>
-                                  <SelectItem value="false">False</SelectItem>
-                                </SelectContent>
-                              </Select>
+                            {/* Questions */}
+                            <div className="bg-gradient-to-r from-gray-50 to-slate-50 p-3 rounded-lg border border-gray-200">
+                              <h3 className="text-sm font-semibold mb-2 text-gray-900">Question Details</h3>
+                              <div className="space-y-3">
+                                <div>
+                                  <label className="block text-xs font-medium mb-1 text-gray-700">Question (English) *</label>
+                                  <Textarea
+                                    value={currentExercise.question_en}
+                                    onChange={(e) => setCurrentExercise({
+                                      ...currentExercise,
+                                      question_en: e.target.value
+                                    })}
+                                    placeholder="Enter your question..."
+                                    rows={2}
+                                    className="border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm p-2 resize-none"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium mb-1 text-gray-700">Question (Khmer)</label>
+                                  <Textarea
+                                    value={currentExercise.question_km}
+                                    onChange={(e) => setCurrentExercise({
+                                      ...currentExercise,
+                                      question_km: e.target.value
+                                    })}
+                                    placeholder="បញ្ចូលសំណួររបស់អ្នក..."
+                                    className="font-hanuman border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm p-2 resize-none"
+                                    rows={2}
+                                  />
+                                </div>
+                              </div>
                             </div>
-                          )}
 
-                          {/* Short Answer/Calculation Answer */}
-                          {(currentExercise.question_type === 'short_answer' || currentExercise.question_type === 'calculation') && (
-                            <div>
-                              <label className="block text-sm font-medium mb-2">Correct Answer</label>
-                              <Input
-                                value={currentExercise.correct_answer}
-                                onChange={(e) => setCurrentExercise({
-                                  ...currentExercise,
-                                  correct_answer: e.target.value
-                                })}
-                                placeholder="Enter the correct answer..."
-                              />
-                            </div>
-                          )}
+                            {/* Multiple Choice Options */}
+                            {currentExercise.question_type === 'multiple_choice' && (
+                              <div className="bg-gradient-to-r from-emerald-50 to-green-50 p-3 rounded-lg border border-emerald-200">
+                                <h3 className="text-sm font-semibold mb-2 text-emerald-900">Answer Options</h3>
+                                <div className="space-y-2">
+                                  {currentExercise.options_en.map((option, index) => (
+                                    <div key={index} className="space-y-1">
+                                      <div className="flex gap-2">
+                                        <span className="flex-shrink-0 w-6 h-6 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center text-xs font-bold border border-emerald-300">
+                                          {String.fromCharCode(65 + index)}
+                                        </span>
+                                        <Input
+                                          value={option}
+                                          onChange={(e) => updateCurrentExerciseOption(index, e.target.value, 'en')}
+                                          placeholder={`Option ${String.fromCharCode(65 + index)} (English)`}
+                                          className="border-2 border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-sm h-8"
+                                        />
+                                      </div>
+                                      <Input
+                                        value={currentExercise.options_km[index]}
+                                        onChange={(e) => updateCurrentExerciseOption(index, e.target.value, 'km')}
+                                        placeholder={`Option ${String.fromCharCode(65 + index)} (Khmer)`}
+                                        className="font-hanuman border-2 border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-sm h-8 ml-8"
+                                      />
+                                    </div>
+                                  ))}
+                                </div>
+                                <div className="mt-3 dropdown-container">
+                                  <label className="block text-xs font-medium mb-1 text-emerald-900">Correct Answer</label>
+                                  <Select
+                                    value={currentExercise.correct_answer}
+                                    onValueChange={(value) => setCurrentExercise({
+                                      ...currentExercise,
+                                      correct_answer: value
+                                    })}
+                                  >
+                                    <SelectTrigger className="w-full h-9 border-2 border-emerald-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-white text-sm">
+                                      <SelectValue placeholder="Choose the correct answer option" className="text-gray-700" />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-white border-2 border-gray-200 shadow-xl">
+                                      {currentExercise.options_en.map((option, index) => (
+                                        option.trim() && (
+                                          <SelectItem key={index} value={option} className="hover:bg-emerald-50 focus:bg-emerald-50 text-gray-900 text-sm py-2">
+                                            {String.fromCharCode(65 + index)}. {option}
+                                          </SelectItem>
+                                        )
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+                            )}
 
-                          {/* Points and Difficulty */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium mb-2">Points</label>
-                              <Input
-                                type="number"
-                                value={currentExercise.points}
-                                onChange={(e) => setCurrentExercise({
-                                  ...currentExercise,
-                                  points: parseInt(e.target.value) || 10
-                                })}
-                                min="1"
-                                max="100"
-                              />
+                            {/* True/False Answer */}
+                            {currentExercise.question_type === 'true_false' && (
+                              <div className="bg-gradient-to-r from-amber-50 to-yellow-50 p-3 rounded-lg border border-amber-200">
+                                <h3 className="text-sm font-semibold mb-2 text-amber-900">True/False Answer</h3>
+                                <div className="dropdown-container">
+                                  <label className="block text-xs font-medium mb-1 text-amber-900">Correct Answer</label>
+                                  <Select
+                                    value={currentExercise.correct_answer}
+                                    onValueChange={(value) => setCurrentExercise({
+                                      ...currentExercise,
+                                      correct_answer: value
+                                    })}
+                                  >
+                                    <SelectTrigger className="w-full h-9 border-2 border-amber-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 bg-white text-sm">
+                                      <SelectValue placeholder="Select correct answer" />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-white border-2 border-gray-200 shadow-xl">
+                                      <SelectItem value="true" className="hover:bg-amber-50 focus:bg-amber-50 text-gray-900 text-sm py-2">True</SelectItem>
+                                      <SelectItem value="false" className="hover:bg-amber-50 focus:bg-amber-50 text-gray-900 text-sm py-2">False</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Short Answer/Calculation Answer */}
+                            {(currentExercise.question_type === 'short_answer' || currentExercise.question_type === 'calculation') && (
+                              <div className="bg-gradient-to-r from-purple-50 to-violet-50 p-3 rounded-lg border border-purple-200">
+                                <h3 className="text-sm font-semibold mb-2 text-purple-900">Answer</h3>
+                                <div>
+                                  <label className="block text-xs font-medium mb-1 text-purple-900">Correct Answer</label>
+                                  <Input
+                                    value={currentExercise.correct_answer}
+                                    onChange={(e) => setCurrentExercise({
+                                      ...currentExercise,
+                                      correct_answer: e.target.value
+                                    })}
+                                    placeholder="Enter the correct answer..."
+                                    className="border-2 border-purple-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 text-sm h-9"
+                                  />
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Points and Difficulty */}
+                            <div className="bg-gradient-to-r from-rose-50 to-pink-50 p-3 rounded-lg border border-rose-200">
+                              <h3 className="text-sm font-semibold mb-2 text-rose-900">Exercise Settings</h3>
+                              <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                  <label className="block text-xs font-medium mb-1 text-rose-800">Points</label>
+                                  <Input
+                                    type="number"
+                                    value={currentExercise.points}
+                                    onChange={(e) => setCurrentExercise({
+                                      ...currentExercise,
+                                      points: parseInt(e.target.value) || 10
+                                    })}
+                                    min="1"
+                                    max="100"
+                                    className="border-2 border-gray-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 text-sm h-9"
+                                  />
+                                </div>
+                                <div className="dropdown-container">
+                                  <label className="block text-xs font-medium mb-1 text-rose-800">Difficulty</label>
+                                  <Select
+                                    value={currentExercise.difficulty_level}
+                                    onValueChange={(value: any) => setCurrentExercise({
+                                      ...currentExercise,
+                                      difficulty_level: value
+                                    })}
+                                  >
+                                    <SelectTrigger className="w-full h-9 border-2 border-rose-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 bg-white text-sm">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-white border-2 border-gray-200 shadow-xl">
+                                      <SelectItem value="easy" className="hover:bg-rose-50 focus:bg-rose-50 text-gray-900 text-sm py-2">Easy</SelectItem>
+                                      <SelectItem value="medium" className="hover:bg-rose-50 focus:bg-rose-50 text-gray-900 text-sm py-2">Medium</SelectItem>
+                                      <SelectItem value="hard" className="hover:bg-rose-50 focus:bg-rose-50 text-gray-900 text-sm py-2">Hard</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
                             </div>
-                            <div className="dropdown-container">
-                              <label className="block text-sm font-medium mb-2">Difficulty</label>
-                              <Select
-                                value={currentExercise.difficulty_level}
-                                onValueChange={(value: any) => setCurrentExercise({
-                                  ...currentExercise,
-                                  difficulty_level: value
-                                })}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="easy">Easy</SelectItem>
-                                  <SelectItem value="medium">Medium</SelectItem>
-                                  <SelectItem value="hard">Hard</SelectItem>
-                                </SelectContent>
-                              </Select>
+
+                            {/* Hints */}
+                            <div className="bg-gradient-to-r from-cyan-50 to-blue-50 p-3 rounded-lg border border-cyan-200">
+                              <h3 className="text-sm font-semibold mb-2 text-cyan-900">Hints (Optional)</h3>
+                              <div className="space-y-2">
+                                <div>
+                                  <label className="block text-xs font-medium mb-1 text-cyan-800">Hint (English)</label>
+                                  <Textarea
+                                    value={currentExercise.hints_en}
+                                    onChange={(e) => setCurrentExercise({
+                                      ...currentExercise,
+                                      hints_en: e.target.value
+                                    })}
+                                    placeholder="Helpful hint for students..."
+                                    rows={2}
+                                    className="border-2 border-gray-300 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 text-sm p-2 resize-none"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium mb-1 text-cyan-800">Hint (Khmer)</label>
+                                  <Textarea
+                                    value={currentExercise.hints_km}
+                                    onChange={(e) => setCurrentExercise({
+                                      ...currentExercise,
+                                      hints_km: e.target.value
+                                    })}
+                                    placeholder="ជំនួយសម្រាប់សិស្ស..."
+                                    className="font-hanuman border-2 border-gray-300 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 text-sm p-2 resize-none"
+                                    rows={2}
+                                  />
+                                </div>
+                              </div>
                             </div>
                           </div>
-
-                          {/* Action Buttons */}
-                          <div className="flex justify-end gap-2 pt-4">
+                        </div>
+                        {/* Action Buttons */}
+                        <div className="flex justify-center gap-3 px-6 py-4 border-t bg-gray-50 flex-shrink-0">
                             <Button
                               type="button"
                               variant="outline"
                               onClick={() => setShowExerciseForm(false)}
+                              className="px-6 py-2 text-sm border-2 hover:bg-gray-50"
                             >
                               Cancel
                             </Button>
                             <Button
                               type="button"
                               onClick={addExercise}
-                              className="bg-green-600 hover:bg-green-700"
+                              className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 px-6 py-2 text-sm font-semibold"
                             >
                               Add Exercise
                             </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    )}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                   </TabsContent>
 
                   <TabsContent value="instructions" className="space-y-6">
@@ -1395,13 +1527,13 @@ export default function EditSimulationPage() {
                                 <FormLabel>Status</FormLabel>
                                 <Select onValueChange={(value) => handleStatusChange(value as any)} value={field.value}>
                                   <FormControl>
-                                    <SelectTrigger>
+                                    <SelectTrigger className="w-full h-10 border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white">
                                       <SelectValue />
                                     </SelectTrigger>
                                   </FormControl>
-                                  <SelectContent>
+                                  <SelectContent className="bg-white border-2 border-gray-200 shadow-lg">
                                     {Object.entries(statusConfig).map(([key, config]) => (
-                                      <SelectItem key={key} value={key}>
+                                      <SelectItem key={key} value={key} className="hover:bg-blue-50 focus:bg-blue-50 text-gray-900">
                                         <div className="flex items-center gap-2">
                                           <config.icon className="h-4 w-4" />
                                           <span>{config.label}</span>
@@ -1494,6 +1626,7 @@ export default function EditSimulationPage() {
                                 <Switch
                                   checked={field.value}
                                   onCheckedChange={field.onChange}
+                                  className="data-[state=checked]:bg-blue-600 data-[state=unchecked]:bg-gray-300"
                                 />
                               </FormControl>
                             </FormItem>
@@ -1515,6 +1648,7 @@ export default function EditSimulationPage() {
                                 <Switch
                                   checked={field.value}
                                   onCheckedChange={field.onChange}
+                                  className="data-[state=checked]:bg-blue-600 data-[state=unchecked]:bg-gray-300"
                                 />
                               </FormControl>
                             </FormItem>
