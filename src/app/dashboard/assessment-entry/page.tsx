@@ -34,7 +34,7 @@ interface Student {
 interface Session {
   userId: number;
   teacherId: number;
-  schoolIds: number[];
+  schoolAccess: { schoolId: number; accessType: string; subject?: string }[];
   subject: string;
 }
 
@@ -103,11 +103,17 @@ export default function AssessmentEntryPage() {
   };
 
   const fetchStudents = async () => {
-    if (!session?.schoolIds.length) return;
+    if (!session?.schoolAccess?.length) return;
 
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/students/${session.schoolIds[0]}`);
+      const firstSchoolId = session.schoolAccess[0]?.schoolId;
+      if (!firstSchoolId) {
+        toast.error('No school access found');
+        return;
+      }
+
+      const response = await fetch(`/api/students/${firstSchoolId}`);
       if (response.ok) {
         const data = await response.json();
         setStudents(data.students);
@@ -135,7 +141,7 @@ export default function AssessmentEntryPage() {
         body: JSON.stringify({
           studentId: parseInt(data.studentId),
           teacherId: session.teacherId,
-          schoolId: session.schoolIds[0],
+          schoolId: session.schoolAccess[0]?.schoolId,
           subject: session.subject,
           cycle: data.cycle,
           levelAchieved: data.levelAchieved,
@@ -201,9 +207,9 @@ export default function AssessmentEntryPage() {
                   </SelectTrigger>
                   <SelectContent>
                     {isLoading ? (
-                      <SelectItem value="" disabled>Loading students...</SelectItem>
+                      <SelectItem value="loading" disabled>Loading students...</SelectItem>
                     ) : students.length === 0 ? (
-                      <SelectItem value="" disabled>No students found</SelectItem>
+                      <SelectItem value="no-students" disabled>No students found</SelectItem>
                     ) : (
                       students.map((student) => (
                         <SelectItem key={student.chiID} value={student.chiID.toString()}>

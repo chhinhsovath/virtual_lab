@@ -205,30 +205,32 @@ export default function TeacherAnalyticsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold text-gray-900">Class Analytics & Reports</h1>
+        <p className="font-khmer text-xl text-gray-600">របាយការណ៍វិភាគ និងអនុកុលកម្ម</p>
+        <p className="text-gray-600">
+          Comprehensive insights into student performance and progress
+        </p>
+      </div>
+
+      {/* Controls Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <BarChart3 className="h-5 w-5" />
+            <span>Analytics Controls</span>
+          </CardTitle>
+          <CardDescription>
+            Filter and customize your analytics view
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => router.push('/dashboard')}
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Dashboard
-              </Button>
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">Class Analytics & Reports</h1>
-                <p className="text-gray-600 mt-1">
-                  Comprehensive insights into student performance and progress
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
               <Select value={timeframe} onValueChange={setTimeframe}>
-                <SelectTrigger className="w-32">
+                <SelectTrigger className="w-40">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -238,6 +240,8 @@ export default function TeacherAnalyticsPage() {
                   <SelectItem value="365">Last year</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+            <div className="flex items-center space-x-3">
               <Button onClick={() => exportReport('csv')} variant="outline">
                 <Download className="h-4 w-4 mr-2" />
                 Export CSV
@@ -248,88 +252,93 @@ export default function TeacherAnalyticsPage() {
               </Button>
             </div>
           </div>
-        </div>
+        </CardContent>
+      </Card>
 
         {/* Overview Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{analytics.overview.total_students}</div>
-              <p className="text-xs text-muted-foreground">
-                {analytics.overview.active_students} active
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Class Average</CardTitle>
-              <Award className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className={`text-2xl font-bold ${getPerformanceColor(analytics.overview.average_score)}`}>
-                {analytics.overview.average_score}%
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Target className="h-5 w-5" />
+              <span>Class Overview</span>
+            </CardTitle>
+            <CardDescription>
+              Key performance metrics for your class
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="bg-blue-50 border-blue-200 rounded-lg p-4 border">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-blue-700">Total Students</span>
+                  <Users className="h-4 w-4 text-blue-600" />
+                </div>
+                <div className="text-2xl font-bold text-blue-900">{analytics.overview.total_students}</div>
+                <p className="text-xs text-blue-600 mt-1">
+                  {analytics.overview.active_students} active
+                </p>
               </div>
-              <Progress value={analytics.overview.average_score} className="mt-2 h-1" />
-            </CardContent>
-          </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Completion Rate</CardTitle>
-              <Target className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{analytics.overview.completion_rate}%</div>
-              <Progress value={analytics.overview.completion_rate} className="mt-2 h-1" />
-            </CardContent>
-          </Card>
+              <div className="bg-green-50 border-green-200 rounded-lg p-4 border">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-green-700">Class Average</span>
+                  <Award className="h-4 w-4 text-green-600" />
+                </div>
+                <div className="text-2xl font-bold text-green-900">
+                  {analytics.overview.average_score}%
+                </div>
+                <Progress value={analytics.overview.average_score} className="mt-2 h-2 bg-green-200" />
+              </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Simulations</CardTitle>
-              <BookOpen className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{analytics.overview.total_simulations}</div>
-              <p className="text-xs text-muted-foreground">
-                assigned
-              </p>
-            </CardContent>
-          </Card>
+              <div className="bg-purple-50 border-purple-200 rounded-lg p-4 border">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-purple-700">Completion Rate</span>
+                  <Target className="h-4 w-4 text-purple-600" />
+                </div>
+                <div className="text-2xl font-bold text-purple-900">{analytics.overview.completion_rate}%</div>
+                <Progress value={analytics.overview.completion_rate} className="mt-2 h-2 bg-purple-200" />
+              </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Submissions</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{analytics.overview.total_submissions}</div>
-              <p className="text-xs text-muted-foreground">
-                total received
-              </p>
-            </CardContent>
-          </Card>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+              <div className="bg-orange-50 border-orange-200 rounded-lg p-4 border">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-orange-700">Simulations</span>
+                  <BookOpen className="h-4 w-4 text-orange-600" />
+                </div>
+                <div className="text-2xl font-bold text-orange-900">{analytics.overview.total_simulations}</div>
+                <p className="text-xs text-orange-600 mt-1">
+                  assigned
+                </p>
+              </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Need Help</CardTitle>
-              <AlertCircle className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-red-600">{analytics.struggling_students.length}</div>
-              <p className="text-xs text-muted-foreground">
-                students struggling
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+              <div className="bg-indigo-50 border-indigo-200 rounded-lg p-4 border">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-indigo-700">Submissions</span>
+                  <FileText className="h-4 w-4 text-indigo-600" />
+                </div>
+                <div className="text-2xl font-bold text-indigo-900">{analytics.overview.total_submissions}</div>
+                <p className="text-xs text-indigo-600 mt-1">
+                  total received
+                </p>
+              </div>
 
-        {/* Main Analytics Content */}
+              <div className="bg-red-50 border-red-200 rounded-lg p-4 border">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-red-700">Need Help</span>
+                  <AlertCircle className="h-4 w-4 text-red-600" />
+                </div>
+                <div className="text-2xl font-bold text-red-900">{analytics.struggling_students.length}</div>
+                <p className="text-xs text-red-600 mt-1">
+                  students struggling
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Analytics Insights */}
         <Tabs defaultValue="performance" className="space-y-6">
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="performance">Performance Trends</TabsTrigger>
@@ -603,24 +612,27 @@ export default function TeacherAnalyticsPage() {
         {/* Quick Actions */}
         <Card>
           <CardHeader>
-            <CardTitle>Report Actions</CardTitle>
+            <CardTitle className="flex items-center space-x-2">
+              <FileText className="h-5 w-5" />
+              <span>Report Actions</span>
+            </CardTitle>
             <CardDescription>
               Generate and share comprehensive reports
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Button variant="outline" className="w-full">
-                <FileText className="h-4 w-4 mr-2" />
-                Generate Monthly Report
+              <Button variant="outline" className="w-full flex items-center space-x-2">
+                <FileText className="h-4 w-4" />
+                <span>Generate Monthly Report</span>
               </Button>
-              <Button variant="outline" className="w-full">
-                <Users className="h-4 w-4 mr-2" />
-                Parent Progress Reports
+              <Button variant="outline" className="w-full flex items-center space-x-2">
+                <Users className="h-4 w-4" />
+                <span>Parent Progress Reports</span>
               </Button>
-              <Button variant="outline" className="w-full">
-                <Calendar className="h-4 w-4 mr-2" />
-                Schedule Report Email
+              <Button variant="outline" className="w-full flex items-center space-x-2">
+                <Calendar className="h-4 w-4" />
+                <span>Schedule Report Email</span>
               </Button>
             </div>
           </CardContent>

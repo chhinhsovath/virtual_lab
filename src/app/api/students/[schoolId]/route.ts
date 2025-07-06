@@ -28,22 +28,18 @@ export async function GET(
     try {
       const result = await client.query(`
         SELECT 
-          c.id,
-          c.first_name,
-          c.last_name,
-          c.gender,
-          c.date_of_birth,
-          ci.grade,
-          ci.class,
-          sl.school_name
-        FROM tbl_child c
-        LEFT JOIN tbl_child_information ci ON c.id = ci.child_id
-        LEFT JOIN tbl_school_list sl ON ci.school_id = sl.id
-        WHERE ci.school_id = $1
-        ORDER BY c.first_name, c.last_name
+          "chiID",
+          "chiFirstName" || ' ' || "chiLastName" as "chiName",
+          "chiGender",
+          "chiGrade" as "chiClass"
+        FROM tbl_child 
+        WHERE "chiSchoolId" = $1
+        ORDER BY "chiFirstName", "chiLastName"
       `, [schoolId]);
 
-      return new Response(JSON.stringify(result.rows), {
+      return new Response(JSON.stringify({
+        students: result.rows
+      }), {
         headers: { 'Content-Type': 'application/json' },
       });
     } catch (error: any) {
