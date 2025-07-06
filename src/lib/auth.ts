@@ -2,6 +2,7 @@ import { pool } from './db';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import type { User, SchoolAccess } from '../types/auth';
+import { ActivityLogger } from './activity-logger';
 
 // Re-export User type from types file
 export type { User, SchoolAccess } from '../types/auth';
@@ -371,4 +372,25 @@ export function canAccessSchool(user: User, schoolId: number, requiredLevel: 're
   if (user.role === 'teacher') return requiredLevel !== 'admin';
   if (user.role === 'student') return requiredLevel === 'read';
   return false;
+}
+
+/**
+ * Log user activity using ActivityLogger
+ */
+export async function logUserActivity(
+  userId: string,
+  action: string,
+  resourceType?: string,
+  resourceId?: string,
+  details?: Record<string, any>
+): Promise<void> {
+  const logger = ActivityLogger.getInstance();
+  await logger.log({
+    userId,
+    action,
+    resourceType,
+    resourceId,
+    details,
+    status: 'success'
+  });
 }

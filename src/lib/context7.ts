@@ -1,16 +1,39 @@
 import { Index } from '@upstash/vector';
 import OpenAI from 'openai';
 
-// Initialize OpenAI client for embeddings
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-});
+// Initialize OpenAI client for embeddings (lazy initialization)
+let openai: OpenAI | null = null;
 
-// Initialize Upstash Vector index
-const index = new Index({
-  url: process.env.UPSTASH_VECTOR_REST_URL!,
-  token: process.env.UPSTASH_VECTOR_REST_TOKEN!,
-});
+function getOpenAIClient(): OpenAI {
+  if (!openai) {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      throw new Error('OPENAI_API_KEY environment variable is required');
+    }
+    openai = new OpenAI({
+      apiKey,
+    });
+  }
+  return openai;
+}
+
+// Initialize Upstash Vector index (lazy initialization)
+let vectorIndex: Index | null = null;
+
+function getVectorIndex(): Index {
+  if (!vectorIndex) {
+    const url = process.env.UPSTASH_VECTOR_REST_URL;
+    const token = process.env.UPSTASH_VECTOR_REST_TOKEN;
+    if (!url || !token) {
+      throw new Error('UPSTASH_VECTOR_REST_URL and UPSTASH_VECTOR_REST_TOKEN environment variables are required');
+    }
+    vectorIndex = new Index({
+      url,
+      token,
+    });
+  }
+  return vectorIndex;
+}
 
 export interface Context7Document {
   id: string;
@@ -46,7 +69,8 @@ export class Context7Manager {
    */
   private async generateEmbedding(text: string): Promise<number[]> {
     try {
-      const response = await openai.embeddings.create({
+      const client = getOpenAIClient();
+      const response = await client.embeddings.create({
         model: 'text-embedding-3-small',
         input: text,
       });
@@ -65,6 +89,7 @@ export class Context7Manager {
     try {
       const embedding = await this.generateEmbedding(doc.content);
       
+      const index = getVectorIndex();
       await index.upsert({
         id: doc.id,
         vector: embedding,
@@ -97,6 +122,7 @@ export class Context7Manager {
         }))
       );
       
+      const index = getVectorIndex();
       await index.upsert(vectors);
     } catch (error) {
       console.error('Error indexing documents:', error);
@@ -115,6 +141,7 @@ export class Context7Manager {
     try {
       const embedding = await this.generateEmbedding(query);
       
+      const index = getVectorIndex();
       const results = await index.query({
         vector: embedding,
         topK: options?.topK || 5,
@@ -134,6 +161,7 @@ export class Context7Manager {
    */
   async getDocument(id: string): Promise<any> {
     try {
+      const index = getVectorIndex();
       const result = await index.fetch([id], { includeMetadata: true });
       return result[0];
     } catch (error) {
@@ -147,6 +175,7 @@ export class Context7Manager {
    */
   async deleteDocument(id: string): Promise<void> {
     try {
+      const index = getVectorIndex();
       await index.delete(id);
     } catch (error) {
       console.error('Error deleting document:', error);
@@ -159,6 +188,7 @@ export class Context7Manager {
    */
   async updateMetadata(id: string, metadata: Record<string, any>): Promise<void> {
     try {
+      const index = getVectorIndex();
       await index.update({
         id,
         metadata,

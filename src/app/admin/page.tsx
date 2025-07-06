@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { SuperAdminProvider } from '@/contexts/SuperAdminContext';
-import { ModernSuperAdminDashboard } from '@/components/dashboard/ModernSuperAdminDashboard';
+import ModernSuperAdminDashboard from '@/components/dashboard/ModernSuperAdminDashboard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, Shield, ArrowLeft } from 'lucide-react';
