@@ -269,8 +269,8 @@ Monitoring:
       support: {
         title: "6. Support & Maintenance",
         content: `Technical Support:
-• Email: support@virtuallab.edu
-• Documentation: docs.virtuallab.edu
+• Email: chhinhs@gmail.com
+• Documentation: https://vlab.openplp.com/showcase/document
 • Video tutorials available
 • Community forum for peer support
 
@@ -540,8 +540,8 @@ Training Resources:
       support: {
         title: "៦. ការគាំទ្រ និងការថែទាំ",
         content: `ការគាំទ្របច្ចេកទេស៖
-• អ៊ីមែល៖ support@virtuallab.edu
-• ឯកសារ៖ docs.virtuallab.edu
+• អ៊ីមែល៖ chhinhs@gmail.com
+• ឯកសារ៖ https://vlab.openplp.com/showcase/document
 • មានមេរៀនវីដេអូ
 • វេទិកាសហគមន៍សម្រាប់ការគាំទ្រមិត្តភ័ក្តិ
 
