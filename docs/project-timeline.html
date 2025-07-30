@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Lab LMS - Project Timeline (August-November 2024)</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        h1 {
+            color: #366092;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        h2 {
+            color: #5a5a5a;
+            text-align: center;
+            font-weight: normal;
+            margin-bottom: 30px;
+        }
+        .summary {
+            background-color: #e8f0fe;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .summary-item {
+            display: inline-block;
+            margin: 0 20px;
+            font-size: 18px;
+        }
+        .summary-label {
+            font-weight: bold;
+            color: #366092;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th {
+            background-color: #366092;
+            color: white;
+            padding: 15px 10px;
+            text-align: left;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #e0e0e0;
+            vertical-align: top;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f0f0f0;
+        }
+        .month-august { background-color: #fff3e0; }
+        .month-september { background-color: #e8f5e9; }
+        .month-october { background-color: #e3f2fd; }
+        .month-november { background-color: #fce4ec; }
+        .total-row {
+            background-color: #e7e6e6 !important;
+            font-weight: bold;
+        }
+        .total-row td {
+            border-top: 2px solid #366092;
+            padding-top: 15px;
+        }
+        .number {
+            text-align: center;
+            font-weight: bold;
+        }
+        .export-buttons {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .export-btn {
+            background-color: #366092;
+            color: white;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .export-btn:hover {
+            background-color: #254670;
+        }
+        @media print {
+            .export-buttons { display: none; }
+            body { background-color: white; }
+            .container { box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Virtual Lab LMS - TaRL Assessment System</h1>
+        <h2>Project Timeline: August - November 2024</h2>
+        
+        <div class="summary">
+            <div class="summary-item">
+                <span class="summary-label">Total Person-Days:</span> 218
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Average Team Size:</span> 1.9 Engineers
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Duration:</span> 4 Months
+            </div>
+        </div>
+
+        <table id="timeline-table">
+            <thead>
+                <tr>
+                    <th style="width: 10%">Month</th>
+                    <th style="width: 8%">Week</th>
+                    <th style="width: 10%">Dates</th>
+                    <th style="width: 18%">Activity</th>
+                    <th style="width: 22%">Description</th>
+                    <th style="width: 18%">Deliverables</th>
+                    <th style="width: 7%">Engineers</th>
+                    <th style="width: 7%">Person-Days</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- August 2024 -->
+                <tr class="month-august">
+                    <td>August 2024</td>
+                    <td>Week 1-2</td>
+                    <td>Aug 1-14</td>
+                    <td>System Setup & Deployment</td>
+                    <td>Deploy Virtual Lab LMS to production, configure database with TaRL tables, set up 65 teacher accounts across 32 schools</td>
+                    <td>Production system deployed, user accounts created, permissions configured</td>
+                    <td class="number">3</td>
+                    <td class="number">30</td>
+                </tr>
+                <tr class="month-august">
+                    <td>August 2024</td>
+                    <td>Week 1-2</td>
+                    <td>Aug 1-14</td>
+                    <td>Database Configuration</td>
+                    <td>Configure school access permissions, subject assignments, integrate with existing TaRL tables</td>
+                    <td>Database fully configured with access controls</td>
+                    <td class="number">2</td>
+                    <td class="number">20</td>
+                </tr>
+                <tr class="month-august">
+                    <td>August 2024</td>
+                    <td>Week 3-4</td>
+                    <td>Aug 15-31</td>
+                    <td>Teacher Training & Onboarding</td>
+                    <td>Conduct training for 65 teachers on system usage, bilingual interface, student selection, assessment entry</td>
+                    <td>All teachers trained, user guides created, practice sessions completed</td>
+                    <td class="number">2</td>
+                    <td class="number">20</td>
+                </tr>
+                <tr class="month-august">
+                    <td>August 2024</td>
+                    <td>Week 3-4</td>
+                    <td>Aug 15-31</td>
+                    <td>Documentation & Support Materials</td>
+                    <td>Create user guides in Khmer and English, video tutorials, FAQ documents</td>
+                    <td>Complete documentation package in both languages</td>
+                    <td class="number">1</td>
+                    <td class="number">10</td>
+                </tr>
+
+                <!-- September 2024 -->
+                <tr class="month-september">
+                    <td>September 2024</td>
+                    <td>Week 1</td>
+                    <td>Sep 2-6</td>
+                    <td>Student Selection Phase</td>
+                    <td>Teachers select 20 students per school using drag-and-drop interface, total 640 students</td>
+                    <td>All TaRL students selected and registered in system</td>
+                    <td class="number">1</td>
+                    <td class="number">5</td>
+                </tr>
+                <tr class="month-september">
+                    <td>September 2024</td>
+                    <td>Week 2-3</td>
+                    <td>Sep 9-20</td>
+                    <td>Baseline Assessment Execution</td>
+                    <td>Conduct baseline assessments for Khmer and Math, data entry for all 640 students</td>
+                    <td>Complete baseline data for all students</td>
+                    <td class="number">2</td>
+                    <td class="number">20</td>
+                </tr>
+                <tr class="month-september">
+                    <td>September 2024</td>
+                    <td>Week 4</td>
+                    <td>Sep 23-27</td>
+                    <td>Baseline Data Analysis</td>
+                    <td>Generate reports, analyze student levels, prepare intervention strategies</td>
+                    <td>Baseline reports, student level analysis, intervention plans</td>
+                    <td class="number">2</td>
+                    <td class="number">10</td>
+                </tr>
+
+                <!-- October 2024 -->
+                <tr class="month-october">
+                    <td>October 2024</td>
+                    <td>Week 1-2</td>
+                    <td>Oct 1-11</td>
+                    <td>TaRL Teaching Support</td>
+                    <td>Technical support for teachers implementing TaRL methodology, system monitoring</td>
+                    <td>Continuous system support, usage reports</td>
+                    <td class="number">1</td>
+                    <td class="number">10</td>
+                </tr>
+                <tr class="month-october">
+                    <td>October 2024</td>
+                    <td>Week 3-4</td>
+                    <td>Oct 14-25</td>
+                    <td>Midline Assessment Implementation</td>
+                    <td>Support midline assessments, ensure data quality, generate progress reports</td>
+                    <td>Complete midline data, progress tracking reports</td>
+                    <td class="number">2</td>
+                    <td class="number">20</td>
+                </tr>
+                <tr class="month-october">
+                    <td>October 2024</td>
+                    <td>Week 5</td>
+                    <td>Oct 28-31</td>
+                    <td>Mid-Program Analysis</td>
+                    <td>Analyze baseline vs midline data, generate comparison reports, identify trends</td>
+                    <td>Comparative analysis reports, improvement metrics</td>
+                    <td class="number">2</td>
+                    <td class="number">8</td>
+                </tr>
+
+                <!-- November 2024 -->
+                <tr class="month-november">
+                    <td>November 2024</td>
+                    <td>Week 1-2</td>
+                    <td>Nov 4-15</td>
+                    <td>Endline Assessment Support</td>
+                    <td>Final assessment round support, ensure complete data collection for all cycles</td>
+                    <td>Complete endline data for all students</td>
+                    <td class="number">2</td>
+                    <td class="number">20</td>
+                </tr>
+                <tr class="month-november">
+                    <td>November 2024</td>
+                    <td>Week 3</td>
+                    <td>Nov 18-22</td>
+                    <td>Comprehensive Reporting</td>
+                    <td>Generate final reports showing full progression cycle, create data exports for provincial office</td>
+                    <td>Complete impact reports, data exports, analytics dashboard</td>
+                    <td class="number">3</td>
+                    <td class="number">15</td>
+                </tr>
+                <tr class="month-november">
+                    <td>November 2024</td>
+                    <td>Week 4</td>
+                    <td>Nov 25-29</td>
+                    <td>Program Evaluation & Planning</td>
+                    <td>Evaluate system performance, collect feedback, plan improvements for next cycle</td>
+                    <td>Evaluation report, improvement recommendations, next cycle plan</td>
+                    <td class="number">2</td>
+                    <td class="number">10</td>
+                </tr>
+
+                <!-- Total Row -->
+                <tr class="total-row">
+                    <td>TOTAL</td>
+                    <td></td>
+                    <td>Aug-Nov 2024</td>
+                    <td>Project Summary</td>
+                    <td>Total effort across all activities</td>
+                    <td>Complete TaRL assessment system implementation</td>
+                    <td class="number">1.9 (avg)</td>
+                    <td class="number">218</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="export-buttons">
+            <button class="export-btn" onclick="exportToCSV()">Download as CSV</button>
+            <button class="export-btn" onclick="window.print()">Print / Save as PDF</button>
+        </div>
+    </div>
+
+    <script>
+        function exportToCSV() {
+            const table = document.getElementById('timeline-table');
+            const rows = table.querySelectorAll('tr');
+            let csv = [];
+            
+            rows.forEach(row => {
+                const cols = row.querySelectorAll('td, th');
+                const rowData = Array.from(cols).map(col => {
+                    // Escape quotes and wrap in quotes if contains comma
+                    let text = col.textContent.trim();
+                    if (text.includes(',') || text.includes('"')) {
+                        text = '"' + text.replace(/"/g, '""') + '"';
+                    }
+                    return text;
+                });
+                csv.push(rowData.join(','));
+            });
+            
+            const csvContent = csv.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', 'Virtual_Lab_Timeline_August_November_2024.csv');
+            a.click();
+        }
+    </script>
+</body>
+</html>
