@@ -245,6 +245,11 @@ export default function Home() {
               </div>
             </div>
             <div className="flex items-center gap-4">
+              <Link href="/showcase">
+                <Button variant="ghost" className="text-gray-700 hover:text-blue-600">
+                  Features
+                </Button>
+              </Link>
               <LanguageTogglePill />
               <Link href="/auth/login">
                 <Button className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-md hover:shadow-xl transition-all duration-300">
