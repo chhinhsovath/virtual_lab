@@ -11,7 +11,7 @@ export async function middleware(request: NextRequest) {
   requestHeaders.set('x-request-start', Date.now().toString());
   
   // Public routes that don't require authentication
-  const publicRoutes = ['/auth/login', '/auth/signin', '/auth/callback', '/auth/register', '/showcase'];
+  const publicRoutes = ['/auth/login', '/auth/signin', '/auth/callback', '/auth/register', '/showcase', '/showcase/document'];
   
   // Guest-accessible routes (simulations)
   const guestRoutes = ['/simulations', '/simulation'];
