@@ -11,7 +11,7 @@ export async function middleware(request: NextRequest) {
   requestHeaders.set('x-request-start', Date.now().toString());
   
   // Public routes that don't require authentication
-  const publicRoutes = ['/auth/login', '/auth/signin', '/auth/callback', '/auth/register'];
+  const publicRoutes = ['/auth/login', '/auth/signin', '/auth/callback', '/auth/register', '/showcase'];
   
   // Guest-accessible routes (simulations)
   const guestRoutes = ['/simulations', '/simulation'];
@@ -166,6 +166,15 @@ export async function middleware(request: NextRequest) {
       redirectUrl.searchParams.set('redirect', pathname);
       return NextResponse.redirect(redirectUrl);
     }
+  }
+
+  // Allow public API routes
+  if (pathname.startsWith('/api/public')) {
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
   }
 
   // For root path, redirect based on user role if authenticated, otherwise to login
