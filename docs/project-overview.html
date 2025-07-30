@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Lab LMS - Project Overview & Resources</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #366092;
+            --secondary-color: #254670;
+            --accent-color: #5a9fd4;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #2c3e50;
+            --text-secondary: #6c757d;
+            --border-color: #e0e6ed;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+            background: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 15px 30px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-tab:hover {
+            color: var(--primary-color);
+            background-color: rgba(54, 96, 146, 0.05);
+        }
+
+        .nav-tab.active {
+            color: var(--primary-color);
+            background-color: rgba(54, 96, 146, 0.1);
+        }
+
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .summary-card i {
+            font-size: 2.5em;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .summary-card h3 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .summary-card .value {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .summary-card .label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .cost-calculator {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+        }
+
+        .calculator-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        .control-group .range-value {
+            text-align: right;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .cost-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            background: rgba(54, 96, 146, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(54, 96, 146, 0.2);
+        }
+
+        .cost-item {
+            text-align: center;
+        }
+
+        .cost-item .amount {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .cost-item .label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .timeline-section {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+
+        .timeline-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 10px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        tr:hover {
+            background-color: rgba(54, 96, 146, 0.05);
+        }
+
+        .month-august { background-color: rgba(255, 243, 224, 0.5); }
+        .month-september { background-color: rgba(232, 245, 233, 0.5); }
+        .month-october { background-color: rgba(227, 242, 253, 0.5); }
+        .month-november { background-color: rgba(252, 228, 236, 0.5); }
+
+        .team-visualization {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .team-member {
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+            background: rgba(54, 96, 146, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .team-member:hover {
+            background: rgba(54, 96, 146, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .team-member i {
+            font-size: 3em;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .team-member h4 {
+            margin-bottom: 5px;
+            color: var(--text-primary);
+        }
+
+        .team-member p {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .export-section {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .export-btn {
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .export-btn:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .export-btn i {
+            margin-right: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            table {
+                font-size: 0.9em;
+            }
+            
+            .export-btn {
+                margin: 5px;
+                padding: 10px 20px;
+                font-size: 1em;
+            }
+        }
+
+        @media print {
+            .nav-tabs, .export-section, .calculator-controls, .timeline-filters {
+                display: none;
+            }
+            
+            body {
+                background: white;
+            }
+            
+            .container {
+                max-width: 100%;
+            }
+            
+            .summary-card, .cost-calculator, .timeline-section, .team-visualization {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Virtual Lab LMS - TaRL Assessment System</h1>
+        <p>Project Overview & Resource Planning (August - November 2024)</p>
+    </div>
+
+    <div class="container">
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('overview')">
+                <i class="fas fa-chart-pie"></i> Overview
+            </button>
+            <button class="nav-tab" onclick="showTab('timeline')">
+                <i class="fas fa-calendar-alt"></i> Timeline
+            </button>
+            <button class="nav-tab" onclick="showTab('resources')">
+                <i class="fas fa-users"></i> Resources
+            </button>
+            <button class="nav-tab" onclick="showTab('budget')">
+                <i class="fas fa-calculator"></i> Budget
+            </button>
+        </div>
+
+        <!-- Overview Tab -->
+        <div id="overview" class="tab-content active">
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <i class="fas fa-calendar-check"></i>
+                    <h3>Project Duration</h3>
+                    <div class="value">4</div>
+                    <div class="label">Months (Aug - Nov 2024)</div>
+                </div>
+                <div class="summary-card">
+                    <i class="fas fa-user-clock"></i>
+                    <h3>Total Effort</h3>
+                    <div class="value">218</div>
+                    <div class="label">Person-Days</div>
+                </div>
+                <div class="summary-card">
+                    <i class="fas fa-users"></i>
+                    <h3>Average Team Size</h3>
+                    <div class="value">1.9</div>
+                    <div class="label">Engineers</div>
+                </div>
+                <div class="summary-card">
+                    <i class="fas fa-school"></i>
+                    <h3>Schools Covered</h3>
+                    <div class="value">32</div>
+                    <div class="label">Schools</div>
+                </div>
+                <div class="summary-card">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    <h3>Teachers Trained</h3>
+                    <div class="value">65</div>
+                    <div class="label">Teachers</div>
+                </div>
+                <div class="summary-card">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h3>Students Assessed</h3>
+                    <div class="value">640</div>
+                    <div class="label">Students (20 per school)</div>
+                </div>
+            </div>
+
+            <div class="team-visualization">
+                <h2><i class="fas fa-sitemap"></i> Project Team Composition</h2>
+                <div class="team-grid">
+                    <div class="team-member">
+                        <i class="fas fa-code"></i>
+                        <h4>Full-stack Engineers</h4>
+                        <p>3 Engineers</p>
+                        <p>Deployment & Development</p>
+                    </div>
+                    <div class="team-member">
+                        <i class="fas fa-database"></i>
+                        <h4>Data Engineers</h4>
+                        <p>2 Engineers</p>
+                        <p>Analytics & Reporting</p>
+                    </div>
+                    <div class="team-member">
+                        <i class="fas fa-headset"></i>
+                        <h4>Support Engineers</h4>
+                        <p>2 Engineers</p>
+                        <p>Training & Maintenance</p>
+                    </div>
+                    <div class="team-member">
+                        <i class="fas fa-book"></i>
+                        <h4>Documentation</h4>
+                        <p>1 Specialist</p>
+                        <p>User Guides & Training</p>
+                    </div>
+                    <div class="team-member">
+                        <i class="fas fa-tasks"></i>
+                        <h4>Project Manager</h4>
+                        <p>1 Manager</p>
+                        <p>Coordination & Planning</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="timeline-section">
+                <h2><i class="fas fa-chart-gantt"></i> Monthly Effort Distribution</h2>
+                <canvas id="effortChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Timeline Tab -->
+        <div id="timeline" class="tab-content">
+            <div class="timeline-filters">
+                <button class="filter-btn active" onclick="filterTimeline('all')">All Months</button>
+                <button class="filter-btn" onclick="filterTimeline('august')">August</button>
+                <button class="filter-btn" onclick="filterTimeline('september')">September</button>
+                <button class="filter-btn" onclick="filterTimeline('october')">October</button>
+                <button class="filter-btn" onclick="filterTimeline('november')">November</button>
+            </div>
+
+            <div class="timeline-section">
+                <table id="timeline-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 10%">Month</th>
+                            <th style="width: 8%">Week</th>
+                            <th style="width: 10%">Dates</th>
+                            <th style="width: 18%">Activity</th>
+                            <th style="width: 24%">Description</th>
+                            <th style="width: 18%">Deliverables</th>
+                            <th style="width: 6%">Engineers</th>
+                            <th style="width: 6%">Days</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- August 2024 -->
+                        <tr class="month-august" data-month="august">
+                            <td>August 2024</td>
+                            <td>Week 1-2</td>
+                            <td>Aug 1-14</td>
+                            <td>System Setup & Deployment</td>
+                            <td>Deploy Virtual Lab LMS to production, configure database, set up 65 teacher accounts</td>
+                            <td>Production system deployed</td>
+                            <td style="text-align: center; font-weight: bold;">3</td>
+                            <td style="text-align: center; font-weight: bold;">30</td>
+                        </tr>
+                        <tr class="month-august" data-month="august">
+                            <td>August 2024</td>
+                            <td>Week 1-2</td>
+                            <td>Aug 1-14</td>
+                            <td>Database Configuration</td>
+                            <td>Configure permissions, integrate with existing TaRL tables</td>
+                            <td>Database fully configured</td>
+                            <td style="text-align: center; font-weight: bold;">2</td>
+                            <td style="text-align: center; font-weight: bold;">20</td>
+                        </tr>
+                        <tr class="month-august" data-month="august">
+                            <td>August 2024</td>
+                            <td>Week 3-4</td>
+                            <td>Aug 15-31</td>
+                            <td>Teacher Training</td>
+                            <td>Train 65 teachers on system usage and assessment entry</td>
+                            <td>All teachers trained</td>
+                            <td style="text-align: center; font-weight: bold;">2</td>
+                            <td style="text-align: center; font-weight: bold;">20</td>
+                        </tr>
+                        <tr class="month-august" data-month="august">
+                            <td>August 2024</td>
+                            <td>Week 3-4</td>
+                            <td>Aug 15-31</td>
+                            <td>Documentation</td>
+                            <td>Create user guides in Khmer and English</td>
+                            <td>Complete documentation</td>
+                            <td style="text-align: center; font-weight: bold;">1</td>
+                            <td style="text-align: center; font-weight: bold;">10</td>
+                        </tr>
+
+                        <!-- September 2024 -->
+                        <tr class="month-september" data-month="september">
+                            <td>September 2024</td>
+                            <td>Week 1</td>
+                            <td>Sep 2-6</td>
+                            <td>Student Selection</td>
+                            <td>Select 20 students per school (640 total)</td>
+                            <td>All students registered</td>
+                            <td style="text-align: center; font-weight: bold;">1</td>
+                            <td style="text-align: center; font-weight: bold;">5</td>
+                        </tr>
+                        <tr class="month-september" data-month="september">
+                            <td>September 2024</td>
+                            <td>Week 2-3</td>
+                            <td>Sep 9-20</td>
+                            <td>Baseline Assessment</td>
+                            <td>Conduct baseline assessments for all students</td>
+                            <td>Complete baseline data</td>
+                            <td style="text-align: center; font-weight: bold;">2</td>
+                            <td style="text-align: center; font-weight: bold;">20</td>
+                        </tr>
+                        <tr class="month-september" data-month="september">
+                            <td>September 2024</td>
+                            <td>Week 4</td>
+                            <td>Sep 23-27</td>
+                            <td>Data Analysis</td>
+                            <td>Analyze baseline results and prepare reports</td>
+                            <td>Baseline reports ready</td>
+                            <td style="text-align: center; font-weight: bold;">2</td>
+                            <td style="text-align: center; font-weight: bold;">10</td>
+                        </tr>
+
+                        <!-- October 2024 -->
+                        <tr class="month-october" data-month="october">
+                            <td>October 2024</td>
+                            <td>Week 1-2</td>
+                            <td>Oct 1-11</td>
+                            <td>Teaching Support</td>
+                            <td>Support TaRL methodology implementation</td>
+                            <td>Continuous support</td>
+                            <td style="text-align: center; font-weight: bold;">1</td>
+                            <td style="text-align: center; font-weight: bold;">10</td>
+                        </tr>
+                        <tr class="month-october" data-month="october">
+                            <td>October 2024</td>
+                            <td>Week 3-4</td>
+                            <td>Oct 14-25</td>
+                            <td>Midline Assessment</td>
+                            <td>Conduct midline assessments</td>
+                            <td>Complete midline data</td>
+                            <td style="text-align: center; font-weight: bold;">2</td>
+                            <td style="text-align: center; font-weight: bold;">20</td>
+                        </tr>
+                        <tr class="month-october" data-month="october">
+                            <td>October 2024</td>
+                            <td>Week 5</td>
+                            <td>Oct 28-31</td>
+                            <td>Mid-Program Analysis</td>
+                            <td>Compare baseline vs midline data</td>
+                            <td>Progress reports</td>
+                            <td style="text-align: center; font-weight: bold;">2</td>
+                            <td style="text-align: center; font-weight: bold;">8</td>
+                        </tr>
+
+                        <!-- November 2024 -->
+                        <tr class="month-november" data-month="november">
+                            <td>November 2024</td>
+                            <td>Week 1-2</td>
+                            <td>Nov 4-15</td>
+                            <td>Endline Assessment</td>
+                            <td>Final assessment round</td>
+                            <td>Complete endline data</td>
+                            <td style="text-align: center; font-weight: bold;">2</td>
+                            <td style="text-align: center; font-weight: bold;">20</td>
+                        </tr>
+                        <tr class="month-november" data-month="november">
+                            <td>November 2024</td>
+                            <td>Week 3</td>
+                            <td>Nov 18-22</td>
+                            <td>Final Reporting</td>
+                            <td>Generate comprehensive impact reports</td>
+                            <td>Complete reports</td>
+                            <td style="text-align: center; font-weight: bold;">3</td>
+                            <td style="text-align: center; font-weight: bold;">15</td>
+                        </tr>
+                        <tr class="month-november" data-month="november">
+                            <td>November 2024</td>
+                            <td>Week 4</td>
+                            <td>Nov 25-29</td>
+                            <td>Program Evaluation</td>
+                            <td>Evaluate system and plan improvements</td>
+                            <td>Evaluation report</td>
+                            <td style="text-align: center; font-weight: bold;">2</td>
+                            <td style="text-align: center; font-weight: bold;">10</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Resources Tab -->
+        <div id="resources" class="tab-content">
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <i class="fas fa-user-tie"></i>
+                    <h3>Full-time Equivalents</h3>
+                    <div class="value">2-3</div>
+                    <div class="label">FTE Engineers for 4 months</div>
+                </div>
+                <div class="summary-card">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Peak Team Size</h3>
+                    <div class="value">3</div>
+                    <div class="label">Engineers (Deployment & Reporting)</div>
+                </div>
+                <div class="summary-card">
+                    <i class="fas fa-clock"></i>
+                    <h3>Average Workload</h3>
+                    <div class="value">54.5</div>
+                    <div class="label">Person-Days per Month</div>
+                </div>
+            </div>
+
+            <div class="timeline-section">
+                <h2><i class="fas fa-users-cog"></i> Resource Allocation by Phase</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Phase</th>
+                            <th>Month</th>
+                            <th>Person-Days</th>
+                            <th>Key Resources</th>
+                            <th>Critical Skills</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Setup & Training</strong></td>
+                            <td>August</td>
+                            <td style="text-align: center;">80</td>
+                            <td>3 Full-stack, 1 Documentation</td>
+                            <td>DevOps, Database, Training</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Baseline Assessment</strong></td>
+                            <td>September</td>
+                            <td style="text-align: center;">35</td>
+                            <td>1 Support, 2 Data Engineers</td>
+                            <td>Data Entry, Analysis, Support</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Midline & Teaching</strong></td>
+                            <td>October</td>
+                            <td style="text-align: center;">38</td>
+                            <td>1 Support, 2 Data Engineers</td>
+                            <td>Monitoring, Analysis, Support</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Endline & Reporting</strong></td>
+                            <td>November</td>
+                            <td style="text-align: center;">45</td>
+                            <td>3 Engineers, 1 PM</td>
+                            <td>Reporting, Analysis, Planning</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Budget Tab -->
+        <div id="budget" class="tab-content">
+            <div class="cost-calculator">
+                <h2><i class="fas fa-dollar-sign"></i> Interactive Budget Calculator</h2>
+                <div class="calculator-controls">
+                    <div class="control-group">
+                        <label for="dailyRate">Daily Rate per Engineer ($)</label>
+                        <input type="range" id="dailyRate" min="300" max="800" value="500" oninput="updateCost()">
+                        <div class="range-value">$<span id="dailyRateValue">500</span></div>
+                    </div>
+                    <div class="control-group">
+                        <label for="overheadPercent">Overhead & Management (%)</label>
+                        <input type="range" id="overheadPercent" min="10" max="30" value="20" oninput="updateCost()">
+                        <div class="range-value"><span id="overheadValue">20</span>%</div>
+                    </div>
+                    <div class="control-group">
+                        <label for="contingencyPercent">Contingency Buffer (%)</label>
+                        <input type="range" id="contingencyPercent" min="5" max="20" value="10" oninput="updateCost()">
+                        <div class="range-value"><span id="contingencyValue">10</span>%</div>
+                    </div>
+                </div>
+
+                <div class="cost-results">
+                    <div class="cost-item">
+                        <div class="amount" id="baseCost">$109,000</div>
+                        <div class="label">Base Cost (218 days)</div>
+                    </div>
+                    <div class="cost-item">
+                        <div class="amount" id="overheadCost">$21,800</div>
+                        <div class="label">Overhead Cost</div>
+                    </div>
+                    <div class="cost-item">
+                        <div class="amount" id="contingencyCost">$10,900</div>
+                        <div class="label">Contingency</div>
+                    </div>
+                    <div class="cost-item">
+                        <div class="amount" id="totalCost">$141,700</div>
+                        <div class="label">Total Project Cost</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="timeline-section">
+                <h2><i class="fas fa-chart-bar"></i> Cost Breakdown by Month</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Person-Days</th>
+                            <th>Base Cost</th>
+                            <th>With Overhead</th>
+                            <th>Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody id="monthlyBreakdown">
+                        <tr>
+                            <td>August 2024</td>
+                            <td style="text-align: center;">80</td>
+                            <td id="augBase">$40,000</td>
+                            <td id="augTotal">$48,000</td>
+                            <td style="text-align: center;">36.7%</td>
+                        </tr>
+                        <tr>
+                            <td>September 2024</td>
+                            <td style="text-align: center;">35</td>
+                            <td id="sepBase">$17,500</td>
+                            <td id="sepTotal">$21,000</td>
+                            <td style="text-align: center;">16.1%</td>
+                        </tr>
+                        <tr>
+                            <td>October 2024</td>
+                            <td style="text-align: center;">38</td>
+                            <td id="octBase">$19,000</td>
+                            <td id="octTotal">$22,800</td>
+                            <td style="text-align: center;">17.4%</td>
+                        </tr>
+                        <tr>
+                            <td>November 2024</td>
+                            <td style="text-align: center;">45</td>
+                            <td id="novBase">$22,500</td>
+                            <td id="novTotal">$27,000</td>
+                            <td style="text-align: center;">20.6%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="export-section">
+            <button class="export-btn" onclick="exportFullReport()">
+                <i class="fas fa-file-pdf"></i> Export Full Report
+            </button>
+            <button class="export-btn" onclick="exportToCSV()">
+                <i class="fas fa-file-csv"></i> Download Timeline CSV
+            </button>
+            <button class="export-btn" onclick="window.print()">
+                <i class="fas fa-print"></i> Print Report
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Tab functionality
+        function showTab(tabName) {
+            const tabs = document.querySelectorAll('.tab-content');
+            const buttons = document.querySelectorAll('.nav-tab');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.closest('.nav-tab').classList.add('active');
+        }
+
+        // Timeline filtering
+        function filterTimeline(month) {
+            const rows = document.querySelectorAll('#timeline-table tbody tr');
+            const buttons = document.querySelectorAll('.filter-btn');
+            
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            rows.forEach(row => {
+                if (month === 'all') {
+                    row.style.display = '';
+                } else {
+                    row.style.display = row.dataset.month === month ? '' : 'none';
+                }
+            });
+        }
+
+        // Cost calculator
+        function updateCost() {
+            const dailyRate = document.getElementById('dailyRate').value;
+            const overheadPercent = document.getElementById('overheadPercent').value;
+            const contingencyPercent = document.getElementById('contingencyPercent').value;
+            
+            document.getElementById('dailyRateValue').textContent = dailyRate;
+            document.getElementById('overheadValue').textContent = overheadPercent;
+            document.getElementById('contingencyValue').textContent = contingencyPercent;
+            
+            const totalDays = 218;
+            const baseCost = totalDays * dailyRate;
+            const overheadCost = baseCost * (overheadPercent / 100);
+            const subtotal = baseCost + overheadCost;
+            const contingencyCost = subtotal * (contingencyPercent / 100);
+            const totalCost = subtotal + contingencyCost;
+            
+            document.getElementById('baseCost').textContent = '$' + baseCost.toLocaleString();
+            document.getElementById('overheadCost').textContent = '$' + overheadCost.toLocaleString();
+            document.getElementById('contingencyCost').textContent = '$' + contingencyCost.toLocaleString();
+            document.getElementById('totalCost').textContent = '$' + totalCost.toLocaleString();
+            
+            // Update monthly breakdown
+            const months = [
+                { id: 'aug', days: 80 },
+                { id: 'sep', days: 35 },
+                { id: 'oct', days: 38 },
+                { id: 'nov', days: 45 }
+            ];
+            
+            months.forEach(month => {
+                const monthBase = month.days * dailyRate;
+                const monthTotal = monthBase * (1 + overheadPercent / 100);
+                document.getElementById(month.id + 'Base').textContent = '$' + monthBase.toLocaleString();
+                document.getElementById(month.id + 'Total').textContent = '$' + monthTotal.toLocaleString();
+            });
+        }
+
+        // Export functions
+        function exportToCSV() {
+            const table = document.getElementById('timeline-table');
+            const rows = table.querySelectorAll('tr');
+            let csv = [];
+            
+            rows.forEach(row => {
+                const cols = row.querySelectorAll('td, th');
+                const rowData = Array.from(cols).map(col => {
+                    let text = col.textContent.trim();
+                    if (text.includes(',') || text.includes('"')) {
+                        text = '"' + text.replace(/"/g, '""') + '"';
+                    }
+                    return text;
+                });
+                csv.push(rowData.join(','));
+            });
+            
+            const csvContent = csv.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', 'Virtual_Lab_Project_Timeline.csv');
+            a.click();
+        }
+
+        function exportFullReport() {
+            window.print();
+        }
+
+        // Draw effort chart
+        function drawEffortChart() {
+            const canvas = document.getElementById('effortChart');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const data = [80, 35, 38, 45];
+            const labels = ['August', 'September', 'October', 'November'];
+            const colors = ['#fff3e0', '#e8f5e9', '#e3f2fd', '#fce4ec'];
+            
+            const width = canvas.width;
+            const height = canvas.height;
+            const barWidth = width / (data.length * 2);
+            const maxValue = Math.max(...data);
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            data.forEach((value, index) => {
+                const barHeight = (value / maxValue) * (height - 40);
+                const x = (index * 2 + 0.5) * barWidth;
+                const y = height - barHeight - 20;
+                
+                // Draw bar
+                ctx.fillStyle = colors[index];
+                ctx.fillRect(x, y, barWidth, barHeight);
+                
+                // Draw border
+                ctx.strokeStyle = '#366092';
+                ctx.strokeRect(x, y, barWidth, barHeight);
+                
+                // Draw value
+                ctx.fillStyle = '#366092';
+                ctx.font = 'bold 14px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(value, x + barWidth / 2, y - 5);
+                
+                // Draw label
+                ctx.font = '12px Arial';
+                ctx.fillText(labels[index], x + barWidth / 2, height - 5);
+            });
+        }
+
+        // Initialize
+        window.onload = function() {
+            updateCost();
+            drawEffortChart();
+        };
+
+        // Redraw chart on window resize
+        window.onresize = function() {
+            drawEffortChart();
+        };
+    </script>
+</body>
+</html>
