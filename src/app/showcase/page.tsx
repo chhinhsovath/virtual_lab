@@ -1537,9 +1537,9 @@ export default function ShowcasePage() {
               <div className="bg-white rounded-3xl p-8 md:p-12">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   {[
-                    { icon: Microscope, label: t.stats.virtualLabs, value: "20" },
-                    { icon: Users, label: t.stats.activeStudents, value: "2" },
-                    { icon: School, label: t.stats.schools, value: "2" }
+                    { icon: Microscope, label: t.stats.virtualLabs, value: "121+" },
+                    { icon: Users, label: t.stats.activeStudents, value: "5,000+" },
+                    { icon: School, label: t.stats.schools, value: "32" }
                   ].map((stat, index) => (
                     <motion.div
                       key={index}
@@ -1567,12 +1567,12 @@ export default function ShowcasePage() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8">
             {[
-              { icon: Users, label: t.stats.activeStudents, value: "2", color: "blue" },
-              { icon: FlaskConical, label: t.stats.virtualLabs, value: "20", color: "purple" },
-              { icon: School, label: t.stats.schools, value: "2", color: "green" },
-              { icon: Trophy, label: t.stats.successRate, value: "100%", color: "yellow" },
-              { icon: PenTool, label: t.stats.exercises, value: "4", color: "pink" },
-              { icon: GraduationCap, label: t.stats.teachers, value: "2", color: "indigo" }
+              { icon: Users, label: t.stats.activeStudents, value: "5,000+", color: "blue" },
+              { icon: FlaskConical, label: t.stats.virtualLabs, value: "121+", color: "purple" },
+              { icon: School, label: t.stats.schools, value: "32", color: "green" },
+              { icon: Trophy, label: t.stats.successRate, value: "95%", color: "yellow" },
+              { icon: PenTool, label: t.stats.exercises, value: "2,000+", color: "pink" },
+              { icon: GraduationCap, label: t.stats.teachers, value: "65+", color: "indigo" }
             ].map((stat, index) => (
               <motion.div
                 key={index}
