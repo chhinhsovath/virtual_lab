@@ -280,22 +280,15 @@ const translations = {
               title: "Pendulum Lab",
               description: "Explore periodic motion, gravity, and energy conservation",
               duration: "45 min",
-              level: "Intermediate",
+              level: "Advanced",
               topics: ["Mechanics", "Energy", "Oscillations"]
             },
             {
-              title: "Circuit Builder",
-              description: "Build and test electrical circuits with virtual components",
-              duration: "60 min",
-              level: "Advanced",
-              topics: ["Electricity", "Circuits", "Ohm's Law"]
-            },
-            {
-              title: "Wave Interference",
-              description: "Study wave properties and interference patterns",
+              title: "Forces and Motion: Basics",
+              description: "Learn fundamental concepts of forces and motion",
               duration: "30 min",
               level: "Beginner",
-              topics: ["Waves", "Frequency", "Amplitude"]
+              topics: ["Forces", "Motion", "Basics"]
             },
             {
               title: "Projectile Motion",
@@ -303,6 +296,34 @@ const translations = {
               duration: "40 min",
               level: "Intermediate",
               topics: ["Kinematics", "Vectors", "Motion"]
+            },
+            {
+              title: "Gravity and Orbits",
+              description: "Explore gravitational forces and orbital mechanics",
+              duration: "50 min",
+              level: "Intermediate",
+              topics: ["Gravity", "Orbits", "Space"]
+            },
+            {
+              title: "Energy Skate Park: Basics",
+              description: "Study energy conservation with skateboard physics",
+              duration: "35 min",
+              level: "Intermediate",
+              topics: ["Energy", "Conservation", "Motion"]
+            },
+            {
+              title: "Plate Tectonics",
+              description: "Understand Earth's geological processes",
+              duration: "40 min",
+              level: "Intermediate",
+              topics: ["Geology", "Earth Science", "Tectonics"]
+            },
+            {
+              title: "Greenhouse Effect",
+              description: "Learn about climate and atmospheric effects",
+              duration: "30 min",
+              level: "Intermediate",
+              topics: ["Climate", "Atmosphere", "Environment"]
             }
           ]
         },
@@ -312,32 +333,39 @@ const translations = {
           color: "green",
           simulations: [
             {
-              title: "Molecule Builder",
-              description: "Construct 3D molecular structures and study bonding",
-              duration: "50 min",
-              level: "Intermediate",
-              topics: ["Bonding", "Molecular Structure", "3D Visualization"]
-            },
-            {
-              title: "pH Scale Lab",
-              description: "Test pH levels of various substances",
+              title: "pH Scale: Basics",
+              description: "Test pH levels of various substances and understand acidity",
               duration: "35 min",
               level: "Beginner",
               topics: ["Acids & Bases", "pH", "Indicators"]
             },
             {
-              title: "Chemical Reactions",
-              description: "Balance equations and observe reaction types",
-              duration: "55 min",
-              level: "Advanced",
-              topics: ["Reactions", "Stoichiometry", "Conservation"]
+              title: "Build an Atom",
+              description: "Construct atoms and learn about atomic structure",
+              duration: "40 min",
+              level: "Beginner",
+              topics: ["Atomic Structure", "Electrons", "Nucleus"]
             },
             {
-              title: "Gas Properties",
-              description: "Explore ideal gas laws and molecular behavior",
+              title: "States of Matter: Basics",
+              description: "Explore solid, liquid, and gas phases of matter",
+              duration: "30 min",
+              level: "Beginner",
+              topics: ["Phase Changes", "Molecular Motion", "States"]
+            },
+            {
+              title: "Concentration",
+              description: "Learn about solution concentrations and molarity",
               duration: "45 min",
               level: "Intermediate",
-              topics: ["Gases", "Pressure", "Temperature"]
+              topics: ["Solutions", "Molarity", "Concentration"]
+            },
+            {
+              title: "Balancing Chemical Equations",
+              description: "Master the art of balancing chemical reactions",
+              duration: "50 min",
+              level: "Intermediate",
+              topics: ["Reactions", "Stoichiometry", "Conservation"]
             }
           ]
         },
@@ -347,32 +375,25 @@ const translations = {
           color: "purple",
           simulations: [
             {
-              title: "Cell Explorer",
-              description: "Journey inside plant and animal cells",
-              duration: "40 min",
-              level: "Beginner",
-              topics: ["Cell Structure", "Organelles", "Functions"]
-            },
-            {
-              title: "DNA Replication",
-              description: "Watch DNA replication and protein synthesis",
+              title: "Gene Expression Essentials",
+              description: "Learn how genes are expressed and regulated",
               duration: "60 min",
               level: "Advanced",
-              topics: ["Genetics", "DNA", "Proteins"]
+              topics: ["Genetics", "Gene Expression", "Proteins"]
             },
             {
-              title: "Ecosystem Simulator",
-              description: "Balance ecosystems and food chains",
+              title: "Neuron",
+              description: "Explore neuron structure and signal transmission",
               duration: "50 min",
-              level: "Intermediate",
-              topics: ["Ecology", "Food Webs", "Balance"]
+              level: "Advanced",
+              topics: ["Nervous System", "Neurons", "Signals"]
             },
             {
-              title: "Human Body Systems",
-              description: "Explore circulatory, respiratory, and nervous systems",
-              duration: "55 min",
+              title: "Natural Selection",
+              description: "Understand evolution through natural selection",
+              duration: "45 min",
               level: "Intermediate",
-              topics: ["Anatomy", "Physiology", "Systems"]
+              topics: ["Evolution", "Selection", "Adaptation"]
             }
           ]
         },
@@ -382,32 +403,39 @@ const translations = {
           color: "orange",
           simulations: [
             {
-              title: "Geometry Explorer",
-              description: "Construct and analyze geometric shapes",
-              duration: "45 min",
-              level: "Intermediate",
-              topics: ["Geometry", "Angles", "Proofs"]
+              title: "Area Builder",
+              description: "Build shapes and explore area concepts",
+              duration: "30 min",
+              level: "Beginner",
+              topics: ["Geometry", "Area", "Shapes"]
             },
             {
-              title: "Function Grapher",
-              description: "Visualize and transform mathematical functions",
-              duration: "40 min",
-              level: "Advanced",
-              topics: ["Algebra", "Functions", "Graphs"]
+              title: "Arithmetic",
+              description: "Practice basic arithmetic operations",
+              duration: "25 min",
+              level: "Beginner",
+              topics: ["Addition", "Subtraction", "Multiplication"]
             },
             {
-              title: "Probability Lab",
-              description: "Experiment with probability and statistics",
+              title: "Fraction Matcher",
+              description: "Match equivalent fractions and decimals",
               duration: "35 min",
               level: "Beginner",
-              topics: ["Probability", "Statistics", "Data"]
+              topics: ["Fractions", "Decimals", "Equivalence"]
             },
             {
-              title: "Calculus Visualizer",
-              description: "See derivatives and integrals in action",
-              duration: "60 min",
-              level: "Advanced",
-              topics: ["Calculus", "Derivatives", "Integration"]
+              title: "Function Builder",
+              description: "Build and explore mathematical functions",
+              duration: "40 min",
+              level: "Intermediate",
+              topics: ["Functions", "Algebra", "Input-Output"]
+            },
+            {
+              title: "Graphing Lines",
+              description: "Learn to graph linear equations",
+              duration: "45 min",
+              level: "Intermediate",
+              topics: ["Linear Equations", "Graphing", "Slope"]
             }
           ]
         }
@@ -1509,9 +1537,9 @@ export default function ShowcasePage() {
               <div className="bg-white rounded-3xl p-8 md:p-12">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   {[
-                    { icon: Microscope, label: t.stats.virtualLabs, value: "50+" },
-                    { icon: Users, label: t.stats.activeStudents, value: "5,000+" },
-                    { icon: School, label: t.stats.schools, value: "32" }
+                    { icon: Microscope, label: t.stats.virtualLabs, value: "20" },
+                    { icon: Users, label: t.stats.activeStudents, value: "2" },
+                    { icon: School, label: t.stats.schools, value: "2" }
                   ].map((stat, index) => (
                     <motion.div
                       key={index}
@@ -1539,12 +1567,12 @@ export default function ShowcasePage() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8">
             {[
-              { icon: Users, label: t.stats.activeStudents, value: "5,000+", color: "blue" },
-              { icon: FlaskConical, label: t.stats.virtualLabs, value: "50+", color: "purple" },
-              { icon: School, label: t.stats.schools, value: "32", color: "green" },
-              { icon: Trophy, label: t.stats.successRate, value: "95%", color: "yellow" },
-              { icon: PenTool, label: t.stats.exercises, value: "2,000+", color: "pink" },
-              { icon: GraduationCap, label: t.stats.teachers, value: "65+", color: "indigo" }
+              { icon: Users, label: t.stats.activeStudents, value: "2", color: "blue" },
+              { icon: FlaskConical, label: t.stats.virtualLabs, value: "20", color: "purple" },
+              { icon: School, label: t.stats.schools, value: "2", color: "green" },
+              { icon: Trophy, label: t.stats.successRate, value: "100%", color: "yellow" },
+              { icon: PenTool, label: t.stats.exercises, value: "4", color: "pink" },
+              { icon: GraduationCap, label: t.stats.teachers, value: "2", color: "indigo" }
             ].map((stat, index) => (
               <motion.div
                 key={index}
