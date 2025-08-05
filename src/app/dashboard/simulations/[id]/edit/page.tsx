@@ -421,7 +421,7 @@ export default function EditSimulationPage() {
   };
 
   const toggleGrade = (grade: number) => {
-    const currentGrades = form.getValues('grade_levels');
+    const currentGrades = form.getValues('grade_levels') || [];
     if (currentGrades.includes(grade)) {
       form.setValue('grade_levels', currentGrades.filter(g => g !== grade));
     } else {
@@ -454,8 +454,8 @@ export default function EditSimulationPage() {
       instructions_en: currentExercise.instructions_en,
       instructions_km: currentExercise.instructions_km,
       options: currentExercise.question_type === 'multiple_choice' ? {
-        options_en: currentExercise.options_en.filter(opt => opt.trim()),
-        options_km: currentExercise.options_km.filter(opt => opt.trim())
+        options_en: (currentExercise.options_en || []).filter(opt => opt && opt.trim()),
+        options_km: (currentExercise.options_km || []).filter(opt => opt && opt.trim())
       } : undefined,
       correct_answer: currentExercise.correct_answer,
       points: currentExercise.points,
@@ -501,7 +501,8 @@ export default function EditSimulationPage() {
 
   const updateCurrentExerciseOption = (index: number, value: string, language: 'en' | 'km') => {
     const key = language === 'en' ? 'options_en' : 'options_km';
-    const newOptions = [...currentExercise[key]];
+    const currentOptions = currentExercise[key] || ['', '', '', ''];
+    const newOptions = [...currentOptions];
     newOptions[index] = value;
     setCurrentExercise({
       ...currentExercise,
@@ -1024,7 +1025,7 @@ export default function EditSimulationPage() {
                               <div className="flex-1">
                                 <p className="text-sm">{objective}</p>
                                 {form.watch('learning_objectives_km')?.[index] && (
-                                  <p className="text-sm text-gray-600 font-hanuman">{form.watch('learning_objectives_km')[index]}</p>
+                                  <p className="text-sm text-gray-600 font-hanuman">{(form.watch('learning_objectives_km') || [])[index]}</p>
                                 )}
                               </div>
                               <Button
@@ -1235,7 +1236,7 @@ export default function EditSimulationPage() {
                               <div className="bg-gradient-to-r from-emerald-50 to-green-50 p-3 rounded-lg border border-emerald-200">
                                 <h3 className="text-sm font-semibold mb-2 text-emerald-900">Answer Options</h3>
                                 <div className="space-y-2">
-                                  {currentExercise.options_en.map((option, index) => (
+                                  {(currentExercise.options_en || []).map((option, index) => (
                                     <div key={index} className="space-y-1">
                                       <div className="flex gap-2">
                                         <span className="flex-shrink-0 w-6 h-6 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center text-xs font-bold border border-emerald-300">
@@ -1249,7 +1250,7 @@ export default function EditSimulationPage() {
                                         />
                                       </div>
                                       <Input
-                                        value={currentExercise.options_km[index]}
+                                        value={(currentExercise.options_km || [])[index] || ''}
                                         onChange={(e) => updateCurrentExerciseOption(index, e.target.value, 'km')}
                                         placeholder={`Option ${String.fromCharCode(65 + index)} (Khmer)`}
                                         className="font-hanuman border-2 border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-sm h-8 ml-8"
