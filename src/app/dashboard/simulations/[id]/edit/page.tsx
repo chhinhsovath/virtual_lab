@@ -621,8 +621,8 @@ export default function EditSimulationPage() {
     return <LoadingSpinner />;
   }
 
-  const currentStatus = form.watch('status');
-  const StatusIcon = statusConfig[currentStatus].icon;
+  const currentStatus = form.watch('status') || 'draft';
+  const StatusIcon = statusConfig[currentStatus]?.icon || statusConfig.draft.icon;
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -653,11 +653,11 @@ export default function EditSimulationPage() {
               {/* Status Badge */}
               <div className={cn(
                 "flex items-center gap-2 px-3 py-1 rounded-full border",
-                statusConfig[currentStatus].color,
-                statusConfig[currentStatus].borderColor
+                statusConfig[currentStatus]?.color || statusConfig.draft.color,
+                statusConfig[currentStatus]?.borderColor || statusConfig.draft.borderColor
               )}>
                 <StatusIcon className="h-4 w-4" />
-                <span className="text-sm font-medium">{statusConfig[currentStatus].label}</span>
+                <span className="text-sm font-medium">{statusConfig[currentStatus]?.label || statusConfig.draft.label}</span>
               </div>
               
               <span className="text-sm text-gray-600 hidden sm:inline">
@@ -695,7 +695,7 @@ export default function EditSimulationPage() {
             <Alert className="mb-6 bg-blue-50 border-blue-200">
               <AlertCircle className="h-4 w-4 text-blue-600" />
               <AlertDescription className="text-blue-800">
-                {statusConfig[currentStatus].description}
+                {statusConfig[currentStatus]?.description || statusConfig.draft.description}
               </AlertDescription>
             </Alert>
 
@@ -1547,7 +1547,7 @@ export default function EditSimulationPage() {
                                   </SelectContent>
                                 </Select>
                               <FormDescription>
-                                {statusConfig[currentStatus].description}
+                                {statusConfig[currentStatus]?.description || statusConfig.draft.description}
                               </FormDescription>
                               <FormMessage />
                             </FormItem>
