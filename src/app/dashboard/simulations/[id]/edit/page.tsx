@@ -827,10 +827,10 @@ export default function EditSimulationPage() {
                                   {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((grade) => (
                                     <Badge
                                       key={grade}
-                                      variant={field.value.includes(grade) ? "default" : "outline"}
+                                      variant={(field.value || []).includes(grade) ? "default" : "outline"}
                                       className={cn(
                                         "cursor-pointer transition-all border-2 px-3 py-1 font-medium",
-                                        field.value.includes(grade) 
+                                        (field.value || []).includes(grade) 
                                           ? "bg-blue-600 text-white border-blue-600 hover:bg-blue-700 shadow-md" 
                                           : "bg-white text-gray-700 border-gray-300 hover:border-blue-400 hover:bg-blue-50"
                                       )}
@@ -1019,7 +1019,7 @@ export default function EditSimulationPage() {
                         </div>
 
                         <div className="space-y-2">
-                          {form.watch('learning_objectives_en').map((objective, index) => (
+                          {(form.watch('learning_objectives_en') || []).map((objective, index) => (
                             <div key={index} className="flex items-start gap-2 p-2 bg-gray-50 rounded">
                               <div className="flex-1">
                                 <p className="text-sm">{objective}</p>
@@ -1117,7 +1117,7 @@ export default function EditSimulationPage() {
                                     )}
                                     {exercise.options && (
                                       <div className="flex flex-wrap gap-2 mt-2">
-                                        {exercise.options.options_en.map((option, idx) => (
+                                        {(exercise.options?.options_en || []).map((option, idx) => (
                                           <span
                                             key={idx}
                                             className={`text-xs px-2 py-1 rounded ${
@@ -1270,8 +1270,7 @@ export default function EditSimulationPage() {
                                       <SelectValue placeholder="Choose the correct answer option" className="text-gray-700" />
                                     </SelectTrigger>
                                     <SelectContent className="bg-white border-2 border-gray-200 shadow-xl">
-                                      {currentExercise.options_en.map((option, index) => (
-                                        option.trim() && (
+                                      {(currentExercise.options_en || []).filter(opt => opt.trim()).map((option, index) => (
                                           <SelectItem key={index} value={option} className="hover:bg-emerald-50 focus:bg-emerald-50 text-gray-900 text-sm py-2">
                                             {String.fromCharCode(65 + index)}. {option}
                                           </SelectItem>
@@ -1603,7 +1602,7 @@ export default function EditSimulationPage() {
                             </Button>
                           </div>
                           <div className="flex flex-wrap gap-2">
-                            {form.watch('tags')?.map((tag, index) => (
+                            {(form.watch('tags') || []).map((tag, index) => (
                               <Badge key={index} variant="secondary">
                                 {tag}
                                 <X
