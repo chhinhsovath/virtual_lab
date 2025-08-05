@@ -267,7 +267,7 @@ export default function EditSimulationPage() {
       });
       const data = await response.json();
 
-      if (data.success) {
+      if (data.success && data.exercises && Array.isArray(data.exercises)) {
         const loadedExercises = data.exercises.map((ex: any) => ({
           id: ex.id,
           question_number: ex.question_number,
@@ -286,9 +286,13 @@ export default function EditSimulationPage() {
           explanation_km: ex.explanation_km || ''
         }));
         setExercises(loadedExercises);
+      } else {
+        console.warn('No exercises found or invalid response:', data);
+        setExercises([]);
       }
     } catch (error) {
       console.error('Error fetching exercises:', error);
+      setExercises([]);
     }
   };
 
