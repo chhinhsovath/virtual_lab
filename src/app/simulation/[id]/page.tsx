@@ -37,8 +37,8 @@ interface SimulationData {
   exercise_content_km: string;
   instruction_content_en: string;
   instruction_content_km: string;
-  learning_objectives_en: string[];
-  learning_objectives_km: string[];
+  learning_objectives_en?: string[];
+  learning_objectives_km?: string[];
 }
 
 interface SimulationSession {
@@ -57,8 +57,8 @@ interface Exercise {
   instructions_en?: string;
   instructions_km?: string;
   options?: {
-    options_en: string[];
-    options_km: string[];
+    options_en?: string[];
+    options_km?: string[];
   };
   correct_answer?: string;
   points: number;
@@ -192,11 +192,14 @@ export default function SimulationPage() {
       const res = await fetch(`/api/exercises?simulation_id=${params.id}`);
       const data = await res.json();
       
-      if (data.success && data.exercises) {
+      if (data.success && Array.isArray(data.exercises)) {
         setExercises(data.exercises);
+      } else {
+        setExercises([]);
       }
     } catch (error) {
       console.error('Error loading exercises:', error);
+      setExercises([]);
     }
   };
 
@@ -257,7 +260,9 @@ export default function SimulationPage() {
 
   const calculateProgress = () => {
     const answeredCount = Object.keys(answers).length;
-    return Math.round((answeredCount / exercises.length) * 100);
+    const totalExercises = Array.isArray(exercises) ? exercises.length : 0;
+    if (totalExercises === 0) return 0;
+    return Math.round((answeredCount / totalExercises) * 100);
   };
 
   const submitExercises = async () => {
@@ -265,19 +270,20 @@ export default function SimulationPage() {
     logActivity(
       'Submitted exercises',
       'បានដាក់ស្នើលំហាត់',
-      `Answered ${Object.keys(answers).length}/${exercises.length} questions`,
-      `បានឆ្លើយសំណួរ ${Object.keys(answers).length}/${exercises.length}`
+      `Answered ${Object.keys(answers).length}/${Array.isArray(exercises) ? exercises.length : 0} questions`,
+      `បានឆ្លើយសំណួរ ${Object.keys(answers).length}/${Array.isArray(exercises) ? exercises.length : 0}`
     );
     
     try {
       // For guest users, simulate submission
       if (user?.isGuest) {
         // Create mock submission for guest
-        const correctAnswers = exercises.length * 0.7; // Assume 70% correct for demo
+        const totalExercises = Array.isArray(exercises) ? exercises.length : 0;
+        const correctAnswers = totalExercises * 0.7; // Assume 70% correct for demo
         const mockSubmission = {
           total_score: Math.round(correctAnswers),
-          max_score: exercises.length,
-          percentage: Math.round((correctAnswers / exercises.length) * 100),
+          max_score: totalExercises,
+          percentage: totalExercises > 0 ? Math.round((correctAnswers / totalExercises) * 100) : 0,
           details: {}
         };
 
@@ -561,7 +567,7 @@ export default function SimulationPage() {
                         <CheckCircle className="h-4 w-4 text-green-600" />
                         សំណួរដែលបានឆ្លើយ
                       </span>
-                      <span className="font-black text-purple-800 text-lg">{Object.keys(answers).length}/{exercises.length}</span>
+                      <span className="font-black text-purple-800 text-lg">{Object.keys(answers).length}/{Array.isArray(exercises) ? exercises.length : 0}</span>
                     </div>
                     {submission && (
                       <div className="flex justify-between items-center font-bold bg-gradient-to-r from-green-100 to-emerald-100 rounded-lg p-3 border-2 border-green-300">
@@ -592,7 +598,7 @@ export default function SimulationPage() {
               </CardHeader>
               <CardContent className="p-4">
                 <div className="space-y-3 max-h-64 overflow-y-auto custom-scrollbar">
-                  {activityLogs.map((log, index) => (
+                  {Array.isArray(activityLogs) && activityLogs.map((log, index) => (
                     <div key={index} className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-3 border-l-4 border-blue-400 hover:shadow-md transition-all transform hover:scale-102">
                       <div className="font-bold text-blue-800 font-hanuman text-sm">{log.action_km}</div>
                       <div className="text-blue-600 font-hanuman text-xs mt-1">{log.details_km}</div>
@@ -608,7 +614,7 @@ export default function SimulationPage() {
                       </div>
                     </div>
                   ))}
-                  {activityLogs.length === 0 && (
+                  {(!Array.isArray(activityLogs) || activityLogs.length === 0) && (
                     <div className="text-center py-8">
                       <Activity className="h-12 w-12 text-gray-300 mx-auto mb-3 animate-pulse" />
                       <p className="text-gray-500 font-hanuman font-semibold">
@@ -633,7 +639,7 @@ export default function SimulationPage() {
                 </div>
                 លំហាត់វិទ្យាសាស្ត្រ 📝
               </span>
-              {exercises.length > 0 && (
+              {Array.isArray(exercises) && exercises.length > 0 && (
                 <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-lg px-4 py-2 font-bold shadow-lg">
                   {Object.keys(answers).length}/{exercises.length} បានឆ្លើយ ✨
                 </Badge>
@@ -654,7 +660,17 @@ export default function SimulationPage() {
               </TabsList>
               
               <TabsContent value="exercises" className="space-y-6 mt-6">
-                {exercises.map((exercise, index) => (
+                {!Array.isArray(exercises) || exercises.length === 0 ? (
+                  <div className="text-center py-12">
+                    <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4 animate-pulse" />
+                    <p className="text-gray-500 font-hanuman font-semibold text-xl">
+                      មិនមានលំហាត់សម្រាប់ការសាកល្បងនេះនៅឡើយទេ 📝
+                    </p>
+                    <p className="text-gray-400 font-hanuman text-sm mt-2">
+                      សូមភ្ជាប់ទៅការសាកល្បង និងត្រឡប់មកក្រោយ 🔄
+                    </p>
+                  </div>
+                ) : exercises.map((exercise, index) => (
                   <div key={exercise.id} className="border-2 border-purple-200 rounded-2xl p-6 hover:shadow-xl transition-all bg-gradient-to-br from-white to-purple-50 hover:scale-102 transform">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
@@ -689,7 +705,7 @@ export default function SimulationPage() {
                     </div>
                     
                     {/* Multiple Choice */}
-                    {exercise.question_type === 'multiple_choice' && exercise.options && (
+                    {exercise.question_type === 'multiple_choice' && exercise.options && exercise.options.options_km && (
                       <RadioGroup
                         value={answers[exercise.id] || ''}
                         onValueChange={(value) => {
@@ -705,7 +721,7 @@ export default function SimulationPage() {
                       >
                         {exercise.options.options_km.map((option, optIndex) => (
                           <div key={optIndex} className="flex items-center space-x-2">
-                            <RadioGroupItem value={exercise.options!.options_en[optIndex]} id={`${exercise.id}-${optIndex}`} className="border-2 border-purple-300 text-purple-600" />
+                            <RadioGroupItem value={exercise.options?.options_en?.[optIndex] || ''} id={`${exercise.id}-${optIndex}`} className="border-2 border-purple-300 text-purple-600" />
                             <Label htmlFor={`${exercise.id}-${optIndex}`} className="cursor-pointer font-hanuman text-lg font-semibold text-purple-700 hover:text-purple-900 transition-colors flex-1 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-3 hover:shadow-md transition-all">
                               {String.fromCharCode(65 + optIndex)}. {option}
                             </Label>
@@ -845,8 +861,8 @@ export default function SimulationPage() {
                 <div className="flex justify-between items-center mt-8">
                   <div className="text-sm font-hanuman text-purple-600 font-semibold">
                     {Object.keys(answers).length === 0 && '📝 សូមឆ្លើយសំណួរទាំងអស់មុនដាក់ស្នើ'}
-                    {Object.keys(answers).length > 0 && Object.keys(answers).length < exercises.length && `😊 បានឆ្លើយ ${Object.keys(answers).length}/${exercises.length} សំណួរ`}
-                    {Object.keys(answers).length === exercises.length && !submission && '🎉 ល្អណាស់! អ្នកអាចដាក់ស្នើបានហើយ!'}
+                    {Object.keys(answers).length > 0 && Object.keys(answers).length < (Array.isArray(exercises) ? exercises.length : 0) && `😊 បានឆ្លើយ ${Object.keys(answers).length}/${Array.isArray(exercises) ? exercises.length : 0} សំណួរ`}
+                    {Array.isArray(exercises) && Object.keys(answers).length === exercises.length && !submission && '🎉 ល្អណាស់! អ្នកអាចដាក់ស្នើបានហើយ!'}
                     {submission && '✅ បានដាក់ស្នើរួចរាល់!'}
                   </div>
                   <div className="flex gap-3">
@@ -921,7 +937,7 @@ export default function SimulationPage() {
                   )}
                   
                   {/* Learning objectives from teacher */}
-                  {simulation.learning_objectives_km && simulation.learning_objectives_km.length > 0 && (
+                  {simulation.learning_objectives_km && Array.isArray(simulation.learning_objectives_km) && simulation.learning_objectives_km.length > 0 && (
                     <div className="mb-8">
                       <h4 className="text-xl font-black text-purple-800 mb-4 font-hanuman flex items-center gap-2">
                         <Target className="h-6 w-6 text-purple-600" />
