@@ -236,9 +236,12 @@ export default function TeacherAnalyticsPage() {
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
-      router.push('/');
+      // Clear any client-side state and force a full page redirect
+      window.location.href = '/';
     } catch (error) {
       console.error('Logout error:', error);
+      // Even if logout fails, redirect to home
+      window.location.href = '/';
     }
   };
 

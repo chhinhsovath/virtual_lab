@@ -112,10 +112,17 @@ export default function LaunchSimulationsPage() {
       });
       
       if (response.ok) {
-        router.push('/auth/login');
+        // Use window.location.href instead of router.push for complete session cleanup
+        // This ensures we bypass Next.js client-side routing and force a full page reload
+        window.location.href = '/';
+      } else {
+        // Still redirect to home even if logout API fails to ensure user is logged out client-side
+        window.location.href = '/';
       }
     } catch (error) {
       console.error('Logout error:', error);
+      // Still redirect to home even if logout API fails to ensure user is logged out client-side
+      window.location.href = '/';
     }
   };
 

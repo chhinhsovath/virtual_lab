@@ -226,13 +226,19 @@ export function ParentPortal({ user }: ParentPortalProps) {
 
       if (response.ok) {
         toast.success('ចាកចេញដោយជោគជ័យ');
-        router.push('/auth/login');
+        // Use window.location.href instead of router.push for complete session cleanup
+        // This ensures we bypass Next.js client-side routing and force a full page reload
+        window.location.href = '/';
       } else {
         toast.error('មិនអាចចាកចេញបាន');
+        // Still redirect to home even if logout API fails to ensure user is logged out client-side
+        window.location.href = '/';
       }
     } catch (error) {
       console.error('Sign out error:', error);
       toast.error('មានបញ្ហាក្នុងការចាកចេញ');
+      // Still redirect to home even if logout API fails to ensure user is logged out client-side
+      window.location.href = '/';
     }
   };
 

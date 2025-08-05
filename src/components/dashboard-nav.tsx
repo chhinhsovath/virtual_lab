@@ -32,13 +32,19 @@ export function DashboardNav({ session }: DashboardNavProps) {
 
       if (response.ok) {
         toast.success('Logged out successfully');
-        router.push('/');
+        // Use window.location.href instead of router.push for complete session cleanup
+        // This ensures we bypass Next.js client-side routing and force a full page reload
+        window.location.href = '/';
       } else {
         toast.error('Logout failed');
+        // Still redirect to home even if logout API fails to ensure user is logged out client-side
+        window.location.href = '/';
       }
     } catch (error) {
       console.error('Logout error:', error);
       toast.error('An error occurred during logout');
+      // Still redirect to home even if logout API fails to ensure user is logged out client-side
+      window.location.href = '/';
     }
   };
 
