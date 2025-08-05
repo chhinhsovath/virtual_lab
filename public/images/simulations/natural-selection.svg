@@ -1,0 +1,85 @@
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="300" fill="#f3e8ff"/>
+  
+  <!-- Title background -->
+  <rect x="0" y="0" width="400" height="50" fill="#9333ea" opacity="0.9"/>
+  
+  <!-- Title -->
+  <text x="200" y="30" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="white" text-anchor="middle">Natural Selection</text>
+  
+  <!-- Environment -->
+  <rect x="0" y="220" width="400" height="80" fill="#86efac" opacity="0.5"/>
+  
+  <!-- Rabbits with different traits -->
+  <!-- Brown rabbits (adapted) -->
+  <g transform="translate(80, 180)">
+    <ellipse cx="0" cy="0" rx="25" ry="20" fill="#8b5a2b"/>
+    <ellipse cx="-10" cy="-5" rx="8" ry="15" fill="#8b5a2b"/>
+    <ellipse cx="10" cy="-5" rx="8" ry="15" fill="#8b5a2b"/>
+    <circle cx="-5" cy="-2" r="2" fill="#000"/>
+    <circle cx="5" cy="-2" r="2" fill="#000"/>
+    <path d="M -3 2 Q 0 4 3 2" fill="none" stroke="#000" stroke-width="1"/>
+  </g>
+  
+  <g transform="translate(150, 190)">
+    <ellipse cx="0" cy="0" rx="20" ry="16" fill="#8b5a2b"/>
+    <ellipse cx="-8" cy="-4" rx="6" ry="12" fill="#8b5a2b"/>
+    <ellipse cx="8" cy="-4" rx="6" ry="12" fill="#8b5a2b"/>
+    <circle cx="-3" cy="-1" r="1.5" fill="#000"/>
+    <circle cx="3" cy="-1" r="1.5" fill="#000"/>
+  </g>
+  
+  <g transform="translate(220, 185)">
+    <ellipse cx="0" cy="0" rx="22" ry="18" fill="#8b5a2b"/>
+    <ellipse cx="-9" cy="-4" rx="7" ry="13" fill="#8b5a2b"/>
+    <ellipse cx="9" cy="-4" rx="7" ry="13" fill="#8b5a2b"/>
+    <circle cx="-4" cy="-1.5" r="1.8" fill="#000"/>
+    <circle cx="4" cy="-1.5" r="1.8" fill="#000"/>
+  </g>
+  
+  <!-- White rabbit (less adapted) -->
+  <g transform="translate(320, 180)">
+    <ellipse cx="0" cy="0" rx="25" ry="20" fill="#f3f4f6"/>
+    <ellipse cx="-10" cy="-5" rx="8" ry="15" fill="#f3f4f6"/>
+    <ellipse cx="10" cy="-5" rx="8" ry="15" fill="#f3f4f6"/>
+    <circle cx="-5" cy="-2" r="2" fill="#000"/>
+    <circle cx="5" cy="-2" r="2" fill="#000"/>
+    <path d="M -3 2 Q 0 4 3 2" fill="none" stroke="#000" stroke-width="1"/>
+    <!-- X mark to show predation -->
+    <path d="M -15 -15 L 15 15 M -15 15 L 15 -15" stroke="#dc2626" stroke-width="3" opacity="0.7"/>
+  </g>
+  
+  <!-- Predator (hawk) -->
+  <g transform="translate(320, 100)">
+    <path d="M 0 0 L -20 -10 L -15 0 L -20 10 L 0 5 L 20 10 L 15 0 L 20 -10 Z" fill="#374151"/>
+    <circle cx="0" cy="-2" r="8" fill="#6b7280"/>
+    <path d="M -5 2 Q 0 5 5 2" fill="#f59e0b"/>
+    <circle cx="-2" cy="-3" r="1.5" fill="#fff"/>
+    <circle cx="2" cy="-3" r="1.5" fill="#fff"/>
+    <circle cx="-2" cy="-3" r="1" fill="#000"/>
+    <circle cx="2" cy="-3" r="1" fill="#000"/>
+  </g>
+  
+  <!-- Evolution arrows -->
+  <path d="M 100 140 L 130 140" stroke="#10b981" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M 170 140 L 200 140" stroke="#10b981" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#10b981"/>
+    </marker>
+  </defs>
+  
+  <!-- Generation labels -->
+  <text x="50" y="130" font-family="Arial, sans-serif" font-size="12" fill="#374151">Gen 1</text>
+  <text x="150" y="130" font-family="Arial, sans-serif" font-size="12" fill="#374151">Gen 5</text>
+  <text x="250" y="130" font-family="Arial, sans-serif" font-size="12" fill="#374151">Gen 10</text>
+  
+  <!-- Legend -->
+  <text x="50" y="260" font-family="Arial, sans-serif" font-size="14" fill="#374151">Survival of the fittest</text>
+  
+  <!-- Subject label -->
+  <rect x="320" y="260" width="70" height="30" fill="#9333ea" rx="15"/>
+  <text x="355" y="280" font-family="Arial, sans-serif" font-size="14" fill="white" text-anchor="middle">Biology</text>
+</svg>

@@ -105,7 +105,7 @@ export default function Home() {
             color: colorMap['Physics'],
             subject: 'Physics',
             preview: 'https://phet.colorado.edu/sims/html/pendulum-lab/latest/pendulum-lab_en.html',
-            previewImage: '/images/simulations/pendulum-lab.png',
+            previewImage: '/images/simulations/pendulum-lab.svg',
             difficulty: 'Intermediate',
             duration: 45,
             objectives: ['Understand pendulum motion', 'Investigate factors affecting period', 'Apply to real-world situations']
@@ -120,6 +120,7 @@ export default function Home() {
             color: colorMap['Physics'],
             subject: 'Physics',
             preview: 'https://phet.colorado.edu/sims/html/circuit-construction-kit-dc/latest/circuit-construction-kit-dc_en.html',
+            previewImage: '/images/simulations/circuit-kit.svg',
             difficulty: 'Beginner',
             duration: 30,
             objectives: ['Build simple circuits', 'Understand current and voltage', 'Identify conductors']
@@ -134,6 +135,7 @@ export default function Home() {
             color: colorMap['Chemistry'],
             subject: 'Chemistry',
             preview: 'https://phet.colorado.edu/sims/html/build-a-molecule/latest/build-a-molecule_en.html',
+            previewImage: '/images/simulations/build-molecule.svg',
             difficulty: 'Beginner',
             duration: 30,
             objectives: ['Build molecules from atoms', 'Understand molecular formulas', 'Recognize structures']
@@ -148,6 +150,7 @@ export default function Home() {
             color: colorMap['Chemistry'],
             subject: 'Chemistry',
             preview: 'https://phet.colorado.edu/sims/html/ph-scale/latest/ph-scale_en.html',
+            previewImage: '/images/simulations/ph-scale.svg',
             difficulty: 'Intermediate',
             duration: 40,
             objectives: ['Measure pH of substances', 'Understand acids and bases', 'Relate pH to ion concentration']
@@ -162,6 +165,7 @@ export default function Home() {
             color: colorMap['Biology'],
             subject: 'Biology',
             preview: 'https://phet.colorado.edu/sims/html/natural-selection/latest/natural-selection_en.html',
+            previewImage: '/images/simulations/natural-selection.svg',
             difficulty: 'Intermediate',
             duration: 45,
             objectives: ['Understand natural selection', 'Observe trait changes', 'Explore evolution factors']
@@ -176,6 +180,7 @@ export default function Home() {
             color: colorMap['Mathematics'],
             subject: 'Mathematics',
             preview: 'https://phet.colorado.edu/sims/html/graphing-lines/latest/graphing-lines_en.html',
+            previewImage: '/images/simulations/graphing-lines.svg',
             difficulty: 'Beginner',
             duration: 30,
             objectives: ['Graph linear equations', 'Understand slope', 'Connect equations to graphs']

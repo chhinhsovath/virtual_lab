@@ -1,0 +1,66 @@
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="300" fill="#fff7ed"/>
+  
+  <!-- Title background -->
+  <rect x="0" y="0" width="400" height="50" fill="#f97316" opacity="0.9"/>
+  
+  <!-- Title -->
+  <text x="200" y="30" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="white" text-anchor="middle">Graphing Lines</text>
+  
+  <!-- Grid -->
+  <defs>
+    <pattern id="graphGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#fed7aa" stroke-width="0.5"/>
+    </pattern>
+  </defs>
+  <rect x="60" y="70" width="280" height="180" fill="url(#graphGrid)"/>
+  
+  <!-- Axes -->
+  <line x1="60" y1="160" x2="340" y2="160" stroke="#374151" stroke-width="2"/>
+  <line x1="200" y1="70" x2="200" y2="250" stroke="#374151" stroke-width="2"/>
+  
+  <!-- Arrow heads -->
+  <path d="M 340 160 L 335 155 L 335 165 Z" fill="#374151"/>
+  <path d="M 200 70 L 195 75 L 205 75 Z" fill="#374151"/>
+  
+  <!-- Axis labels -->
+  <text x="350" y="165" font-family="Arial, sans-serif" font-size="16" fill="#374151">x</text>
+  <text x="205" y="65" font-family="Arial, sans-serif" font-size="16" fill="#374151">y</text>
+  
+  <!-- Tick marks and numbers -->
+  <text x="200" y="175" font-family="Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="middle">0</text>
+  <text x="260" y="175" font-family="Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="middle">3</text>
+  <text x="320" y="175" font-family="Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="middle">6</text>
+  <text x="140" y="175" font-family="Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="middle">-3</text>
+  <text x="80" y="175" font-family="Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="middle">-6</text>
+  
+  <text x="185" y="100" font-family="Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="end">6</text>
+  <text x="185" y="130" font-family="Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="end">3</text>
+  <text x="185" y="190" font-family="Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="end">-3</text>
+  <text x="185" y="220" font-family="Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="end">-6</text>
+  
+  <!-- Line 1: y = 2x + 1 -->
+  <line x1="60" y1="200" x2="340" y2="80" stroke="#3b82f6" stroke-width="3"/>
+  <text x="280" y="95" font-family="Arial, sans-serif" font-size="14" fill="#3b82f6" font-weight="bold">y = 2x + 1</text>
+  
+  <!-- Line 2: y = -0.5x + 3 -->
+  <line x1="60" y1="120" x2="340" y2="190" stroke="#10b981" stroke-width="3"/>
+  <text x="100" y="105" font-family="Arial, sans-serif" font-size="14" fill="#10b981" font-weight="bold">y = -0.5x + 3</text>
+  
+  <!-- Line 3: y = x -->
+  <line x1="80" y1="220" x2="320" y2="100" stroke="#ef4444" stroke-width="3"/>
+  <text x="250" y="140" font-family="Arial, sans-serif" font-size="14" fill="#ef4444" font-weight="bold">y = x</text>
+  
+  <!-- Points of intersection -->
+  <circle cx="213" cy="147" r="5" fill="#f59e0b" stroke="#f97316" stroke-width="2"/>
+  <circle cx="160" cy="140" r="5" fill="#f59e0b" stroke="#f97316" stroke-width="2"/>
+  
+  <!-- Slope-intercept form label -->
+  <rect x="70" y="260" width="120" height="25" fill="#f97316" opacity="0.2" rx="5"/>
+  <text x="130" y="277" font-family="Arial, sans-serif" font-size="14" fill="#374151" text-anchor="middle">y = mx + b</text>
+  
+  <!-- Subject label -->
+  <rect x="320" y="260" width="70" height="30" fill="#f97316" rx="15"/>
+  <text x="355" y="280" font-family="Arial, sans-serif" font-size="14" fill="white" text-anchor="middle">Math</text>
+</svg>

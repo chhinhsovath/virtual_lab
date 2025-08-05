@@ -1,0 +1,51 @@
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="300" fill="#f8fafc"/>
+  
+  <!-- Grid pattern -->
+  <defs>
+    <pattern id="defaultGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e2e8f0" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="400" height="300" fill="url(#defaultGrid)"/>
+  
+  <!-- Center circle decoration -->
+  <circle cx="200" cy="150" r="80" fill="#3b82f6" opacity="0.1"/>
+  <circle cx="200" cy="150" r="60" fill="#3b82f6" opacity="0.15"/>
+  <circle cx="200" cy="150" r="40" fill="#3b82f6" opacity="0.2"/>
+  
+  <!-- Main icon container -->
+  <circle cx="200" cy="150" r="50" fill="#3b82f6"/>
+  
+  <!-- STEM icon composition -->
+  <!-- Flask -->
+  <g transform="translate(180, 140)">
+    <path d="M 0 -15 L 0 -5 L -8 10 L 8 10 L 0 -5" fill="none" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+    <circle cx="0" cy="5" r="2" fill="white" opacity="0.7"/>
+    <circle cx="-3" cy="8" r="1.5" fill="white" opacity="0.7"/>
+    <circle cx="3" cy="7" r="1" fill="white" opacity="0.7"/>
+  </g>
+  
+  <!-- Atom -->
+  <g transform="translate(220, 140)">
+    <ellipse cx="0" cy="0" rx="12" ry="5" fill="none" stroke="white" stroke-width="1.5" transform="rotate(45)"/>
+    <ellipse cx="0" cy="0" rx="12" ry="5" fill="none" stroke="white" stroke-width="1.5" transform="rotate(-45)"/>
+    <ellipse cx="0" cy="0" rx="12" ry="5" fill="none" stroke="white" stroke-width="1.5" transform="rotate(0)"/>
+    <circle cx="0" cy="0" r="2" fill="white"/>
+  </g>
+  
+  <!-- Math symbols -->
+  <text x="190" y="170" font-family="Arial, sans-serif" font-size="20" fill="white" font-weight="bold">π</text>
+  <text x="210" y="170" font-family="Arial, sans-serif" font-size="16" fill="white">∑</text>
+  
+  <!-- Bottom text -->
+  <text x="200" y="240" font-family="Arial, sans-serif" font-size="18" fill="#64748b" text-anchor="middle">Interactive Simulation</text>
+  <text x="200" y="260" font-family="Arial, sans-serif" font-size="14" fill="#94a3b8" text-anchor="middle">Click to explore</text>
+  
+  <!-- Decorative elements -->
+  <circle cx="50" cy="50" r="3" fill="#10b981" opacity="0.5"/>
+  <circle cx="350" cy="50" r="3" fill="#f59e0b" opacity="0.5"/>
+  <circle cx="50" cy="250" r="3" fill="#ef4444" opacity="0.5"/>
+  <circle cx="350" cy="250" r="3" fill="#8b5cf6" opacity="0.5"/>
+</svg>

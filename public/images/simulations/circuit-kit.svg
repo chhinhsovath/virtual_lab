@@ -1,0 +1,54 @@
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="300" fill="#fefce8"/>
+  
+  <!-- Grid pattern -->
+  <defs>
+    <pattern id="circuitGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#fef3c7" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="400" height="300" fill="url(#circuitGrid)"/>
+  
+  <!-- Title background -->
+  <rect x="0" y="0" width="400" height="50" fill="#f59e0b" opacity="0.9"/>
+  
+  <!-- Title -->
+  <text x="200" y="30" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="white" text-anchor="middle">Circuit Construction Kit</text>
+  
+  <!-- Battery -->
+  <rect x="50" y="120" width="60" height="80" fill="#374151" rx="5"/>
+  <rect x="70" y="100" width="20" height="20" fill="#dc2626" rx="2"/>
+  <text x="80" y="115" font-family="Arial, sans-serif" font-size="14" fill="white" text-anchor="middle">+</text>
+  <text x="80" y="190" font-family="Arial, sans-serif" font-size="14" fill="white" text-anchor="middle">-</text>
+  
+  <!-- Wires -->
+  <path d="M 110 130 L 160 130 L 160 100 L 240 100 L 240 130 L 290 130" fill="none" stroke="#dc2626" stroke-width="4"/>
+  <path d="M 110 170 L 160 170 L 160 200 L 240 200 L 240 170 L 290 170" fill="none" stroke="#3b82f6" stroke-width="4"/>
+  
+  <!-- Light bulb -->
+  <circle cx="200" cy="100" r="25" fill="#fbbf24" stroke="#f59e0b" stroke-width="3"/>
+  <path d="M 200 125 L 195 135 L 205 135 Z" fill="#f59e0b"/>
+  <rect x="195" y="135" width="10" height="10" fill="#6b7280"/>
+  
+  <!-- Resistor -->
+  <rect x="170" y="195" width="60" height="10" fill="#10b981"/>
+  <path d="M 170 200 L 180 190 L 190 210 L 200 190 L 210 210 L 220 190 L 230 200" fill="none" stroke="#059669" stroke-width="2"/>
+  
+  <!-- Switch -->
+  <circle cx="290" cy="130" r="5" fill="#6b7280"/>
+  <circle cx="290" cy="170" r="5" fill="#6b7280"/>
+  <line x1="290" y1="135" x2="285" y2="165" stroke="#374151" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Current flow arrows -->
+  <path d="M 130 120 L 140 130 L 130 140" fill="none" stroke="#ef4444" stroke-width="2"/>
+  <path d="M 250 120 L 260 130 L 250 140" fill="none" stroke="#ef4444" stroke-width="2"/>
+  
+  <!-- Voltage indicator -->
+  <text x="80" y="230" font-family="Arial, sans-serif" font-size="14" fill="#475569">V = 9V</text>
+  <text x="200" y="230" font-family="Arial, sans-serif" font-size="14" fill="#475569">I = 0.5A</text>
+  
+  <!-- Subject label -->
+  <rect x="320" y="260" width="70" height="30" fill="#3b82f6" rx="15"/>
+  <text x="355" y="280" font-family="Arial, sans-serif" font-size="14" fill="white" text-anchor="middle">Physics</text>
+</svg>
