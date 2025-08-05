@@ -1,0 +1,132 @@
+New simulations to add (not in current database):
+
+PHYSICS:
+1. models-of-the-hydrogen-atom
+2. buoyancy
+3. generator
+4. magnets-and-electromagnets
+5. magnet-and-compass
+6. faradays-electromagnetic-lab
+7. sound-waves
+8. my-solar-system
+9. geometric-optics-basics
+10. geometric-optics
+11. circuit-construction-kit-ac
+12. circuit-construction-kit-ac-virtual-lab
+13. gravity-force-lab-basics
+14. waves-intro
+15. gas-properties
+16. wave-interference
+17. coulombs-law
+18. capacitor-lab-basics
+19. circuit-construction-kit-dc-virtual-lab
+20. circuit-construction-kit-dc
+21. charges-and-fields
+22. rutherford-scattering
+23. bending-light
+24. hookes-law
+25. faradays-law
+26. wave-on-a-string
+27. color-vision
+28. friction
+29. john-travoltage
+30. gravity-force-lab
+31. balloons-and-static-electricity
+32. ohms-law
+33. resistance-in-a-wire
+34. buoyancy-basics
+35. keplers-laws
+36. density
+37. normal-modes
+38. fourier-making-waves
+39. collision-lab
+40. energy-skate-park (full version)
+41. blackbody-spectrum
+42. masses-and-springs-basics
+43. energy-forms-and-changes
+44. masses-and-springs
+45. under-pressure
+
+CHEMISTRY:
+1. molecule-polarity
+2. molecules-and-light
+3. reactants-products-and-leftovers
+4. acid-base-solutions
+5. molarity
+6. build-a-nucleus
+7. build-a-molecule
+8. diffusion
+9. gases-intro
+10. isotopes-and-atomic-mass
+11. molecule-shapes
+12. molecule-shapes-basics
+13. ph-scale (full version)
+14. beers-law-lab
+15. atomic-interactions
+16. states-of-matter (full version)
+
+BIOLOGY:
+(No new biology simulations found beyond the 3 already added)
+
+MATHEMATICS:
+1. quantum-coin-toss
+2. number-pairs
+3. quantum-measurement
+4. mean-share-and-balance
+5. projectile-sampling-distributions
+6. projectile-data-lab
+7. center-and-variability
+8. quadrilateral
+9. calculus-grapher
+10. number-compare
+11. number-play
+12. number-line-distance
+13. ratio-and-proportion
+14. number-line-operations
+15. number-line-integers
+16. vector-addition-equations
+17. vector-addition
+18. curve-fitting
+19. fractions-mixed-numbers
+20. fractions-intro
+21. build-a-fraction
+22. fractions-equality
+23. graphing-quadratics
+24. equality-explorer-two-variables
+25. equality-explorer-basics
+26. equality-explorer
+27. area-model-algebra
+28. area-model-decimals
+29. area-model-multiplication
+30. area-model-introduction
+31. expression-exchange
+32. graphing-slope-intercept
+33. function-builder-basics
+34. proportion-playground
+35. unit-rates
+36. make-a-ten
+37. plinko-probability
+38. trig-tour
+39. least-squares-regression
+
+Already in database:
+- pendulum-lab
+- neuron
+- gravity-and-orbits
+- energy-skate-park-basics
+- projectile-motion
+- balancing-chemical-equations
+- balancing-act (not in list but similar)
+- build-an-atom
+- natural-selection
+- gene-expression-essentials
+- states-of-matter-basics
+- function-builder
+- arithmetic
+- area-builder
+- graphing-lines
+- fraction-matcher
+- forces-and-motion-basics
+- concentration
+- ph-scale-basics
+- greenhouse-effect

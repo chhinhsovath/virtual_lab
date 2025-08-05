@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Lab LMS - Project Process Breakdown</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        h1 {
+            color: #366092;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        h2 {
+            color: #5a5a5a;
+            text-align: center;
+            font-weight: normal;
+            margin-bottom: 30px;
+        }
+        .summary-box {
+            background-color: #e8f0fe;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 18px;
+        }
+        .summary-box strong {
+            color: #366092;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th {
+            background-color: #366092;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+        }
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .phase-header {
+            background-color: #e3f2fd !important;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .phase-header td {
+            padding: 15px;
+            border-bottom: 2px solid #366092;
+        }
+        .sub-item {
+            padding-left: 30px;
+            color: #555;
+        }
+        .person-days {
+            text-align: center;
+            font-weight: bold;
+            color: #366092;
+            font-size: 1.1em;
+        }
+        .total-row {
+            background-color: #e7e6e6 !important;
+            font-weight: bold;
+        }
+        .total-row td {
+            border-top: 2px solid #366092;
+            padding: 15px;
+            font-size: 1.1em;
+        }
+        .percentage {
+            color: #666;
+            font-size: 0.9em;
+        }
+        @media print {
+            body { background-color: white; }
+            .container { box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Virtual Lab LMS - Process Breakdown</h1>
+        <h2>Detailed Person-Days Allocation by Process</h2>
+        
+        <div class="summary-box">
+            <strong>Total Project Duration:</strong> 218 Person-Days | 
+            <strong>Team Size:</strong> 11 Engineers | 
+            <strong>Timeline:</strong> August - November 2024
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 60%">Process</th>
+                    <th style="width: 20%">Person-Days</th>
+                    <th style="width: 20%">Percentage</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Planning Phase -->
+                <tr class="phase-header">
+                    <td>Planning</td>
+                    <td class="person-days">25</td>
+                    <td class="percentage">11.5%</td>
+                </tr>
+                <tr>
+                    <td class="sub-item">Requirement Gathering (Curriculum Alignment, Simulation Packaging Strategy)</td>
+                    <td class="person-days">8</td>
+                    <td class="percentage">3.7%</td>
+                </tr>
+                <tr>
+                    <td class="sub-item">Roadmap Definition</td>
+                    <td class="person-days">5</td>
+                    <td class="percentage">2.3%</td>
+                </tr>
+                <tr>
+                    <td class="sub-item">Project Team Introduction</td>
+                    <td class="person-days">2</td>
+                    <td class="percentage">0.9%</td>
+                </tr>
+                <tr>
+                    <td class="sub-item">Project Kick-Off Meeting</td>
+                    <td class="person-days">3</td>
+                    <td class="percentage">1.4%</td>
+                </tr>
+                <tr>
+                    <td class="sub-item">Planning Sign-Off</td>
+                    <td class="person-days">7</td>
+                    <td class="percentage">3.2%</td>
+                </tr>
+
+                <!-- Design Phase -->
+                <tr class="phase-header">
+                    <td>Design</td>
+                    <td class="person-days">30</td>
+                    <td class="percentage">13.8%</td>
+                </tr>
+                <tr>
+                    <td class="sub-item">UI/UX Design (Dashboard, Simulation Viewer, Material Viewer, Assessments)</td>
+                    <td class="person-days">22</td>
+                    <td class="percentage">10.1%</td>
+                </tr>
+                <tr>
+                    <td class="sub-item">Mock-up Review and Sign-Off</td>
+                    <td class="person-days">8</td>
+                    <td class="percentage">3.7%</td>
+                </tr>
+
+                <!-- Development Phase -->
+                <tr class="phase-header">
+                    <td>Development</td>
+                    <td class="person-days">85</td>
+                    <td class="percentage">39.0%</td>
+                </tr>
+                <tr>
+                    <td class="sub-item">Core Web App</td>
+                    <td class="person-days">25</td>
+                    <td class="percentage">11.5%</td>
+                </tr>
+                <tr>
+                    <td class="sub-item">Offline-First System (Service Worker, IndexedDB)</td>
+                    <td class="person-days">18</td>
+                    <td class="percentage">8.3%</td>
+                </tr>
+                <tr>
+                    <td class="sub-item">Dynamic Metadata Loader and Bundle Manager</td>
+                    <td class="person-days">15</td>
+                    <td class="percentage">6.9%</td>
+                </tr>
+                <tr>
+                    <td class="sub-item">Simulation Viewer + Material Integration</td>
+                    <td class="person-days">12</td>
+                    <td class="percentage">5.5%</td>
+                </tr>
+                <tr>
+                    <td class="sub-item">Assessment Engine + Result Tracker</td>
+                    <td class="person-days">15</td>
+                    <td class="percentage">6.9%</td>
+                </tr>
+
+                <!-- Internal Testing Phase -->
+                <tr class="phase-header">
+                    <td>Internal Testing</td>
+                    <td class="person-days">20</td>
+                    <td class="percentage">9.2%</td>
+                </tr>
+                <tr>
+                    <td class="sub-item">Test Case Preparation</td>
+                    <td class="person-days">8</td>
+                    <td class="percentage">3.7%</td>
+                </tr>
+                <tr>
+                    <td class="sub-item">Manual Testing (Plug-in requirement with Web Browser and connection)</td>
+                    <td class="person-days">12</td>
+                    <td class="percentage">5.5%</td>
+                </tr>
+
+                <!-- System Deployment Phase -->
+                <tr class="phase-header">
+                    <td>System Deployment</td>
+                    <td class="person-days">18</td>
+                    <td class="percentage">8.3%</td>
+                </tr>
+                <tr>
+                    <td class="sub-item">Build, Package, Prepare for Distribution</td>
+                    <td class="person-days">10</td>
+                    <td class="percentage">4.6%</td>
+                </tr>
+                <tr>
+                    <td class="sub-item">Setup for first wave (OS and Web Browser as well as plug-in required) of school installations</td>
+                    <td class="person-days">8</td>
+                    <td class="percentage">3.7%</td>
+                </tr>
+
+                <!-- Installation Phase -->
+                <tr class="phase-header">
+                    <td>Installation</td>
+                    <td class="person-days">15</td>
+                    <td class="percentage">6.9%</td>
+                </tr>
+                <tr>
+                    <td class="sub-item">On-site system installation and customization within basic operating system and web browser as requirement from the system</td>
+                    <td class="person-days">15</td>
+                    <td class="percentage">6.9%</td>
+                </tr>
+
+                <!-- Project Closure Phase -->
+                <tr class="phase-header">
+                    <td>Project Closure</td>
+                    <td class="person-days">25</td>
+                    <td class="percentage">11.5%</td>
+                </tr>
+                <tr>
+                    <td class="sub-item">Training Document (User Manual as Video and Document)</td>
+                    <td class="person-days">10</td>
+                    <td class="percentage">4.6%</td>
+                </tr>
+                <tr>
+                    <td class="sub-item">Onsite User (teachers/administrator) Training</td>
+                    <td class="person-days">15</td>
+                    <td class="percentage">6.9%</td>
+                </tr>
+
+                <!-- Total Row -->
+                <tr class="total-row">
+                    <td>TOTAL PROJECT EFFORT</td>
+                    <td class="person-days">218</td>
+                    <td class="percentage">100%</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div style="margin-top: 40px; padding: 20px; background-color: #f5f5f5; border-radius: 5px;">
+            <h3 style="color: #366092; margin-bottom: 15px;">Phase Distribution Summary:</h3>
+            <ul style="list-style: none; padding: 0;">
+                <li style="margin-bottom: 8px;">📋 <strong>Planning Phase:</strong> 25 days (11.5%) - Requirements, roadmap, kick-off</li>
+                <li style="margin-bottom: 8px;">🎨 <strong>Design Phase:</strong> 30 days (13.8%) - UI/UX design for all components</li>
+                <li style="margin-bottom: 8px;">💻 <strong>Development Phase:</strong> 85 days (39.0%) - Core features and integration</li>
+                <li style="margin-bottom: 8px;">🧪 <strong>Testing Phase:</strong> 20 days (9.2%) - Quality assurance</li>
+                <li style="margin-bottom: 8px;">🚀 <strong>Deployment Phase:</strong> 18 days (8.3%) - Build and distribution</li>
+                <li style="margin-bottom: 8px;">🔧 <strong>Installation Phase:</strong> 15 days (6.9%) - On-site setup</li>
+                <li style="margin-bottom: 8px;">📚 <strong>Closure Phase:</strong> 25 days (11.5%) - Documentation and training</li>
+            </ul>
+        </div>
+
+        <div style="margin-top: 30px; text-align: center;">
+            <button onclick="window.print()" style="background-color: #366092; color: white; padding: 10px 30px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">
+                Print / Save as PDF
+            </button>
+            <button onclick="exportToCSV()" style="background-color: #366092; color: white; padding: 10px 30px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-left: 10px;">
+                Export to CSV
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function exportToCSV() {
+            const table = document.querySelector('table');
+            const rows = table.querySelectorAll('tr');
+            let csv = [];
+            
+            rows.forEach(row => {
+                const cols = row.querySelectorAll('td, th');
+                const rowData = Array.from(cols).map(col => {
+                    let text = col.textContent.trim();
+                    if (text.includes(',') || text.includes('"')) {
+                        text = '"' + text.replace(/"/g, '""') + '"';
+                    }
+                    return text;
+                });
+                csv.push(rowData.join(','));
+            });
+            
+            const csvContent = csv.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', 'Virtual_Lab_Process_Breakdown.csv');
+            a.click();
+        }
+    </script>
+</body>
+</html>
