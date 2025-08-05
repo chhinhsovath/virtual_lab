@@ -74,8 +74,8 @@ export default function Home() {
           if (data.user) {
             // Redirect based on role
             const roleRedirects: Record<string, string> = {
-              'super_admin': '/admin',
-              'admin': '/admin',
+              'super_admin': '/dashboard',
+              'admin': '/dashboard',
               'teacher': '/dashboard',
               'student': '/student',
               'parent': '/parent',
