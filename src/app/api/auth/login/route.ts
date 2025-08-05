@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateUser, createSession } from '../../../../lib/auth';
+import { getLanguageFromRequest, errorResponse, getLocalizedMessage } from '../../../../lib/api-responses';
 
 export async function POST(request: NextRequest) {
+  const language = getLanguageFromRequest(request);
+  
   try {
     const { username, password } = await request.json();
 
     if (!username || !password) {
       return NextResponse.json(
-        { error: 'Username and password are required' },
+        errorResponse('usernamePasswordRequired', language),
         { status: 400 }
       );
     }
@@ -17,7 +20,7 @@ export async function POST(request: NextRequest) {
     
     if (!user) {
       return NextResponse.json(
-        { error: 'Invalid credentials' },
+        errorResponse('invalidCredentials', language),
         { status: 401 }
       );
     }
@@ -58,7 +61,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      errorResponse('internalServerError', language),
       { status: 500 }
     );
   }

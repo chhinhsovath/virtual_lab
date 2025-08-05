@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requirePermission, getAccessibleSchoolIds } from '../../../lib/auth-middleware';
 import { logUserActivity } from '../../../lib/auth';
 import { pool } from '../../../lib/db';
+import { getLanguageFromRequest, errorResponse, successResponse } from '../../../lib/api-responses';
 
 export async function GET(request: NextRequest) {
   try {

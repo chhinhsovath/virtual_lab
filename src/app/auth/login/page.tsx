@@ -49,7 +49,7 @@ export default function LoginPage() {
       const result = await response.json();
 
       if (response.ok) {
-        toast.success('Login successful!');
+        toast.success(t('message.success'));
         
         // Get user data to determine redirect route
         const sessionResponse = await fetch('/api/auth/session');
@@ -79,11 +79,11 @@ export default function LoginPage() {
           window.location.href = '/dashboard';
         }
       } else {
-        toast.error(result.error || 'Login failed');
+        toast.error(result.error || t('message.error'));
       }
     } catch (error) {
       console.error('Login error:', error);
-      toast.error('An error occurred during login');
+      toast.error(t('message.error'));
     } finally {
       setIsLoading(false);
     }
@@ -96,7 +96,7 @@ export default function LoginPage() {
     
     // Show loading state
     setIsLoading(true);
-    toast.info(`Logging in as ${role}...`);
+    toast.info(`${t('message.loading')} ${role}...`);
     
     try {
       // Submit login request directly
@@ -153,6 +153,11 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex">
+      {/* Language Switcher - Fixed Position */}
+      <div className="fixed top-4 right-4 z-50">
+        <LanguageSwitcher />
+      </div>
+      
       {/* Left Panel - Branding & Stats */}
       <div className="hidden lg:flex lg:w-1/2 education-gradient relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
@@ -219,8 +224,8 @@ export default function LoginPage() {
             <div className="flex items-center justify-center mb-4">
               <FlaskConical className="h-10 w-10 text-blue-600 mr-3" />
               <div>
-                <h1 className="text-2xl font-bold text-slate-800 font-hanuman">Virtual Lab</h1>
-                <p className="font-hanuman text-lg text-slate-600">មន្ទីរពិសោធន៍និម្មិតកម្ពុជា</p>
+                <h1 className={`text-2xl font-bold text-slate-800 ${getFontClass()}`}>{t('home.title')}</h1>
+                <p className={`text-lg text-slate-600 ${getFontClass()}`}>{t('home.system_name')}</p>
               </div>
             </div>
           </div>
@@ -302,14 +307,14 @@ export default function LoginPage() {
                     <div className="w-full border-t border-slate-200"></div>
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="bg-white px-4 text-slate-500">Quick Demo Access</span>
+                    <span className={`bg-white px-4 text-slate-500 ${getFontClass()}`}>{t('login.demo_access')}</span>
                   </div>
                 </div>
                 
                 {/* Virtual Lab Demo Accounts - Simplified */}
                 <div className="mb-4">
-                  <p className="text-sm text-center text-slate-600 font-medium mb-2">🧪 Virtual Lab Demo Accounts</p>
-                  <p className="text-xs text-center text-slate-500 mb-3">All passwords: demo123</p>
+                  <p className={`text-sm text-center text-slate-600 font-medium mb-2 ${getFontClass()}`}>🧪 {t('login.demo_accounts')}</p>
+                  <p className={`text-xs text-center text-slate-500 mb-3 ${getFontClass()}`}>{t('login.all_passwords')}</p>
                 </div>
                 
                 {/* Administrator */}
@@ -320,11 +325,11 @@ export default function LoginPage() {
                     onClick={() => handleDemoLogin('admin@vlab.edu.kh', 'demo123', 'Administrator')}
                     className="w-full h-12 border-purple-200 text-purple-700 hover:bg-purple-50"
                     disabled={isLoading}
-                    title="Platform administrator - Full access to all modules"
+                    title={t('login.admin_desc')}
                   >
                     <Shield className="h-4 w-4 mr-2" />
-                    Administrator
-                    <span className="ml-auto text-xs opacity-70">Full Platform Access</span>
+                    <span className={getFontClass()}>{t('login.administrator')}</span>
+                    <span className={`ml-auto text-xs opacity-70 ${getFontClass()}`}>{t('login.full_access')}</span>
                   </Button>
                 </div>
                 
@@ -336,10 +341,10 @@ export default function LoginPage() {
                     onClick={() => handleDemoLogin('teacher@vlab.edu.kh', 'demo123', 'Teacher')}
                     className="h-12 border-green-200 text-green-700 hover:bg-green-50"
                     disabled={isLoading}
-                    title="Lab creator and assessor"
+                    title={t('login.teacher_desc')}
                   >
                     <BookOpen className="h-4 w-4 mr-2" />
-                    Teacher
+                    <span className={getFontClass()}>{t('login.teacher')}</span>
                   </Button>
                   
                   <Button
@@ -348,10 +353,10 @@ export default function LoginPage() {
                     onClick={() => handleDemoLogin('student@vlab.edu.kh', 'demo123', 'Student')}
                     className="h-12 border-blue-200 text-blue-700 hover:bg-blue-50"
                     disabled={isLoading}
-                    title="Lab participant"
+                    title={t('login.student_desc')}
                   >
                     <GraduationCap className="h-4 w-4 mr-2" />
-                    Student
+                    <span className={getFontClass()}>{t('login.student')}</span>
                   </Button>
                 </div>
                 
@@ -363,25 +368,25 @@ export default function LoginPage() {
                     onClick={() => handleDemoLogin('parent@vlab.edu.kh', 'demo123', 'Parent')}
                     className="w-full h-12 border-orange-200 text-orange-700 hover:bg-orange-50"
                     disabled={isLoading}
-                    title="Child progress monitor"
+                    title={t('login.parent_desc')}
                   >
                     <Users className="h-4 w-4 mr-2" />
-                    Parent
-                    <span className="ml-auto text-xs opacity-70">Child Monitoring</span>
+                    <span className={getFontClass()}>{t('login.parent')}</span>
+                    <span className={`ml-auto text-xs opacity-70 ${getFontClass()}`}>{t('login.child_monitoring')}</span>
                   </Button>
                 </div>
 
                 {/* Role Information */}
                 <div className="text-center space-y-2 mt-4">
-                  <p className="text-sm text-slate-600 font-medium">Interactive STEM Learning Roles</p>
-                  <div className="text-xs text-slate-500 space-y-1">
-                    <p><strong>Administrator:</strong> Platform management and analytics</p>
-                    <p><strong>Teacher:</strong> Create lessons with simulations and track progress</p>
-                    <p><strong>Student:</strong> Explore simulations and build scientific understanding</p>
-                    <p><strong>Parent:</strong> Monitor child's STEM learning journey</p>
+                  <p className={`text-sm text-slate-600 font-medium ${getFontClass()}`}>{t('login.stem_roles')}</p>
+                  <div className={`text-xs text-slate-500 space-y-1 ${getFontClass()}`}>
+                    <p><strong>{t('login.administrator')}:</strong> {t('login.admin_desc')}</p>
+                    <p><strong>{t('login.teacher')}:</strong> {t('login.teacher_desc')}</p>
+                    <p><strong>{t('login.student')}:</strong> {t('login.student_desc')}</p>
+                    <p><strong>{t('login.parent')}:</strong> {t('login.parent_desc')}</p>
                   </div>
-                  <p className="font-hanuman text-sm text-slate-500 mt-3">
-                    ស្វែងរកវិទ្យាសាស្ត្រតាមរយៈការលេង និងការពិសោធន៍
+                  <p className={`font-hanuman text-sm text-slate-500 mt-3 ${getFontClass()}`}>
+                    {t('login.explore_science')}
                   </p>
                 </div>
               </div>

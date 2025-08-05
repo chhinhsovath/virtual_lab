@@ -510,7 +510,7 @@ export default function ModernSidebar({ user, onLogout, mobileOpen, onMobileTogg
                           exit={{ opacity: 0, width: 0 }}
                           className="flex items-center space-x-2"
                         >
-                          <span className="font-medium text-sm font-hanuman">{group.title}</span>
+                          <span className={`font-medium text-sm ${getFontClass()}`}>{t(`nav.${group.id}`) || group.titleKH}</span>
                           {group.badge && (
                             <Badge className="text-xs bg-blue-100 text-blue-700 border-0 font-hanuman">
                               {group.badge}
@@ -574,10 +574,10 @@ export default function ModernSidebar({ user, onLogout, mobileOpen, onMobileTogg
                                   >
                                     <div>
                                       <div className="flex items-center space-x-2">
-                                        <span className="font-medium font-hanuman">{item.name}</span>
+                                        <span className={`font-medium ${getFontClass()}`}>{t(`nav.${item.id}`) || item.nameKH}</span>
                                         {item.isNew && (
-                                          <Badge className="text-xs bg-green-100 text-green-700 border-0 font-hanuman">
-                                            New
+                                          <Badge className={`text-xs bg-green-100 text-green-700 border-0 ${getFontClass()}`}>
+                                            {t('status.new') || 'ថ្មី'}
                                           </Badge>
                                         )}
                                         {item.isPopular && (
@@ -644,7 +644,7 @@ export default function ModernSidebar({ user, onLogout, mobileOpen, onMobileTogg
               exit={{ opacity: 0, height: 0 }}
               className="text-center mt-2"
             >
-              <p className="text-xs text-gray-400 font-hanuman">v2.0 • Made with ❤️ for Cambodia</p>
+              <p className={`text-xs text-gray-400 ${getFontClass()}`}>v2.0 • {t('home.built_with_love') || 'បង្កើតដោយ ❤️ សម្រាប់កម្ពុជា'}</p>
             </motion.div>
           )}
         </AnimatePresence>

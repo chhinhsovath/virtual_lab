@@ -19,12 +19,13 @@ import { FileText, Save, Users, Bell, Menu, Calendar, Award, BookOpen, UserCheck
 import { PageHeader } from '../../../components/dashboard/ui-components';
 import * as design from '../../../components/dashboard/design-system';
 import { cn } from '../../../lib/utils';
+import { useLanguage } from '../../../components/LanguageProvider';
 
 const assessmentSchema = z.object({
-  studentId: z.string().min(1, 'Please select a student'),
-  cycle: z.string().min(1, 'Please select a cycle'),
-  levelAchieved: z.string().min(1, 'Please select a level achieved'),
-  assessmentDate: z.string().min(1, 'Assessment date is required'),
+  studentId: z.string().min(1, 'Student required'),
+  cycle: z.string().min(1, 'Cycle required'),
+  levelAchieved: z.string().min(1, 'Level required'),
+  assessmentDate: z.string().min(1, 'Date required'),
   notes: z.string().optional(),
 });
 
@@ -64,6 +65,7 @@ export default function AssessmentEntryPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const router = useRouter();
+  const { t, getFontClass } = useLanguage();
 
   const {
     register,
@@ -143,7 +145,7 @@ export default function AssessmentEntryPage() {
     try {
       const firstSchoolId = user.schoolAccess[0]?.schoolId;
       if (!firstSchoolId) {
-        toast.error('No school access found');
+        toast.error(t('message.error'));
         return;
       }
 
@@ -152,11 +154,11 @@ export default function AssessmentEntryPage() {
         const data = await response.json();
         setStudents(data.students);
       } else {
-        toast.error('Failed to load students');
+        toast.error(t('message.error'));
       }
     } catch (error) {
       console.error('Error fetching students:', error);
-      toast.error('Error loading students');
+      toast.error(t('message.error'));
     } finally {
       setIsLoading(false);
     }
@@ -194,17 +196,17 @@ export default function AssessmentEntryPage() {
       });
 
       if (response.ok) {
-        toast.success('Assessment saved successfully!');
+        toast.success(t('assessment.success'));
         reset({
           assessmentDate: new Date().toISOString().split('T')[0],
         });
       } else {
         const error = await response.json();
-        toast.error(error.error || 'Failed to save assessment');
+        toast.error(error.error || t('assessment.error'));
       }
     } catch (error) {
       console.error('Error saving assessment:', error);
-      toast.error('Error saving assessment');
+      toast.error(t('assessment.error'));
     } finally {
       setIsSubmitting(false);
     }
@@ -262,9 +264,9 @@ export default function AssessmentEntryPage() {
           <div className={design.spacing.section}>
             {/* Page Header with animations */}
             <PageHeader
-              title="Assessment Entry"
-              titleKm="បញ្ចូលការវាយតម្លៃ"
-              description={`Enter assessment results for ${user?.subject} subject`}
+              title={t('assessment.entry')}
+              titleKm={t('assessment.entry')}
+              description={`${t('assessment.entry')} ${user?.subject}`}
               actions={
                 <div className="flex items-center gap-2">
                   <Badge className={cn(
@@ -297,11 +299,11 @@ export default function AssessmentEntryPage() {
                   )}>
                     <ClipboardList className="h-6 w-6 text-white" />
                   </div>
-                  <span>New Assessment</span>
+                  <span className={getFontClass()}>{t('assessment.new')}</span>
                   <Sparkles className="h-5 w-5 text-yellow-500 animate-pulse" />
                 </CardTitle>
-                <CardDescription className="text-base mt-2">
-                  Let's record amazing progress! Fill in the assessment details below.
+                <CardDescription className={`text-base mt-2 ${getFontClass()}`}>
+                  {t('assessment.entry')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -322,14 +324,14 @@ export default function AssessmentEntryPage() {
                           <Label htmlFor="studentId" className="text-lg font-semibold">
                             Select Student
                           </Label>
-                          <Badge variant="destructive" className="ml-auto">Required</Badge>
+                          <Badge variant="destructive" className={`ml-auto ${getFontClass()}`}>{t('assessment.required')}</Badge>
                         </div>
                         <Select
                           value={selectedStudentId}
                           onValueChange={(value) => setValue('studentId', value)}
                         >
                           <SelectTrigger className="h-12 text-base hover:border-blue-400 transition-colors">
-                            <SelectValue placeholder="Choose a student..." />
+                            <SelectValue placeholder={t('assessment.choose_student')} />
                           </SelectTrigger>
                           <SelectContent className="max-h-[300px]">
                             {isLoading ? (
@@ -339,7 +341,7 @@ export default function AssessmentEntryPage() {
                             ) : students.length === 0 ? (
                               <div className="p-4 text-center text-gray-500">
                                 <Users className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                                <p>No students found</p>
+                                <p className={getFontClass()}>{t('assessment.no_students')}</p>
                               </div>
                             ) : (
                               students.map((student) => (
@@ -357,8 +359,8 @@ export default function AssessmentEntryPage() {
                                     </div>
                                     <div>
                                       <p className="font-medium">{student.chiName}</p>
-                                      <p className="text-sm text-gray-500">
-                                        Grade {student.chiClass} • {student.chiGender === 'M' ? 'Male' : 'Female'}
+                                      <p className={`text-sm text-gray-500 ${getFontClass()}`}>
+                                        {t('assessment.grade')} {student.chiClass} • {student.chiGender === 'M' ? t('assessment.male') : t('assessment.female')}
                                       </p>
                                     </div>
                                   </div>
@@ -387,25 +389,25 @@ export default function AssessmentEntryPage() {
                           <div className="p-2 rounded-lg bg-purple-100">
                             <Calendar className="h-5 w-5 text-purple-600" />
                           </div>
-                          <Label htmlFor="cycle" className="text-lg font-semibold">
-                            Assessment Cycle
+                          <Label htmlFor="cycle" className={`text-lg font-semibold ${getFontClass()}`}>
+                            {t('assessment.cycle')}
                           </Label>
-                          <Badge variant="destructive" className="ml-auto">Required</Badge>
+                          <Badge variant="destructive" className={`ml-auto ${getFontClass()}`}>{t('assessment.required')}</Badge>
                         </div>
                         <Select
                           value={selectedCycle}
                           onValueChange={(value) => setValue('cycle', value)}
                         >
                           <SelectTrigger className="h-12 text-base hover:border-purple-400 transition-colors">
-                            <SelectValue placeholder="Choose assessment cycle..." />
+                            <SelectValue placeholder={t('assessment.choose_cycle')} />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="Baseline" className="py-3 hover:bg-purple-50">
                               <div className="flex items-center space-x-3">
                                 <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
                                 <div>
-                                  <p className="font-medium">Baseline</p>
-                                  <p className="text-sm text-gray-500">Initial assessment</p>
+                                  <p className={`font-medium ${getFontClass()}`}>{t('assessment.baseline')}</p>
+                                  <p className={`text-sm text-gray-500 ${getFontClass()}`}>{t('assessment.baseline_desc')}</p>
                                 </div>
                               </div>
                             </SelectItem>
@@ -413,8 +415,8 @@ export default function AssessmentEntryPage() {
                               <div className="flex items-center space-x-3">
                                 <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
                                 <div>
-                                  <p className="font-medium">Midline</p>
-                                  <p className="text-sm text-gray-500">Mid-term progress</p>
+                                  <p className={`font-medium ${getFontClass()}`}>{t('assessment.midline')}</p>
+                                  <p className={`text-sm text-gray-500 ${getFontClass()}`}>{t('assessment.midline_desc')}</p>
                                 </div>
                               </div>
                             </SelectItem>
@@ -422,8 +424,8 @@ export default function AssessmentEntryPage() {
                               <div className="flex items-center space-x-3">
                                 <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                                 <div>
-                                  <p className="font-medium">Endline</p>
-                                  <p className="text-sm text-gray-500">Final assessment</p>
+                                  <p className={`font-medium ${getFontClass()}`}>{t('assessment.endline')}</p>
+                                  <p className={`text-sm text-gray-500 ${getFontClass()}`}>{t('assessment.endline_desc')}</p>
                                 </div>
                               </div>
                             </SelectItem>
@@ -451,7 +453,7 @@ export default function AssessmentEntryPage() {
                           <div className="p-2 rounded-lg bg-green-100">
                             <BookOpen className="h-5 w-5 text-green-600" />
                           </div>
-                          <Label className="text-lg font-semibold">Subject</Label>
+                          <Label className={`text-lg font-semibold ${getFontClass()}`}>{t('assessment.subject')}</Label>
                         </div>
                         <div className={cn(
                           "p-4 rounded-xl text-center",
@@ -477,17 +479,17 @@ export default function AssessmentEntryPage() {
                           <div className="p-2 rounded-lg bg-orange-100">
                             <Trophy className="h-5 w-5 text-orange-600" />
                           </div>
-                          <Label htmlFor="levelAchieved" className="text-lg font-semibold">
-                            Level Achieved
+                          <Label htmlFor="levelAchieved" className={`text-lg font-semibold ${getFontClass()}`}>
+                            {t('assessment.level_achieved')}
                           </Label>
-                          <Badge variant="destructive" className="ml-auto">Required</Badge>
+                          <Badge variant="destructive" className={`ml-auto ${getFontClass()}`}>{t('assessment.required')}</Badge>
                         </div>
                         <Select
                           value={watch('levelAchieved')}
                           onValueChange={(value) => setValue('levelAchieved', value)}
                         >
                           <SelectTrigger className="h-12 text-base hover:border-orange-400 transition-colors">
-                            <SelectValue placeholder="Select achievement level..." />
+                            <SelectValue placeholder={t('assessment.select_level')} />
                           </SelectTrigger>
                           <SelectContent>
                             {currentLevels.map((level, index) => {
@@ -552,10 +554,10 @@ export default function AssessmentEntryPage() {
                           <div className="p-2 rounded-lg bg-teal-100">
                             <Calendar className="h-5 w-5 text-teal-600" />
                           </div>
-                          <Label htmlFor="assessmentDate" className="text-lg font-semibold">
-                            Assessment Date
+                          <Label htmlFor="assessmentDate" className={`text-lg font-semibold ${getFontClass()}`}>
+                            {t('assessment.date')}
                           </Label>
-                          <Badge variant="destructive" className="ml-auto">Required</Badge>
+                          <Badge variant="destructive" className={`ml-auto ${getFontClass()}`}>{t('assessment.required')}</Badge>
                         </div>
                         <Input
                           id="assessmentDate"
@@ -583,14 +585,14 @@ export default function AssessmentEntryPage() {
                           <div className="p-2 rounded-lg bg-pink-100">
                             <PenTool className="h-5 w-5 text-pink-600" />
                           </div>
-                          <Label htmlFor="notes" className="text-lg font-semibold">
-                            Additional Notes
+                          <Label htmlFor="notes" className={`text-lg font-semibold ${getFontClass()}`}>
+                            {t('assessment.notes')}
                           </Label>
                           <Badge variant="secondary" className="ml-auto">Optional</Badge>
                         </div>
                         <Textarea
                           id="notes"
-                          placeholder="Share any observations or special notes about this assessment..."
+                          placeholder={t('assessment.notes_placeholder')}
                           className="min-h-[100px] text-base hover:border-pink-400 transition-colors resize-none"
                           {...register('notes')}
                         />

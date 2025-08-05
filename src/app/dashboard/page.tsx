@@ -114,11 +114,11 @@ export default function DashboardPage() {
                 </Button>
                 
                 <div>
-                  <h1 className="text-xl md:text-2xl font-bold text-gray-900 font-hanuman">
-                    Welcome back, {user.firstName || user.username}! ✨
+                  <h1 className={`text-xl md:text-2xl font-bold text-gray-900 ${getFontClass()}`}>
+                    {t('dashboard.welcome')}, {user.firstName || user.username}! ✨
                   </h1>
-                  <p className="text-sm text-gray-600 mt-1 hidden sm:block font-hanuman">
-                    Super Admin Dashboard - Complete System Overview
+                  <p className={`text-sm text-gray-600 mt-1 hidden sm:block ${getFontClass()}`}>
+                    {t('role.super_admin')} {t('dashboard.title')} - {t('dashboard.overview')}
                   </p>
                 </div>
               </div>

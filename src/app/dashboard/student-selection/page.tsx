@@ -32,6 +32,7 @@ import {
 import { PageHeader, StatCard } from '../../../components/dashboard/ui-components';
 import * as design from '../../../components/dashboard/design-system';
 import { cn } from '../../../lib/utils';
+import { useLanguage } from '../../../components/LanguageProvider';
 
 interface Student {
   chiID: number;
@@ -73,6 +74,7 @@ export default function StudentSelectionPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const router = useRouter();
+  const { t, getFontClass, language } = useLanguage();
 
   const levelLabels: Record<string, { en: string; kh: string }> = {
     'Beginner': { en: 'Beginner', kh: 'ចាប់ផ្តើម' },
@@ -233,15 +235,15 @@ export default function StudentSelectionPage() {
       });
 
       if (response.ok) {
-        toast.success('Student selection saved successfully!');
+        toast.success(t('selection.saved'));
         fetchStudentsWithBaseline(); // Refresh data
       } else {
         const error = await response.json();
-        toast.error(error.error || 'Failed to save selection');
+        toast.error(error.error || t('selection.error'));
       }
     } catch (error) {
       console.error('Error saving selection:', error);
-      toast.error('Error saving selection');
+      toast.error(t('selection.error'));
     } finally {
       setIsSaving(false);
     }
@@ -288,7 +290,7 @@ export default function StudentSelectionPage() {
             <div>
               <h4 className="font-semibold text-gray-900">{student.chiName}</h4>
               <p className="text-sm text-gray-600">
-                {student.chiGender === 'M' ? '👦 Male' : '👧 Female'}
+                {student.chiGender === 'M' ? `👦 ${t('assessment.male')}` : `👧 ${t('assessment.female')}`}
               </p>
             </div>
           </div>
@@ -378,9 +380,9 @@ export default function StudentSelectionPage() {
           <div className={design.spacing.section}>
             {/* Page Header with animations */}
             <PageHeader
-              title="Student Selection"
-              titleKm="ជ្រើសរើសសិស្ស"
-              description="Select amazing students for the Cambodia Virtual Lab STEM program! 🚀"
+              title={t('selection.title')}
+              titleKm={t('selection.title')}
+              description={t('selection.description') + ' 🚀'}
               actions={
                 <Badge className={cn(
                   "px-4 py-2 text-sm font-medium",
@@ -388,7 +390,7 @@ export default function StudentSelectionPage() {
                   design.gradients.secondary
                 )}>
                   <UserPlus className="h-4 w-4 mr-2" />
-                  {selectedStudents.length} / 20 Selected
+                  {selectedStudents.length} / 20 {t('selection.selected')}
                 </Badge>
               }
             />
@@ -396,9 +398,9 @@ export default function StudentSelectionPage() {
             {/* Stats Cards */}
             <div className={design.grids.stats}>
               <StatCard
-                title="Available Students"
+                title={t('selection.available')}
                 value={availableStudents.length}
-                description="Ready to join"
+                description={t('selection.available')}
                 icon={Users}
                 color="primary"
                 gradient={true}
@@ -406,25 +408,25 @@ export default function StudentSelectionPage() {
                 trendValue={`${filteredAvailableStudents.length} filtered`}
               />
               <StatCard
-                title="Selected Students"
+                title={t('selection.selected')}
                 value={selectedStudents.length}
-                description="Chosen for STEM"
+                description={t('selection.selected')}
                 icon={Target}
                 color="success"
                 gradient={true}
               />
               <StatCard
-                title="Selection Limit"
+                title={t('selection.max_students')}
                 value="20"
-                description="Students per school"
+                description={t('selection.max_students')}
                 icon={Award}
                 color="warning"
                 gradient={true}
               />
               <StatCard
-                title="Subject Focus"
+                title={t('assessment.subject')}
                 value={user?.subject || 'N/A'}
-                description="Assessment area"
+                description={t('assessment.subject')}
                 icon={BookOpen}
                 color="secondary"
                 gradient={true}
@@ -438,11 +440,11 @@ export default function StudentSelectionPage() {
                   <div className={cn("p-2 rounded-xl", design.gradients.secondary)}>
                     <Filter className="h-5 w-5 text-white" />
                   </div>
-                  <span className="text-xl">Smart Filters</span>
+                  <span className={`text-xl ${getFontClass()}`}>{t('ui.filter')}</span>
                   <Sparkles className="h-5 w-5 text-yellow-500 animate-pulse" />
                 </CardTitle>
                 <CardDescription>
-                  Find the perfect students for your STEM program
+                  {t('selection.description')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
@@ -450,7 +452,7 @@ export default function StudentSelectionPage() {
                   <div className="space-y-2">
                     <Label className="flex items-center space-x-2 text-sm font-medium">
                       <GraduationCap className="h-4 w-4 text-orange-500" />
-                      <span>Filter by Grade</span>
+                      <span className={getFontClass()}>{t('selection.filter_grade')}</span>
                     </Label>
                     <Select value={filterGrade} onValueChange={setFilterGrade}>
                       <SelectTrigger className="h-12 border-2 hover:border-orange-300 transition-colors">
@@ -460,7 +462,7 @@ export default function StudentSelectionPage() {
                         <SelectItem value="all">
                           <div className="flex items-center space-x-2">
                             <div className="w-2 h-2 rounded-full bg-gray-400"></div>
-                            <span>All Grades</span>
+                            <span className={getFontClass()}>{t('selection.all_grades')}</span>
                           </div>
                         </SelectItem>
                         {[3, 4, 5, 6].map((grade) => (
@@ -473,7 +475,7 @@ export default function StudentSelectionPage() {
                                 grade === 5 ? "bg-purple-500" :
                                 "bg-orange-500"
                               )}></div>
-                              <span>Grade {grade}</span>
+                              <span className={getFontClass()}>{t('assessment.grade')} {grade}</span>
                             </div>
                           </SelectItem>
                         ))}
@@ -483,7 +485,7 @@ export default function StudentSelectionPage() {
                   <div className="space-y-2">
                     <Label className="flex items-center space-x-2 text-sm font-medium">
                       <Trophy className="h-4 w-4 text-green-500" />
-                      <span>Filter by Baseline Level</span>
+                      <span className={getFontClass()}>{t('selection.filter_level')}</span>
                     </Label>
                     <Select value={filterLevel} onValueChange={setFilterLevel}>
                       <SelectTrigger className="h-12 border-2 hover:border-green-300 transition-colors">
@@ -493,14 +495,14 @@ export default function StudentSelectionPage() {
                         <SelectItem value="all">
                           <div className="flex items-center space-x-2">
                             <Star className="h-4 w-4 text-gray-400" />
-                            <span>All Levels</span>
+                            <span className={getFontClass()}>{t('selection.all_levels')}</span>
                           </div>
                         </SelectItem>
                         {Object.entries(levelLabels).map(([level, labels]) => (
                           <SelectItem key={level} value={level}>
                             <div className="flex items-center justify-between w-full">
-                              <span>{labels.en}</span>
-                              <span className="text-xs text-gray-500 font-khmer ml-2">{labels.kh}</span>
+                              <span className={getFontClass()}>{language === 'km' ? labels.kh : labels.en}</span>
+                              <span className={`text-xs text-gray-500 ml-2 ${getFontClass()}`}>{language === 'km' ? labels.en : labels.kh}</span>
                             </div>
                           </SelectItem>
                         ))}
@@ -515,7 +517,7 @@ export default function StudentSelectionPage() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
                         <Zap className="h-4 w-4 text-purple-500" />
-                        <span className="text-sm font-medium text-purple-700">Active Filters:</span>
+                        <span className={`text-sm font-medium text-purple-700 ${getFontClass()}`}>{t('ui.filter')}:</span>
                         <div className="flex flex-wrap gap-2">
                           {filterGrade !== 'all' && (
                             <Badge variant="secondary" className="bg-orange-100 text-orange-700">

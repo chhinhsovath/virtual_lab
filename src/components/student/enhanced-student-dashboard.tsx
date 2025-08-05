@@ -44,6 +44,8 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useLanguage } from '../LanguageProvider';
+import { LanguageSwitcher } from '../LanguageSwitcher';
 
 interface StudentStats {
   simulations_attempted: number;
@@ -113,6 +115,7 @@ export function EnhancedStudentDashboard({ user }: EnhancedStudentDashboardProps
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("All");
   const router = useRouter();
+  const { t, getFontClass, language } = useLanguage();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -220,7 +223,7 @@ export function EnhancedStudentDashboard({ user }: EnhancedStudentDashboardProps
             <Sparkles className="h-8 w-8 text-yellow-400 absolute top-0 right-0 animate-pulse" />
             <Star className="h-6 w-6 text-pink-400 absolute bottom-0 left-0 animate-spin" />
           </div>
-          <p className="mt-4 text-purple-700 font-bold text-xl font-hanuman animate-pulse">កំពុងផ្ទុកផ្ទាំងគ្រប់គ្រងរបស់អ្នក...</p>
+          <p className={`mt-4 text-purple-700 font-bold text-xl ${getFontClass()} animate-pulse`}>{t('ui.loading_student_portal')}</p>
           <div className="flex justify-center mt-4 space-x-2">
             <div className="w-3 h-3 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
             <div className="w-3 h-3 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
@@ -254,7 +257,7 @@ export function EnhancedStudentDashboard({ user }: EnhancedStudentDashboardProps
                   <span className="hidden sm:inline">Virtual Lab Cambodia</span>
                   <span className="sm:hidden">Lab</span>
                 </h1>
-                <p className="text-xs sm:text-sm text-purple-600 font-bold font-hanuman truncate">🚀វិទ្យាល័យសិស្សល្អ</p>
+                <p className={`text-xs sm:text-sm text-purple-600 font-bold truncate ${getFontClass()}`}>🚀{t('student.school_name')}</p>
               </div>
             </div>
             <div className="flex items-center gap-1 sm:gap-2 lg:gap-4">
@@ -303,10 +306,10 @@ export function EnhancedStudentDashboard({ user }: EnhancedStudentDashboardProps
             <div className="absolute top-0 right-0 w-20 h-20 sm:w-32 sm:h-32 bg-gradient-to-br from-pink-200 to-purple-200 rounded-full -mr-10 -mt-10 sm:-mr-16 sm:-mt-16 opacity-50"></div>
             <div className="flex flex-col gap-4 sm:gap-6">
               <div className="text-center sm:text-left">
-                <h1 className="text-xl sm:text-2xl lg:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-2 font-hanuman animate-gradient-x">
-                  សូមស្វាគមន៍ {user.firstName || user.username}! 🌟
+                <h1 className={`text-xl sm:text-2xl lg:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-2 animate-gradient-x ${getFontClass()}`}>
+                  {t('dashboard.welcome')}, {user.firstName || user.username}! 🌟
                 </h1>
-                <p className="text-sm sm:text-base lg:text-lg text-purple-700 font-semibold font-hanuman">ត្រលប់មកវិញហើយ អ្នករៀនពូកែ! ត្រៀមខ្លួនសម្រាប់ដំណើរផ្សងព្រេងថ្ងៃនេះហើយឬនៅ? 🚀</p>
+                <p className={`text-sm sm:text-base lg:text-lg text-purple-700 font-semibold ${getFontClass()}`}>{t('student.welcome_back')} 🚀</p>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                 <Button
@@ -314,7 +317,7 @@ export function EnhancedStudentDashboard({ user }: EnhancedStudentDashboardProps
                   className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-sm sm:text-base lg:text-lg px-4 sm:px-6 py-2 sm:py-3 transform hover:scale-105 transition-all shadow-lg font-hanuman w-full sm:w-auto"
                 >
                   <Play className="h-4 w-4 sm:h-5 sm:w-5 mr-2 animate-pulse" />
-                  ស្វែងរកការពិសោធន៍ 🧪
+                  {t('student.explore_simulations')} 🧪
                 </Button>
                 <Button
                   variant="outline"
@@ -322,7 +325,7 @@ export function EnhancedStudentDashboard({ user }: EnhancedStudentDashboardProps
                   className="border-2 border-purple-400 text-purple-600 hover:bg-purple-50 text-sm sm:text-base lg:text-lg px-4 sm:px-6 py-2 sm:py-3 transform hover:scale-105 transition-all font-hanuman w-full sm:w-auto"
                 >
                   <History className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                  ដំណើររបស់ខ្ញុំ 📚
+                  {t('student.my_progress')} 📚
                 </Button>
               </div>
             </div>
@@ -332,27 +335,27 @@ export function EnhancedStudentDashboard({ user }: EnhancedStudentDashboardProps
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4 mt-4 sm:mt-6 lg:mt-8">
                 <div className="text-center bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl sm:rounded-2xl p-2 sm:p-4 transform hover:scale-110 transition-all cursor-pointer">
                   <div className="text-xl sm:text-2xl lg:text-3xl font-black text-blue-600 animate-pulse">{stats.simulations_attempted}</div>
-                  <div className="text-xs sm:text-sm text-blue-700 font-bold font-hanuman">ព្យាយាម 🎯</div>
+                  <div className={`text-xs sm:text-sm text-blue-700 font-bold ${getFontClass()}`}>{t('student.attempts')} 🎯</div>
                 </div>
                 <div className="text-center bg-gradient-to-br from-green-50 to-green-100 rounded-xl sm:rounded-2xl p-2 sm:p-4 transform hover:scale-110 transition-all cursor-pointer">
                   <div className="text-xl sm:text-2xl lg:text-3xl font-black text-green-600 animate-pulse">{stats.simulations_completed}</div>
-                  <div className="text-xs sm:text-sm text-green-700 font-bold font-hanuman">បានបញ្ចប់ ✅</div>
+                  <div className={`text-xs sm:text-sm text-green-700 font-bold ${getFontClass()}`}>{t('student.completed')} ✅</div>
                 </div>
                 <div className="text-center bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl sm:rounded-2xl p-2 sm:p-4 transform hover:scale-110 transition-all cursor-pointer">
                   <div className="text-xl sm:text-2xl lg:text-3xl font-black text-purple-600 animate-pulse">{formatDuration(stats.total_time_minutes)}</div>
-                  <div className="text-xs sm:text-sm text-purple-700 font-bold font-hanuman">ពេលវេលាសរុប ⏰</div>
+                  <div className={`text-xs sm:text-sm text-purple-700 font-bold ${getFontClass()}`}>{t('student.total_time')} ⏰</div>
                 </div>
                 <div className="text-center bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl sm:rounded-2xl p-2 sm:p-4 transform hover:scale-110 transition-all cursor-pointer">
                   <div className="text-xl sm:text-2xl lg:text-3xl font-black text-orange-600 animate-pulse">{Math.round(stats.average_score)}%</div>
-                  <div className="text-xs sm:text-sm text-orange-700 font-bold font-hanuman">ពិន្ទុមធ្យម 📊</div>
+                  <div className={`text-xs sm:text-sm text-orange-700 font-bold ${getFontClass()}`}>{t('student.average_score')} 📊</div>
                 </div>
                 <div className="text-center bg-gradient-to-br from-pink-50 to-pink-100 rounded-2xl p-4 transform hover:scale-110 transition-all cursor-pointer">
                   <div className="text-3xl font-black text-pink-600 animate-pulse">{stats.achievements_earned}</div>
-                  <div className="text-sm text-pink-700 font-bold font-hanuman">សមិទ្ធិផល 🏆</div>
+                  <div className={`text-sm text-pink-700 font-bold ${getFontClass()}`}>{t('student.achievements')} 🏆</div>
                 </div>
                 <div className="text-center bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-2xl p-4 transform hover:scale-110 transition-all cursor-pointer">
                   <div className="text-3xl font-black text-indigo-600 animate-pulse">{Math.round(stats.total_points).toLocaleString('km-KH')}</div>
-                  <div className="text-sm text-indigo-700 font-bold font-hanuman">ពិន្ទុសរុប 💎</div>
+                  <div className={`text-sm text-indigo-700 font-bold ${getFontClass()}`}>{t('student.total_points')} 💎</div>
                 </div>
               </div>
             )}
@@ -533,7 +536,7 @@ export function EnhancedStudentDashboard({ user }: EnhancedStudentDashboardProps
                     <TrendingUp className="h-7 w-7 text-purple-600 animate-pulse" />
                     <span className="font-hanuman font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">វឌ្ឍនភាពរៀនសូត្ររបស់អ្នក</span>
                   </CardTitle>
-                  <CardDescription className="font-hanuman text-purple-600 font-semibold text-lg">តាមដានដំណើរការដ៏អស្ចារ្យរបស់អ្នក! 📊</CardDescription>
+                  <CardDescription className={`text-purple-600 font-semibold text-lg ${getFontClass()}`}>{t('student.track_amazing_journey')} 📊</CardDescription>
                 </CardHeader>
                 <CardContent className="p-6">
                   {progress.length > 0 ? (
