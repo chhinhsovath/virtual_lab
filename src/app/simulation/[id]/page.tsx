@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, Component, ReactNode } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -78,6 +78,58 @@ interface ActivityLog {
   duration?: number;
 }
 
+// Error Boundary Component
+class SimulationErrorBoundary extends Component<
+  { children: ReactNode; onError?: (error: Error) => void },
+  { hasError: boolean; error?: Error }
+> {
+  constructor(props: { children: ReactNode; onError?: (error: Error) => void }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: any) {
+    console.error('Simulation Error Boundary caught an error:', error, errorInfo);
+    if (this.props.onError) {
+      this.props.onError(error);
+    }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100">
+          <Card className="border-2 border-red-300 shadow-2xl max-w-md">
+            <CardContent className="p-8 text-center">
+              <div className="relative inline-block mb-4">
+                <AlertCircle className="h-20 w-20 text-red-400 mx-auto animate-pulse" />
+              </div>
+              <h2 className="text-2xl font-black text-red-600 font-hanuman mb-4">
+                មានបញ្ហាក្នុងការផ្ទុកការសាកល្បង 😓
+              </h2>
+              <p className="text-red-500 font-hanuman mb-6">
+                សូមស្តាបត្រលក់ទំព័រ ឬព្យាយាមម្តងទៀត
+              </p>
+              <Button 
+                onClick={() => window.location.reload()} 
+                className="w-full font-hanuman bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-lg py-3"
+              >
+                ស្ដាបត្រលក់ទំព័រ 🔄
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
 export default function SimulationPage() {
   const params = useParams();
   const router = useRouter();
@@ -133,7 +185,32 @@ export default function SimulationPage() {
       const simData = await simRes.json();
       
       if (simData.success) {
-        setSimulation(simData.simulation);
+        // Process simulation data to ensure proper JSON parsing
+        const processedSimulation = { ...simData.simulation };
+        
+        // Parse learning objectives if they're strings
+        try {
+          if (typeof processedSimulation.learning_objectives_en === 'string') {
+            processedSimulation.learning_objectives_en = JSON.parse(processedSimulation.learning_objectives_en);
+          }
+          if (typeof processedSimulation.learning_objectives_km === 'string') {
+            processedSimulation.learning_objectives_km = JSON.parse(processedSimulation.learning_objectives_km);
+          }
+        } catch (parseError) {
+          console.error('Error parsing learning objectives:', parseError);
+          processedSimulation.learning_objectives_en = [];
+          processedSimulation.learning_objectives_km = [];
+        }
+        
+        // Ensure arrays exist
+        if (!Array.isArray(processedSimulation.learning_objectives_en)) {
+          processedSimulation.learning_objectives_en = [];
+        }
+        if (!Array.isArray(processedSimulation.learning_objectives_km)) {
+          processedSimulation.learning_objectives_km = [];
+        }
+        
+        setSimulation(processedSimulation);
         
         // For guest users, create a mock session
         if (user?.isGuest) {
@@ -193,7 +270,35 @@ export default function SimulationPage() {
       const data = await res.json();
       
       if (data.success && Array.isArray(data.exercises)) {
-        setExercises(data.exercises);
+        // Process exercises to ensure proper JSON parsing
+        const processedExercises = data.exercises.map((exercise: any) => {
+          try {
+            // Parse options if it's a string
+            if (typeof exercise.options === 'string') {
+              exercise.options = JSON.parse(exercise.options);
+            }
+            // Ensure options structure exists
+            if (!exercise.options) {
+              exercise.options = { options_en: [], options_km: [] };
+            }
+            // Ensure arrays exist within options
+            if (!exercise.options.options_en) {
+              exercise.options.options_en = [];
+            }
+            if (!exercise.options.options_km) {
+              exercise.options.options_km = [];
+            }
+            return exercise;
+          } catch (parseError) {
+            console.error('Error parsing exercise options:', parseError, exercise);
+            // Return exercise with empty options if parsing fails
+            return {
+              ...exercise,
+              options: { options_en: [], options_km: [] }
+            };
+          }
+        });
+        setExercises(processedExercises);
       } else {
         setExercises([]);
       }
@@ -432,7 +537,8 @@ export default function SimulationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100 relative overflow-hidden">
+    <SimulationErrorBoundary onError={(error) => console.error('Critical simulation error:', error)}>
+      <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100 relative overflow-hidden">
       {/* Animated background shapes */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-20 -right-20 w-80 h-80 bg-purple-300 rounded-full opacity-20 animate-pulse"></div>
@@ -705,7 +811,7 @@ export default function SimulationPage() {
                     </div>
                     
                     {/* Multiple Choice */}
-                    {exercise.question_type === 'multiple_choice' && exercise.options && exercise.options.options_km && (
+                    {exercise.question_type === 'multiple_choice' && exercise.options && Array.isArray(exercise.options.options_km) && exercise.options.options_km.length > 0 && (
                       <RadioGroup
                         value={answers[exercise.id] || ''}
                         onValueChange={(value) => {
@@ -719,14 +825,17 @@ export default function SimulationPage() {
                         }}
                         className="space-y-3 mt-4"
                       >
-                        {exercise.options.options_km.map((option, optIndex) => (
-                          <div key={optIndex} className="flex items-center space-x-2">
-                            <RadioGroupItem value={exercise.options?.options_en?.[optIndex] || ''} id={`${exercise.id}-${optIndex}`} className="border-2 border-purple-300 text-purple-600" />
-                            <Label htmlFor={`${exercise.id}-${optIndex}`} className="cursor-pointer font-hanuman text-lg font-semibold text-purple-700 hover:text-purple-900 transition-colors flex-1 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-3 hover:shadow-md transition-all">
-                              {String.fromCharCode(65 + optIndex)}. {option}
-                            </Label>
-                          </div>
-                        ))}
+                        {exercise.options.options_km.map((option, optIndex) => {
+                          if (!option || typeof option !== 'string') return null;
+                          return (
+                            <div key={optIndex} className="flex items-center space-x-2">
+                              <RadioGroupItem value={exercise.options?.options_en?.[optIndex] || option} id={`${exercise.id}-${optIndex}`} className="border-2 border-purple-300 text-purple-600" />
+                              <Label htmlFor={`${exercise.id}-${optIndex}`} className="cursor-pointer font-hanuman text-lg font-semibold text-purple-700 hover:text-purple-900 transition-colors flex-1 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-3 hover:shadow-md transition-all">
+                                {String.fromCharCode(65 + optIndex)}. {option}
+                              </Label>
+                            </div>
+                          );
+                        })}
                       </RadioGroup>
                     )}
                     
@@ -832,7 +941,7 @@ export default function SimulationPage() {
                     )}
                     
                     {/* Show explanation after submission */}
-                    {submission && submission.details?.[exercise.id] && (
+                    {submission && submission.details && typeof submission.details === 'object' && submission.details[exercise.id] && (
                       <Alert className={`mt-4 border-2 shadow-lg animate-fadeIn ${
                         submission.details[exercise.id].is_correct 
                           ? 'border-green-300 bg-gradient-to-r from-green-50 to-emerald-50' 
@@ -944,12 +1053,15 @@ export default function SimulationPage() {
                         គោលបំណងការរៀន 🎯
                       </h4>
                       <ul className="space-y-3">
-                        {simulation.learning_objectives_km.map((objective, index) => (
-                          <li key={index} className="bg-white/70 rounded-xl p-4 border border-purple-200 font-hanuman font-semibold text-purple-700 flex items-start gap-3">
-                            <span className="text-2xl">{index + 1}️⃣</span>
-                            <span>{objective}</span>
-                          </li>
-                        ))}
+                        {simulation.learning_objectives_km.map((objective, index) => {
+                          if (!objective || typeof objective !== 'string') return null;
+                          return (
+                            <li key={index} className="bg-white/70 rounded-xl p-4 border border-purple-200 font-hanuman font-semibold text-purple-700 flex items-start gap-3">
+                              <span className="text-2xl">{index + 1}️⃣</span>
+                              <span>{objective}</span>
+                            </li>
+                          );
+                        })}
                       </ul>
                     </div>
                   )}
@@ -1063,6 +1175,7 @@ export default function SimulationPage() {
           onLogin={() => router.push('/auth/login')}
         />
       )}
-    </div>
+      </div>
+    </SimulationErrorBoundary>
   );
 }
