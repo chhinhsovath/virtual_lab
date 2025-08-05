@@ -1276,10 +1276,9 @@ export default function EditSimulationPage() {
                                     </SelectTrigger>
                                     <SelectContent className="bg-white border-2 border-gray-200 shadow-xl">
                                       {(currentExercise.options_en || []).filter(opt => opt.trim()).map((option, index) => (
-                                          <SelectItem key={index} value={option} className="hover:bg-emerald-50 focus:bg-emerald-50 text-gray-900 text-sm py-2">
-                                            {String.fromCharCode(65 + index)}. {option}
-                                          </SelectItem>
-                                        )
+                                        <SelectItem key={index} value={option} className="hover:bg-emerald-50 focus:bg-emerald-50 text-gray-900 text-sm py-2">
+                                          {String.fromCharCode(65 + index)}. {option}
+                                        </SelectItem>
                                       ))}
                                     </SelectContent>
                                   </Select>
