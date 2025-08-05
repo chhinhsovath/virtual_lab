@@ -59,6 +59,7 @@ import {
 import * as design from '@/components/dashboard/design-system';
 import { StatCard, FeatureCard, ProgressCard, EmptyState, TabNav, PageHeader } from '@/components/dashboard/ui-components';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/components/LanguageProvider';
 
 interface User {
   id: string;
@@ -138,6 +139,7 @@ export default function TeacherAnalyticsPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const router = useRouter();
+  const { t, getFontClass, language } = useLanguage();
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -317,10 +319,10 @@ export default function TeacherAnalyticsPage() {
           {!analytics ? (
             <EmptyState
               icon={BarChart3}
-              title="No analytics data available"
-              description="Analytics will appear once students start submitting work"
+              title={t('analytics.no_data')}
+              description={t('analytics.data_appear')}
               action={{
-                label: "View Sample Data",
+                label: t('analytics.view_sample'),
                 onClick: () => router.push('/dashboard')
               }}
             />
@@ -328,9 +330,9 @@ export default function TeacherAnalyticsPage() {
             <div className={design.spacing.section}>
               {/* Page Header */}
               <PageHeader
-                title="Class Analytics & Reports"
-                titleKm="របាយការណ៍វិភាគ និងអនុកុលកម្ម"
-                description="Comprehensive insights into student performance and progress"
+                title={t('analytics.title')}
+                titleKm={t('analytics.title')}
+                description={t('analytics.description')}
                 actions={
                   <div className="flex items-center gap-2">
                     <Button variant="outline" className="bg-white/80 backdrop-blur-sm">
@@ -352,10 +354,10 @@ export default function TeacherAnalyticsPage() {
             <div className={cn("p-2 rounded-lg", design.gradients.primary)}>
               <BarChart3 className="h-5 w-5 text-white" />
             </div>
-            <span>Analytics Controls</span>
+            <span className={getFontClass()}>{t('analytics.controls')}</span>
           </CardTitle>
-          <CardDescription>
-            Filter and customize your analytics view
+          <CardDescription className={getFontClass()}>
+            {t('analytics.controls_desc')}
           </CardDescription>
         </CardHeader>
         <CardContent className="mt-6">
@@ -400,7 +402,7 @@ export default function TeacherAnalyticsPage() {
       {/* Overview Stats */}
       <div className={design.grids.stats}>
         <StatCard
-          title="Total Students"
+          title={t('analytics.total_students')}
           value={analytics.overview.total_students}
           description={`${analytics.overview.active_students} active today`}
           icon={Users}
@@ -411,9 +413,9 @@ export default function TeacherAnalyticsPage() {
         />
         
         <StatCard
-          title="Class Average"
+          title={t('analytics.class_average')}
           value={`${analytics.overview.average_score}%`}
-          description="Overall performance"
+          description={t('analytics.overall_performance')}
           icon={GraduationCap}
           color="success"
           gradient={true}
@@ -422,9 +424,9 @@ export default function TeacherAnalyticsPage() {
         />
         
         <StatCard
-          title="Completion Rate"
+          title={t('analytics.completion_rate')}
           value={`${analytics.overview.completion_rate}%`}
-          description="Assignments completed"
+          description={t('analytics.assignments_completed')}
           icon={Target}
           color="secondary"
           gradient={true}
@@ -433,9 +435,9 @@ export default function TeacherAnalyticsPage() {
         />
         
         <StatCard
-          title="Active Learning"
+          title={t('analytics.active_learning')}
           value={analytics.overview.total_submissions}
-          description="Total submissions"
+          description={t('analytics.total_submissions')}
           icon={Activity}
           color="warning"
           gradient={true}
@@ -445,7 +447,7 @@ export default function TeacherAnalyticsPage() {
       {/* Additional Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <ProgressCard
-          title="Simulations Completed"
+          title={t('analytics.simulations_completed')}
           current={12}
           total={analytics.overview.total_simulations}
           unit="labs"
@@ -454,7 +456,7 @@ export default function TeacherAnalyticsPage() {
         />
         
         <ProgressCard
-          title="Student Engagement"
+          title={t('analytics.student_engagement')}
           current={analytics.overview.active_students}
           total={analytics.overview.total_students}
           unit="students"
@@ -490,8 +492,8 @@ export default function TeacherAnalyticsPage() {
         {/* Analytics Insights */}
         <Card className={cn(design.cardVariants.glass, "p-0 overflow-hidden")}>
           <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50">
-            <CardTitle>Analytics Insights</CardTitle>
-            <CardDescription>Deep dive into your class performance data</CardDescription>
+            <CardTitle className={getFontClass()}>{t('analytics.insights')}</CardTitle>
+            <CardDescription className={getFontClass()}>{t('analytics.deep_dive')}</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
             <Tabs defaultValue="performance" className="w-full">
@@ -531,10 +533,10 @@ export default function TeacherAnalyticsPage() {
                     <div className="p-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600">
                       <TrendingUp className="h-4 w-4 text-white" />
                     </div>
-                    Class Performance Over Time
+                    <span className={getFontClass()}>{t('analytics.performance_over_time')}</span>
                   </CardTitle>
-                  <CardDescription>
-                    Average scores and submission trends
+                  <CardDescription className={getFontClass()}>
+                    {t('analytics.average_trends')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -571,7 +573,7 @@ export default function TeacherAnalyticsPage() {
                         type="monotone" 
                         dataKey="average_score" 
                         stroke="#8B5CF6" 
-                        name="Average Score %"
+                        name={t('analytics.average_score')}
                         strokeWidth={3}
                         dot={{ fill: '#8B5CF6', r: 4 }}
                         activeDot={{ r: 6 }}
@@ -580,7 +582,7 @@ export default function TeacherAnalyticsPage() {
                         yAxisId="right"
                         dataKey="submissions" 
                         fill="url(#colorSubmissions)" 
-                        name="Submissions"
+                        name={t('analytics.submissions')}
                         radius={[8, 8, 0, 0]}
                       />
                     </LineChart>
@@ -594,10 +596,10 @@ export default function TeacherAnalyticsPage() {
                     <div className="p-2 rounded-lg bg-gradient-to-r from-green-500 to-teal-600">
                       <Activity className="h-4 w-4 text-white" />
                     </div>
-                    Student Activity Trends
+                    <span className={getFontClass()}>{t('analytics.student_activity')}</span>
                   </CardTitle>
-                  <CardDescription>
-                    Active students over time
+                  <CardDescription className={getFontClass()}>
+                    {t('analytics.active_students_time')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -644,10 +646,10 @@ export default function TeacherAnalyticsPage() {
                   <div className="p-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-600">
                     <BookOpenCheck className="h-4 w-4 text-white" />
                   </div>
-                  Subject Performance Comparison
+                  <span className={getFontClass()}>{t('analytics.subject_comparison')}</span>
                 </CardTitle>
-                <CardDescription>
-                  Average scores and completion rates by subject
+                <CardDescription className={getFontClass()}>
+                  {t('analytics.scores_completion')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
@@ -667,14 +669,14 @@ export default function TeacherAnalyticsPage() {
                     <PolarAngleAxis dataKey="subject" tick={{ fill: '#6B7280' }} />
                     <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: '#6B7280' }} />
                     <Radar 
-                      name="Average Score" 
+                      name={t('analytics.average_score')} 
                       dataKey="average_score" 
                       stroke="#8B5CF6" 
                       fill="url(#scoreGradient)" 
                       strokeWidth={2}
                     />
                     <Radar 
-                      name="Completion Rate" 
+                      name={t('analytics.completion_rate')} 
                       dataKey="completion_rate" 
                       stroke="#10B981" 
                       fill="url(#completionGradient)" 
@@ -822,10 +824,10 @@ export default function TeacherAnalyticsPage() {
                     <div className="p-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600">
                       <PieChart className="h-4 w-4 text-white" />
                     </div>
-                    Performance Distribution
+                    <span className={getFontClass()}>{t('analytics.performance_distribution')}</span>
                   </CardTitle>
-                  <CardDescription>
-                    Students grouped by performance level
+                  <CardDescription className={getFontClass()}>
+                    {t('analytics.students_by_level')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -919,10 +921,10 @@ export default function TeacherAnalyticsPage() {
                     <div className={cn("p-2 rounded-lg", design.gradients.danger)}>
                       <AlertCircle className="h-5 w-5 text-white" />
                     </div>
-                    <span>Students Needing Support</span>
+                    <span className={getFontClass()}>{t('analytics.needing_support')}</span>
                   </CardTitle>
-                  <CardDescription>
-                    Students with performance below 70%
+                  <CardDescription className={getFontClass()}>
+                    {t('analytics.below_70')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-6">
@@ -968,10 +970,10 @@ export default function TeacherAnalyticsPage() {
                     <div className={cn("p-2 rounded-lg", design.gradients.success)}>
                       <Trophy className="h-5 w-5 text-white" />
                     </div>
-                    <span>Top Performers</span>
+                    <span className={getFontClass()}>{t('analytics.top_performers')}</span>
                   </CardTitle>
-                  <CardDescription>
-                    Students excelling in their studies
+                  <CardDescription className={getFontClass()}>
+                    {t('analytics.excelling_students')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-6">
@@ -1030,15 +1032,15 @@ export default function TeacherAnalyticsPage() {
         {/* Quick Actions */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           <FeatureCard
-            title="Monthly Report"
-            description="Generate comprehensive monthly performance report"
+            title={t('analytics.monthly_report')}
+            description={t('analytics.monthly_report_desc')}
             icon={FileText}
             gradient={design.gradients.primary}
             onClick={() => exportReport('pdf')}
           />
           <FeatureCard
-            title="Parent Reports"
-            description="Create individual progress reports for parents"
+            title={t('analytics.parent_reports')}
+            description={t('analytics.parent_reports_desc')}
             icon={Users}
             gradient={design.gradients.secondary}
             onClick={() => router.push('/dashboard/reports/parents')}
@@ -1046,8 +1048,8 @@ export default function TeacherAnalyticsPage() {
             badgeVariant="secondary"
           />
           <FeatureCard
-            title="Schedule Reports"
-            description="Set up automated weekly or monthly reports"
+            title={t('analytics.schedule_reports')}
+            description={t('analytics.schedule_reports_desc')}
             icon={Calendar}
             gradient={design.gradients.success}
             onClick={() => router.push('/dashboard/reports/schedule')}

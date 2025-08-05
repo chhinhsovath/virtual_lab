@@ -72,6 +72,7 @@ import {
 import { PageHeader, StatCard, EmptyState, TabNav } from '@/components/dashboard/ui-components';
 import * as design from '@/components/dashboard/design-system';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/components/LanguageProvider';
 
 interface User {
   id: string;
@@ -146,6 +147,7 @@ const difficultyConfig: Record<string, { color: string; emoji: string; gradient:
 
 export default function SimulationsManagementPage() {
   const router = useRouter();
+  const { t, getFontClass, language } = useLanguage();
   const [user, setUser] = useState<User | null>(null);
   const [simulations, setSimulations] = useState<Simulation[]>([]);
   const [loading, setLoading] = useState(true);

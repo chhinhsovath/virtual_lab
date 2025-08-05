@@ -35,6 +35,7 @@ import {
 import { StatCard, PageHeader, EmptyState, FeatureCard } from '../../../components/dashboard/ui-components';
 import * as design from '../../../components/dashboard/design-system';
 import { cn } from '../../../lib/utils';
+import { useLanguage } from '../../../components/LanguageProvider';
 
 interface Assessment {
   id: string;
@@ -78,6 +79,7 @@ export default function ResultsPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const router = useRouter();
+  const { t, getFontClass, language } = useLanguage();
   
   // Filters
   const [filterCycle, setFilterCycle] = useState<string>('all');
@@ -323,9 +325,9 @@ export default function ResultsPage() {
           <div className={design.spacing.section}>
             {/* Page Header */}
             <PageHeader
-              title="Assessment Results"
-              titleKm="លទ្ធផលការវាយតម្លៃ"
-              description={`Track and analyze student progress in ${user?.subject} subject`}
+              title={t('results.title')}
+              titleKm={t('results.title')}
+              description={t('results.description')}
               actions={
                 <Dialog open={isExportDialogOpen} onOpenChange={setIsExportDialogOpen}>
                   <DialogTrigger asChild>

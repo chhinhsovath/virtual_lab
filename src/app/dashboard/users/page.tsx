@@ -53,10 +53,12 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { useLanguage } from '@/components/LanguageProvider';
 
 function UserManagementContent() {
   const router = useRouter();
   const { state, dispatch, actions } = useSuperAdmin();
+  const { t, getFontClass, language } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -146,19 +148,19 @@ function UserManagementContent() {
           className="flex items-center gap-2"
         >
           <Plus className="h-4 w-4" />
-          Add User
+          {t('users.add_new')}
         </Button>
       </div>
 
       {/* Filters */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Search & Filter</CardTitle>
+          <CardTitle className={`text-lg ${getFontClass()}`}>{t('users.search_filter')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Input
-              placeholder="Search by name, email..."
+              placeholder={t('users.search_placeholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -167,7 +169,7 @@ function UserManagementContent() {
             
             <Select value={roleFilter} onValueChange={setRoleFilter}>
               <SelectTrigger>
-                <SelectValue placeholder="All roles" />
+                <SelectValue placeholder={t('users.all_roles')} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">All roles</SelectItem>
@@ -183,7 +185,7 @@ function UserManagementContent() {
 
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger>
-                <SelectValue placeholder="All statuses" />
+                <SelectValue placeholder={t('users.all_statuses')} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">All statuses</SelectItem>
