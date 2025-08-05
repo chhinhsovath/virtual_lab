@@ -621,6 +621,10 @@ export default function EditSimulationPage() {
     return <LoadingSpinner />;
   }
 
+  if (!user) {
+    return null;
+  }
+
   const currentStatus = form.watch('status') || 'draft';
   const StatusIcon = statusConfig[currentStatus]?.icon || statusConfig.draft.icon;
 
@@ -1539,7 +1543,7 @@ export default function EditSimulationPage() {
                                     {Object.entries(statusConfig).map(([key, config]) => (
                                       <SelectItem key={key} value={key} className="hover:bg-blue-50 focus:bg-blue-50 text-gray-900">
                                         <div className="flex items-center gap-2">
-                                          <config.icon className="h-4 w-4" />
+                                          {config.icon && <config.icon className="h-4 w-4" />}
                                           <span>{config.label}</span>
                                         </div>
                                       </SelectItem>
